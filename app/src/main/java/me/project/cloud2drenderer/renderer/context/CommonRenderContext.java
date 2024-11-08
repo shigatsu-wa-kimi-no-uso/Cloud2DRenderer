@@ -78,6 +78,7 @@ public class CommonRenderContext extends RenderContext{
         this.material = material;
     }
 
+
     @ShaderUniform(uniformName = "uView")
     public float[] getView(){
         return camera.getView();
