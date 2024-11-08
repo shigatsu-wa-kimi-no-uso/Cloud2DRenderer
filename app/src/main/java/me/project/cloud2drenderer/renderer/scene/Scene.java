@@ -19,7 +19,6 @@ import me.project.cloud2drenderer.renderer.entity.material.Material;
 import me.project.cloud2drenderer.renderer.entity.texture.Texture;
 import me.project.cloud2drenderer.renderer.loader.AssetLoader;
 import me.project.cloud2drenderer.renderer.procedure.binding.glresource.CommonBinder;
-import me.project.cloud2drenderer.renderer.procedure.binding.glresource.shader.ShaderUniformMeta;
 import me.project.cloud2drenderer.renderer.procedure.binding.glresource.shader.UniformBindingProcessor;
 import me.project.cloud2drenderer.renderer.procedure.pipeline.RenderPipeline;
 import me.project.cloud2drenderer.renderer.procedure.drawing.ArrayDraw;
@@ -57,6 +56,10 @@ public class Scene {
         assetBindings = new Vector<>();
         renderContexts = new HashMap<>();
         canvasController.enableDepthTest();
+    }
+
+    public void turnOnBlend(){
+        canvasController.enableBlend();
     }
 
     public void clear(){
@@ -104,22 +107,23 @@ public class Scene {
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
-            material.shader = shaderController.getShaderProgram(mb.shaderName);
+            material.setShader(shaderController.getShaderProgram(mb.shaderName));
             context.loadedModel = modelController.getLoadedModel(ab.modelName);
 
             if (mb.textureNames != null) {
                 for (int i = 0; i < mb.textureNames.length; i++) {
-                    material.textures[i] = textureController.getTexture(mb.textureNames[i]); //若textureName==null 则返回null
-                    material.textures[i].unit = i;
+                    material.getTextures()[i] = textureController.getTexture(mb.textureNames[i]); //若textureName==null 则返回null
+                    material.getTextures()[i].unit = i;
                 }
             } else {
-                material.textures[0] = Texture.nullTexture();
+                material.getTextures()[0] = Texture.nullTexture();
             }
+            material.distribute(); //把数组中的texture对象引用分配到对应的字段
             context.setGLResourceBinder(new CommonBinder());
             determineDrawMethod(context);
-            shaderController.bindShaderAttributePointers(material.shader, context.loadedModel);
-            UniformBindingProcessor.generateShaderUniformSetter(context,material.shader);
-            context.material = material;
+            shaderController.bindShaderAttributePointers(material.getShader(), context.loadedModel);
+            UniformBindingProcessor.generateShaderUniformSetter(context,material.getShader());
+            context.setMaterial(material);
             context.contextId = ++lastContextId;
             context.initContext();
             renderContexts.put(lastContextId, context);

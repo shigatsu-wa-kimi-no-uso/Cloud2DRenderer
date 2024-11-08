@@ -26,9 +26,6 @@ public abstract class RenderContext {
 
     public LoadedModel loadedModel;
 
-
-    public Material material;
-
     private DrawMethod drawMethod;
 
     private ResBindingMethod resourseBinder;
@@ -81,6 +78,7 @@ public abstract class RenderContext {
         return new Texture[]{Texture.nullTexture()};
     }
 
+    public abstract void setMaterial(Material material);
 
     public abstract void adjustContext();
 

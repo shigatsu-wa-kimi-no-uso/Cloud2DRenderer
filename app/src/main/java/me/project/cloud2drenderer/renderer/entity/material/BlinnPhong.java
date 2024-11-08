@@ -8,4 +8,8 @@ public class BlinnPhong extends Material{
     Texture albedo;
 
 
+    @Override
+    public void distribute() {
+
+    }
 }

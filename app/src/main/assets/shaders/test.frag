@@ -2,12 +2,12 @@
 precision mediump float;
 
 in vec2 vTexCoords;
+in vec3 pos;
 out vec4 fragmentColor;
 
-uniform sampler2D texture1;
 
 void main()
 {
-    vec4 texColor = texture(texture1, vTexCoords);
-    fragmentColor = texColor;
+   // vec4 texColor = texture(texture1, vTexCoords);
+    fragmentColor = vec4(vTexCoords.yyy,1.0);
 }

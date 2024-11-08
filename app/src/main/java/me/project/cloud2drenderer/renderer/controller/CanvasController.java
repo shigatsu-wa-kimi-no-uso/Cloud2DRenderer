@@ -27,6 +27,9 @@ public class CanvasController {
         GLCanvasManager.enableGLFunction(GL_DEPTH_TEST);
     }
 
+    public void enableBlend(){
+        GLCanvasManager.enableGLFunction(GL_BLEND);
+    }
     public void setCanvasSize(int width,int height){
         assert width > 0 && height > 0;
         GLCanvasManager.setCanvasSize(width,height);

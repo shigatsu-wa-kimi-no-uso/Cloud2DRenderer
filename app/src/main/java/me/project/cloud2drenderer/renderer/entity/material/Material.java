@@ -5,10 +5,23 @@ import me.project.cloud2drenderer.renderer.entity.texture.Texture;
 
 public abstract class Material {
     //一个材质只能绑定一个shader
+    public String name;
 
+    protected Shader shader;
 
-    public Shader shader;
+    protected Texture[] textures;
 
+    public Texture[] getTextures(){
+        return textures;
+    }
 
-    public Texture[] textures;
+    public void setShader(Shader shader){
+        this.shader = shader;
+    }
+
+    public Shader getShader(){
+        return shader;
+    }
+
+    public abstract void distribute();
 }

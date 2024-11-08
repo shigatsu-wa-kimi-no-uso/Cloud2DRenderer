@@ -9,6 +9,6 @@ import me.project.cloud2drenderer.renderer.context.RenderContext;
 public class ElemDraw implements DrawMethod{
     @Override
     public void draw(RenderContext context) {
-        GLCanvasManager.drawElements(GL_TRIANGLES,context.loadedModel.vertexCount,GL_UNSIGNED_INT,0);
+        GLCanvasManager.drawElements(GL_TRIANGLES,context.loadedModel.drawnVertexCount,GL_UNSIGNED_INT,0);
     }
 }
