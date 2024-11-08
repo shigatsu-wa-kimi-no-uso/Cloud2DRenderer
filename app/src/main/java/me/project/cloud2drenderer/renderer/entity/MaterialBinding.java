@@ -7,6 +7,6 @@ public class MaterialBinding {
 
     public String[] textureNames;
 
-    public Class<? extends Material> materialClass;
+    public Material material;
 
 }

@@ -6,6 +6,7 @@ import androidx.annotation.NonNull;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Vector;
 
 import me.project.cloud2drenderer.renderer.entity.AssetBinding;
@@ -20,6 +21,9 @@ import me.project.cloud2drenderer.renderer.entity.texture.Texture;
 import me.project.cloud2drenderer.renderer.loader.AssetLoader;
 import me.project.cloud2drenderer.renderer.procedure.binding.glresource.CommonBinder;
 import me.project.cloud2drenderer.renderer.procedure.binding.glresource.shader.UniformBindingProcessor;
+import me.project.cloud2drenderer.renderer.procedure.pipeline.BlendPipeline;
+import me.project.cloud2drenderer.renderer.procedure.pipeline.CommonPipeline;
+import me.project.cloud2drenderer.renderer.procedure.pipeline.NonBlendPipeline;
 import me.project.cloud2drenderer.renderer.procedure.pipeline.RenderPipeline;
 import me.project.cloud2drenderer.renderer.procedure.drawing.ArrayDraw;
 import me.project.cloud2drenderer.renderer.procedure.drawing.ElemDraw;
@@ -31,6 +35,7 @@ public class Scene {
     private final CanvasController canvasController;
 
     private final ShaderController shaderController;
+
     private final TextureController textureController;
 
     private final ModelController modelController;
@@ -38,12 +43,43 @@ public class Scene {
     public final Camera camera;
 
     private int viewportWidth;
+
     private int viewportHeight;
 
-    private int lastContextId = 0;
 
-    Vector<AssetBinding> assetBindings;
-    Map<Integer,RenderContext> renderContexts;
+    private int lastContextId = -1;
+
+    private int lastPipelineId = -1;
+
+    private Vector<RenderPipeline> pipelines;   //pipelineId to pipeline
+
+    private Map<String,Integer> pipelineMap; // pipeline name to pipelineId
+    
+    private Map<Integer,Integer> pipelineTaskBatchId; // pipilineId to batchTaskId
+
+
+    private Vector<AssetBinding> assetBindings;
+
+    private Vector<RenderContext> renderContexts;
+    
+    private Map<Integer, RenderBatchTask> renderBatchTasks;   // batchTaskId to batchTask
+
+    static class RenderBatchTask {
+        public int taskId;
+        public int pipelineId;
+        public Map<Integer,RenderContext> contexts; //contextId in this batch
+    }
+
+    public void initPipeline(String name,RenderPipeline pipeline){
+        int pipelineId = ++lastPipelineId;
+        pipelines.add(pipeline);
+        pipelineMap.put(name,pipelineId);
+        RenderBatchTask task = new RenderBatchTask();
+        task.taskId = pipelineId;
+        task.pipelineId = pipelineId;
+        task.contexts = new HashMap<>();
+        renderBatchTasks.put(pipelineId,task);
+    }
 
 
     public Scene(Context context){
@@ -54,8 +90,14 @@ public class Scene {
         assetLoader = new AssetLoader(context,shaderController,textureController,modelController);
         camera = new Camera();
         assetBindings = new Vector<>();
-        renderContexts = new HashMap<>();
+        renderContexts = new Vector<>();
+        renderBatchTasks = new HashMap<>();
+        pipelines = new Vector<>();
+        pipelineMap = new HashMap<>();
         canvasController.enableDepthTest();
+        initPipeline("common",new CommonPipeline());
+        initPipeline("non_blend",new NonBlendPipeline());
+        initPipeline("blend",new BlendPipeline());
     }
 
     public void turnOnBlend(){
@@ -96,6 +138,12 @@ public class Scene {
         }
     }
 
+
+    private void submitTask(String pipelineName,RenderContext context){
+        int pipelineId = pipelineMap.get(pipelineName);
+        Objects.requireNonNull(renderBatchTasks.get(pipelineId)).contexts.put(context.contextId,context);
+    }
+
     public void initRenderContexts() {
         RenderContext.camera = camera;
         for (AssetBinding ab : assetBindings) {
@@ -103,7 +151,7 @@ public class Scene {
             RenderContext context = ab.context;
             Material material;
             try {
-                material = ab.materialBinding.materialClass.newInstance();
+                material = ab.materialBinding.material;
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
@@ -124,22 +172,30 @@ public class Scene {
             shaderController.bindShaderAttributePointers(material.getShader(), context.loadedModel);
             UniformBindingProcessor.generateShaderUniformSetter(context,material.getShader());
             context.setMaterial(material);
-            context.contextId = ++lastContextId;
             context.initContext();
-            renderContexts.put(lastContextId, context);
+            context.contextId = ++lastContextId;
+            renderContexts.add(context);
+            submitTask(ab.pipelineName,context);
         }
+        assetBindings.clear();
     }
 
 
+
     public void adjustObjects(){
-        for(RenderContext context: renderContexts.values()){
+        for(RenderContext context: renderContexts){
             context.adjustContext();
         }
     }
 
-    public void draw(RenderPipeline[] pipelines){
-        for(RenderPipeline pipeline:pipelines){
-            pipeline.run(renderContexts.values());
+    public void draw(){
+        for(RenderBatchTask tasks: renderBatchTasks.values()){
+            RenderPipeline pipeline = pipelines.get(tasks.pipelineId);
+            pipeline.beforeTask();
+            for (RenderContext context : tasks.contexts.values()){
+                pipeline.run(context);
+            }
+            pipeline.afterTask();
         }
     }
 

@@ -285,7 +285,7 @@ public class UniformBindingProcessor {
                 assignmentMode = "manual assignment";
             }
             String msg = String.format(Locale.getDefault(),
-                    "Shader uniform variable \"%s\" has registered %s in @%s@%d binding with \"%s\" %s.",
+                    "Shader uniform variable \"%s\" has registered %s in %s@%d binding with \"%s\" %s.",
                     uniformName,
                     assignmentMode,
                     context.getClass().getSimpleName(),

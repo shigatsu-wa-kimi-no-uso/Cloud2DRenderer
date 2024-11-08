@@ -8,7 +8,6 @@ import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.util.Log;
 
-import net.sf.image4j.codec.bmp.BMPDecoder;
 
 import java.io.BufferedReader;
 import java.io.IOException;

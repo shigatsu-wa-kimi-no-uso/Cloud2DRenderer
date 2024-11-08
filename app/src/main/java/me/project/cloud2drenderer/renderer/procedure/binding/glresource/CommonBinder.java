@@ -22,14 +22,6 @@ public class CommonBinder implements ResBindingMethod {
         for (Texture texture : context.getTextures()) {
             GLTextureManager.bind(texture.texture,texture.unit);
         }
-        //GLShaderManager.setUniformScalar("texture1",0);
-        //GLShaderManager.setUniformScalar("texture2",1);
-        //GLTextureManager.active(0);
-        //GLTextureManager.bind();
-        //GLTextureManager.active(1);
-        //GLTextureManager.bind();
-       // GLShaderManager.setUniformScalar("texture1",0);
-        //GLShaderManager.setUniformScalar("texture2",1);
         GLVertexBufferManager.bind(context.loadedModel.vertexBuffer);
     }
 }

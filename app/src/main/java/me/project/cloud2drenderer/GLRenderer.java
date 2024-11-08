@@ -11,11 +11,12 @@ import java.util.Locale;
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
+import me.project.cloud2drenderer.renderer.context.MixedTextureRenderContext;
 import me.project.cloud2drenderer.renderer.context.SequenceFrameRenderContext;
 import me.project.cloud2drenderer.renderer.entity.AssetBinding;
-import me.project.cloud2drenderer.renderer.context.CommonRenderContext;
 import me.project.cloud2drenderer.renderer.entity.MaterialBinding;
 import me.project.cloud2drenderer.renderer.entity.material.DiffuseTextureMaterial;
+import me.project.cloud2drenderer.renderer.entity.material.MixedImgMaterial;
 import me.project.cloud2drenderer.renderer.entity.others.SequenceFrameParams;
 import me.project.cloud2drenderer.renderer.procedure.pipeline.CommonPipeline;
 import me.project.cloud2drenderer.renderer.procedure.pipeline.RenderPipeline;
@@ -26,7 +27,6 @@ public class GLRenderer implements GLSurfaceView.Renderer{
 
     private Scene scene;
 
-    private final RenderPipeline[] pipelines;
 
     private Activity activity;
 
@@ -37,8 +37,7 @@ public class GLRenderer implements GLSurfaceView.Renderer{
     public GLRenderer(Activity activity,TextView fpsTextView) {
         this.fpsTextView =fpsTextView;
         this.activity = activity;
-        pipelines = new RenderPipeline[1];
-        pipelines[0] = new CommonPipeline();
+
     }
 
     void init(){
@@ -65,17 +64,21 @@ public class GLRenderer implements GLSurfaceView.Renderer{
         activity.runOnUiThread(()-> fpsTextView.setText(String.format(Locale.getDefault(),"FPS:%.2f",fps)));
     }
 
-    AssetBinding getCubeAssetBinding(float ratio,float[] transform){
+    AssetBinding getCubeAssetBinding(float ratio,float scale,float[] position){
         AssetBinding ab = new AssetBinding();
         MaterialBinding mb = new MaterialBinding();
+        ab.pipelineName = "non_blend";
         mb.textureNames = new String[]{"container","awesomeface"};
-        mb.shaderName = "basic";
-        mb.materialClass = DiffuseTextureMaterial.class;
+        mb.shaderName = "mixed_img";
+        MixedImgMaterial material = new MixedImgMaterial();
+        material.setRatio(ratio);
+        mb.material = material;
         ab.modelName = "cube";
         ab.materialBinding = mb;
-        CommonRenderContext context = new CommonRenderContext();
-        context.ratio.setValue(new float[]{ratio});
-        context.transform = transform;
+        MixedTextureRenderContext context = new MixedTextureRenderContext();
+        float[] transform = context.getTransform();
+        Matrix.scaleM(transform,0,scale,scale,scale);
+        Matrix.translateM(transform,0,position[0],position[1],position[2]);
         ab.context = context;
         return ab;
     }
@@ -84,9 +87,10 @@ public class GLRenderer implements GLSurfaceView.Renderer{
     AssetBinding getBillboardAssetBinding(int width,int height,float[] position){
         AssetBinding ab = new AssetBinding();
         MaterialBinding mb = new MaterialBinding();
+        ab.pipelineName = "blend";
         mb.textureNames = new String[]{"SmokeLoopPNG"};
         mb.shaderName = "seq_frame";
-        mb.materialClass = DiffuseTextureMaterial.class;
+        mb.material = new DiffuseTextureMaterial();
         ab.modelName = "rectangle";
         ab.materialBinding = mb;
         //CommonRenderContext context = new CommonRenderContext();
@@ -95,7 +99,6 @@ public class GLRenderer implements GLSurfaceView.Renderer{
         Matrix.setIdentityM(transform,0);
         Matrix.scaleM(transform,0,width,height,1);
         Matrix.translateM(transform,0,position[0],position[1],position[2]);
-
         SequenceFrameParams seqFrameParams = context.getSeqFrameParams();
         seqFrameParams.setCurrentFrameIndex(0);
         seqFrameParams.setFlipBookShape(new float[]{8.0f,8.0f});
@@ -107,8 +110,18 @@ public class GLRenderer implements GLSurfaceView.Renderer{
     @Override
     public void onSurfaceCreated(GL10 gl, EGLConfig config) {
         init();
-        scene.load(getBillboardAssetBinding(4,4,new float[]{-1f,-0.5f,-25}));
-        scene.load(getBillboardAssetBinding(3,3,new float[]{0.5f,-0.5f,-20}));
+        scene.load(getBillboardAssetBinding(1,1,new float[]{-1f,-0.5f,-5}));
+      //  scene.initRenderContexts();
+        scene.load(getCubeAssetBinding(0.5f,1,new float[]{0,-1,-5}));
+     //   scene.load(getCubeAssetBinding(0.5f,1,new float[]{0,-1,-5}));
+
+       // scene.load(getBillboardAssetBinding(3,3,new float[]{0.5f,-0.5f,-20}));
+       // scene.load(getBillboardAssetBinding(2,2,new float[]{0.5f,0.5f,-30}));
+       // scene.load(getBillboardAssetBinding(1,1,new float[]{-0.5f,0.25f,-15}));
+       // scene.load(getBillboardAssetBinding(1,1,new float[]{0.5f,0.0f,-20}));
+       // scene.load(getBillboardAssetBinding(3,3,new float[]{0.75f,0.0f,-20}));
+       // scene.load(getBillboardAssetBinding(5,5,new float[]{-0.75f,0.7f,-20}));
+       // scene.load(getBillboardAssetBinding(5,5,new float[]{-0.75f,-1.7f,-20}));
         scene.initRenderContexts();
     }
 
@@ -121,11 +134,17 @@ public class GLRenderer implements GLSurfaceView.Renderer{
         scene.camera.update();
     }
 
+    int count = 0;
     @Override
     public void onDrawFrame(GL10 gl) {
         updateFPS();
         scene.adjustObjects();
         scene.clear();
-        scene.draw(pipelines);
+        scene.draw();
+/*        if(count > 60*5){
+            scene.load(getCubeAssetBinding(0.5f,1,new float[]{0,-1,-5}));
+            scene.initRenderContexts();
+        }*/
+        count++;
     }
 }

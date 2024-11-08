@@ -9,11 +9,19 @@ import me.project.cloud2drenderer.renderer.context.RenderContext;
 
 public class CommonPipeline extends RenderPipeline {
 
-    public void run(@NonNull Collection<RenderContext> contexts){
-        for (RenderContext context : contexts){
-            context.bindGLResources();
-            context.applyUniformAssignments();
-            context.draw();
-        }
+    @Override
+    public void beforeTask() {
+
+    }
+
+    public void run(RenderContext context) {
+        context.bindGLResources();
+        context.applyUniformAssignments();
+        context.draw();
+    }
+
+    @Override
+    public void afterTask() {
+
     }
 }
