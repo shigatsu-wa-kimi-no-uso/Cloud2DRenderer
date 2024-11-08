@@ -2,6 +2,7 @@ package me.project.cloud2drenderer.renderer.context;
 
 import android.opengl.Matrix;
 
+import me.project.cloud2drenderer.renderer.entity.material.Material;
 import me.project.cloud2drenderer.renderer.entity.shader.Shader;
 import me.project.cloud2drenderer.renderer.entity.texture.Texture;
 import me.project.cloud2drenderer.renderer.procedure.binding.glresource.shader.UniformFlag;
@@ -11,6 +12,7 @@ import me.project.cloud2drenderer.renderer.procedure.binding.glresource.shader.a
 
 public class CommonRenderContext extends RenderContext{
 
+    private Material material;
 
     @ShaderUniform(uniformName = "uColor")
     public UniformVar<int[]> color = null;
@@ -22,9 +24,14 @@ public class CommonRenderContext extends RenderContext{
     public UniformVar<float[]> ratio;
 
 
+
     // @ShaderUniform(isStruct = true)
     @ShaderUniform(uniformName = "uModeling",flags = {UniformFlag.USING_RAW,UniformFlag.AUTO_ASSIGN})
     public float[] transform;
+
+    public void setTransform(float[] transform) {
+        this.transform = transform;
+    }
 
     public CommonRenderContext(){
         transform = new float[16];
@@ -64,6 +71,11 @@ public class CommonRenderContext extends RenderContext{
     @Override
     public Texture[] getTextures(){
         return material.textures;
+    }
+
+    @Override
+    public void setMaterial(Material material) {
+        this.material = material;
     }
 
     @ShaderUniform(uniformName = "uView")

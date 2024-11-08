@@ -1,17 +1,22 @@
 package me.project.cloud2drenderer;
 
 
-import android.content.Context;
+import android.app.Activity;
 import android.opengl.GLSurfaceView;
 import android.opengl.Matrix;
+import android.widget.TextView;
+
+import java.util.Locale;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
+import me.project.cloud2drenderer.renderer.context.SequenceFrameRenderContext;
 import me.project.cloud2drenderer.renderer.entity.AssetBinding;
 import me.project.cloud2drenderer.renderer.context.CommonRenderContext;
 import me.project.cloud2drenderer.renderer.entity.MaterialBinding;
-import me.project.cloud2drenderer.renderer.entity.material.ImgTextureMaterial;
+import me.project.cloud2drenderer.renderer.entity.material.DiffuseTextureMaterial;
+import me.project.cloud2drenderer.renderer.entity.others.SequenceFrameParams;
 import me.project.cloud2drenderer.renderer.procedure.pipeline.CommonPipeline;
 import me.project.cloud2drenderer.renderer.procedure.pipeline.RenderPipeline;
 import me.project.cloud2drenderer.renderer.scene.Scene;
@@ -21,17 +26,23 @@ public class GLRenderer implements GLSurfaceView.Renderer{
 
     private Scene scene;
 
-    private final Context context;
-
     private final RenderPipeline[] pipelines;
-    public GLRenderer(Context context) {
-        this.context = context;
+
+    private Activity activity;
+
+    private final TextView fpsTextView;
+
+    private long lastDrawTimeNanos;
+
+    public GLRenderer(Activity activity,TextView fpsTextView) {
+        this.fpsTextView =fpsTextView;
+        this.activity = activity;
         pipelines = new RenderPipeline[1];
         pipelines[0] = new CommonPipeline();
     }
 
     void init(){
-        scene = new Scene(context);
+        scene = new Scene(activity);
         int width = 100;
         int height = 250;
         float aspect = (float)width/height;
@@ -42,6 +53,16 @@ public class GLRenderer implements GLSurfaceView.Renderer{
         scene.camera.setOrientation(new float[]{0,0,-1});
         scene.camera.setOrientation(0,0);
         scene.camera.update();
+        scene.turnOnBlend();
+    }
+
+
+    private void updateFPS() {
+        long currTimeNanos = System.nanoTime();
+        long duration = currTimeNanos - lastDrawTimeNanos;
+        lastDrawTimeNanos = currTimeNanos;
+        double fps = 1E9/duration;
+        activity.runOnUiThread(()-> fpsTextView.setText(String.format(Locale.getDefault(),"FPS:%.2f",fps)));
     }
 
     AssetBinding getCubeAssetBinding(float ratio,float[] transform){
@@ -49,7 +70,7 @@ public class GLRenderer implements GLSurfaceView.Renderer{
         MaterialBinding mb = new MaterialBinding();
         mb.textureNames = new String[]{"container","awesomeface"};
         mb.shaderName = "basic";
-        mb.materialClass = ImgTextureMaterial.class;
+        mb.materialClass = DiffuseTextureMaterial.class;
         ab.modelName = "cube";
         ab.materialBinding = mb;
         CommonRenderContext context = new CommonRenderContext();
@@ -59,17 +80,35 @@ public class GLRenderer implements GLSurfaceView.Renderer{
         return ab;
     }
 
+
+    AssetBinding getBillboardAssetBinding(int width,int height,float[] position){
+        AssetBinding ab = new AssetBinding();
+        MaterialBinding mb = new MaterialBinding();
+        mb.textureNames = new String[]{"SmokeLoopPNG"};
+        mb.shaderName = "seq_frame";
+        mb.materialClass = DiffuseTextureMaterial.class;
+        ab.modelName = "rectangle";
+        ab.materialBinding = mb;
+        //CommonRenderContext context = new CommonRenderContext();
+        SequenceFrameRenderContext context = new SequenceFrameRenderContext();
+        float[] transform = new float[16];
+        Matrix.setIdentityM(transform,0);
+        Matrix.scaleM(transform,0,width,height,1);
+        Matrix.translateM(transform,0,position[0],position[1],position[2]);
+        context.setTransform(transform);
+        SequenceFrameParams seqFrameParams = new SequenceFrameParams();
+        seqFrameParams.setCurrentFrameIndex(0);
+        seqFrameParams.setFlipBookShape(new float[]{8.0f,8.0f});
+        seqFrameParams.setFrequency(1.0f/2.5f);
+        context.setSeqFrameParams(seqFrameParams);
+        ab.context = context;
+        return ab;
+    }
+
     @Override
     public void onSurfaceCreated(GL10 gl, EGLConfig config) {
         init();
-        float[] transform = new float[16];
-        Matrix.setIdentityM(transform,0);
-        Matrix.translateM(transform,0,-1.0f,0f,-6f);
-        scene.load(getCubeAssetBinding(0.8f,transform));
-        transform = new float[16];
-        Matrix.setIdentityM(transform,0);
-        Matrix.translateM(transform,0,1.0f,0f,-6f);
-        scene.load(getCubeAssetBinding(0.2f,transform));
+        scene.load(getBillboardAssetBinding(4,4,new float[]{-0.5f,-0.5f,-10}));
         scene.initRenderContexts();
     }
 
@@ -84,6 +123,7 @@ public class GLRenderer implements GLSurfaceView.Renderer{
 
     @Override
     public void onDrawFrame(GL10 gl) {
+        updateFPS();
         scene.adjustObjects();
         scene.clear();
         scene.draw(pipelines);

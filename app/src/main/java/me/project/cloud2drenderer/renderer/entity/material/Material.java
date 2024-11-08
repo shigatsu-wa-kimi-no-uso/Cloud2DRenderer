@@ -11,4 +11,6 @@ public abstract class Material {
 
 
     public Texture[] textures;
+
+    abstract public void setTextures(Texture[] textures);
 }

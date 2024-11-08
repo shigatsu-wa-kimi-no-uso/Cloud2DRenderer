@@ -105,7 +105,7 @@ public class AssetLoader {
 
 
     public Texture loadTexture(String key) {
-        String[] suffixes = {".jpg",".png",".jpeg"};
+        String[] suffixes = {".jpg",".png",".jpeg",".bmp",".tga"};
         for(String suffix : suffixes){
             if(AssetUtils.isAssetExist(context,textureDirectory,key+suffix)){
                 return loadTexture(textureDirectory + "/" + key + suffix,key);

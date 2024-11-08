@@ -33,13 +33,17 @@ public class ModelController {
                             GLVertexBuffer vertexBuffer = GLVertexBufferManager.genVertexBuffer(elemBased);
                             GLVertexBufferManager.bind(vertexBuffer);
                             GLVertexBufferManager.loadVertexAttributeData(vertices, model.getDrawMethod());
+                            LoadedModel loadedModel = new LoadedModel();
                             if(elemBased){
                                 GLVertexBufferManager.loadElementIndices(indices,model.getDrawMethod());
+                                loadedModel.drawnVertexCount = indices.length;
+                            }else {
+                                loadedModel.drawnVertexCount = vertices.length;
                             }
-                            LoadedModel loadedModel = new LoadedModel();
                             loadedModel.elemBased = elemBased;
                             loadedModel.vertexBuffer = vertexBuffer;
                             loadedModel.vertexCount = model.getVertexCount();
+
                             loadedModel.modelMetaGetter = model::getModelMeta;
                             GLVertexBufferManager.unbind();
                             return loadedModel;

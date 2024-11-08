@@ -362,7 +362,7 @@ public class UniformBindingProcessor {
                 }else {
                     setterWrapper = () -> {
                         try {
-                            floatScalarSetter.set(meta.location[0], (int) method.invoke(context));
+                            floatScalarSetter.set(meta.location[0], (float) method.invoke(context));
                         } catch (Exception e) {
                             throw new RuntimeException(e);
                         }

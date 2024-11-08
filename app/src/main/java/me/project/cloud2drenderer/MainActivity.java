@@ -4,7 +4,6 @@ import android.opengl.GLSurfaceView;
 import android.os.Bundle;
 import android.view.View;
 
-import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 
 import me.project.cloud2drenderer.databinding.ActivityMainBinding;
@@ -30,7 +29,7 @@ public class MainActivity extends AppCompatActivity {
         surfaceView = binding.glSurfaceView;
         view = binding.getRoot();
         setContentView(view);
-        renderer = new GLRenderer(this);
+        renderer = new GLRenderer(this,binding.fpsTextView);
         surfaceView.setEGLContextClientVersion(3);
         surfaceView.setRenderer(renderer);
         return true;

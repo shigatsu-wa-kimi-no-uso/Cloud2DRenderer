@@ -7,6 +7,8 @@ public class LoadedModel {
 
     public int vertexCount;
 
+    public int drawnVertexCount;
+
     public boolean elemBased;
 
     public ModelMeta.ModelMetaGetter modelMetaGetter;

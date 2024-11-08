@@ -9,6 +9,6 @@ public class ArrayDraw implements DrawMethod{
 
     @Override
     public void draw(RenderContext context) {
-        GLCanvasManager.drawArrays(GL_TRIANGLES,0,context.loadedModel.vertexCount);
+        GLCanvasManager.drawArrays(GL_TRIANGLES,0,context.loadedModel.drawnVertexCount);
     }
 }

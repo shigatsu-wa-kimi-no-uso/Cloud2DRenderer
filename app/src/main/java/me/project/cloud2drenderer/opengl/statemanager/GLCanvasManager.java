@@ -25,6 +25,7 @@ public class GLCanvasManager {
 
     public static void enableGLFunction(int cap){
         glEnable(cap);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         GLErrorUtils.assertNoError();
     }
     public static void drawArrays(int mode,int first,int count){

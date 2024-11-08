@@ -1,10 +1,14 @@
 package me.project.cloud2drenderer.util;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.util.Log;
+
+import net.sf.image4j.codec.bmp.BMPDecoder;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -34,12 +38,21 @@ public class AssetUtils {
     public static Bitmap getBitmapFromAsset(Context context, String filePath) {
         AssetManager assetManager = context.getAssets();
         InputStream istr;
-        Bitmap bitmap = null;
+        Bitmap bitmap;
+        String suffix = FileUtils.getFileSuffix(filePath);
         try {
             istr = assetManager.open(filePath);
-            bitmap = BitmapFactory.decodeStream(istr);
+            if(suffix.equals(".tga")){
+                bitmap = TargaUtils.decode(istr);
+            }else if(suffix.equals(".bmp")) {
+                bitmap = BitmapFactory.decodeStream(istr);
+
+            }else {
+                bitmap = BitmapFactory.decodeStream(istr);
+            }
         } catch (IOException e) {
             // handle exception
+            throw new RuntimeException(e);
         }
         assert bitmap!=null;
         return bitmap;

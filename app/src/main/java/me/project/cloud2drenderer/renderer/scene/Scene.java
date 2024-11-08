@@ -19,7 +19,6 @@ import me.project.cloud2drenderer.renderer.entity.material.Material;
 import me.project.cloud2drenderer.renderer.entity.texture.Texture;
 import me.project.cloud2drenderer.renderer.loader.AssetLoader;
 import me.project.cloud2drenderer.renderer.procedure.binding.glresource.CommonBinder;
-import me.project.cloud2drenderer.renderer.procedure.binding.glresource.shader.ShaderUniformMeta;
 import me.project.cloud2drenderer.renderer.procedure.binding.glresource.shader.UniformBindingProcessor;
 import me.project.cloud2drenderer.renderer.procedure.pipeline.RenderPipeline;
 import me.project.cloud2drenderer.renderer.procedure.drawing.ArrayDraw;
@@ -57,6 +56,10 @@ public class Scene {
         assetBindings = new Vector<>();
         renderContexts = new HashMap<>();
         canvasController.enableDepthTest();
+    }
+
+    public void turnOnBlend(){
+        canvasController.enableBlend();
     }
 
     public void clear(){
@@ -119,7 +122,7 @@ public class Scene {
             determineDrawMethod(context);
             shaderController.bindShaderAttributePointers(material.shader, context.loadedModel);
             UniformBindingProcessor.generateShaderUniformSetter(context,material.shader);
-            context.material = material;
+            context.setMaterial(material);
             context.contextId = ++lastContextId;
             context.initContext();
             renderContexts.put(lastContextId, context);
