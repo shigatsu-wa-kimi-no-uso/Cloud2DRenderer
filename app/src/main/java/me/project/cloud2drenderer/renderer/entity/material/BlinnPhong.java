@@ -7,6 +7,9 @@ public class BlinnPhong extends Material{
     float[] ks;
     Texture albedo;
 
+    public BlinnPhong(){
+
+    }
 
     @Override
     public void distribute() {

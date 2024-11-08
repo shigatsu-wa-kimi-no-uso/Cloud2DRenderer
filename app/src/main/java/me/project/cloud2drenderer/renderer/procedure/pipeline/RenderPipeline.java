@@ -7,5 +7,9 @@ import me.project.cloud2drenderer.renderer.context.RenderContext;
 
 
 public abstract class RenderPipeline {
-    public abstract void run(Collection<RenderContext> contexts);
+
+    public abstract void beforeTask();
+    public abstract void run(RenderContext context);
+    public abstract void afterTask();
+
 }

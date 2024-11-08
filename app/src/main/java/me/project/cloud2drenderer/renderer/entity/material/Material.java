@@ -11,6 +11,8 @@ public abstract class Material {
 
     protected Texture[] textures;
 
+    protected Material(){}
+
     public Texture[] getTextures(){
         return textures;
     }

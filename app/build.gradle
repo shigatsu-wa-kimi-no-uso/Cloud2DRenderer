@@ -29,10 +29,12 @@ android {
         release {
             minifyEnabled false
             signingConfig signingConfigs.global
+            profileable true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
         debug {
             signingConfig signingConfigs.global
+            debuggable true
         }
     }
     compileOptions {

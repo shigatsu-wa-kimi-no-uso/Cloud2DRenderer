@@ -2,6 +2,8 @@ package me.project.cloud2drenderer.renderer.controller;
 
 import static android.opengl.GLES20.*;
 
+import java.util.Stack;
+
 import me.project.cloud2drenderer.opengl.GLErrorUtils;
 import me.project.cloud2drenderer.opengl.statemanager.GLCanvasManager;
 
@@ -30,6 +32,7 @@ public class CanvasController {
     public void enableBlend(){
         GLCanvasManager.enableGLFunction(GL_BLEND);
     }
+
     public void setCanvasSize(int width,int height){
         assert width > 0 && height > 0;
         GLCanvasManager.setCanvasSize(width,height);

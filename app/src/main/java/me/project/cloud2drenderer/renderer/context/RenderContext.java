@@ -22,6 +22,7 @@ public abstract class RenderContext {
 
 
     public static Camera camera;
+
     public int contextId;
 
     public LoadedModel loadedModel;
