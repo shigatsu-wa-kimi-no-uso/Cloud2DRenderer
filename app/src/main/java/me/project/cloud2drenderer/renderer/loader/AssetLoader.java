@@ -128,6 +128,16 @@ public class AssetLoader {
         return texture;
     }
 
+    public Map<String,MeshModel> getPresetModels(){
+        return presetModels;
+    }
+
+    public ModelController getModelController(){
+        return modelController;
+    }
+
+
+
     public LoadedModel loadModel(String key){
         MeshModel model = presetModels.get(key);
         assert model != null;

@@ -115,11 +115,13 @@ public class ShaderController {
         Map<String, VertexAttributeMeta> metaMap = model.modelMetaGetter.getModelMeta().attributeMetas;
         GLShaderManager.use(shader.program);
         GLVertexBufferManager.bind(model.vertexBuffer);
+        GLVertexBufferManager.bindVertexBuffer();  //尽管操作是关于shader的attribute指针配置，但是vao和vbo也要绑定！！
         for(Map.Entry<String, VertexAttributeMeta> entry : metaMap.entrySet()){
             VertexAttributeMeta attribMeta = entry.getValue();
             String attributeName = attribMeta.attributeName;
             GLShaderManager.setAttribute(attributeName,attribMeta.elemCnt,attribMeta.elemType,attribMeta.normalized,attribMeta.strideInBytes,attribMeta.offset);
         }
+        GLVertexBufferManager.unbind();
     }
 
 

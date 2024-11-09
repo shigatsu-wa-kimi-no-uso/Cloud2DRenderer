@@ -17,17 +17,39 @@ public class GLVertexBufferManager {
 
     private static GLVertexBuffer currentVertexBuffer;
 
+    private static int currentBoundVBO;
+
+    private static int currentBoundEBO;
+
     private GLVertexBufferManager(){
+
     }
 
-    protected static void assertBound(){
+    public static void assertBound(){
         assert currentVertexBuffer!=null;
+    }
+
+    public static void assertVBOBindingConsistency() {
+        assert currentVertexBuffer.vbo == currentBoundVBO;
+    }
+
+    public static void assertEBOBindingConsistency() {
+        assert currentVertexBuffer.ebo == currentBoundEBO;
     }
     @NonNull
     public static GLVertexBuffer genVertexBuffer(){
         return genVertexBuffer(true);
     }
 
+    public static void bindVertexBuffer(){
+        glBindBuffer(GL_ARRAY_BUFFER, currentVertexBuffer.vbo);
+        currentBoundVBO = currentVertexBuffer.vbo;
+    }
+
+    public static void bindElementBuffer(){
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,currentVertexBuffer.ebo);
+        currentBoundEBO = currentVertexBuffer.ebo;
+    }
     @NonNull
     public static GLVertexBuffer genVertexBuffer(boolean useEBO){
         GLVertexBuffer buffer = new GLVertexBuffer();
@@ -66,35 +88,36 @@ public class GLVertexBufferManager {
         // FloatBuffer verticesData = verticesDataBytes.asFloatBuffer();
         // verticesData.put(data).position(0);
         assertBound();
-        glBindBuffer(GL_ARRAY_BUFFER, currentVertexBuffer.vbo);
+        bindVertexBuffer();
         glBufferData(GL_ARRAY_BUFFER, size, data, drawMethod);
         GLErrorUtils.assertNoError();
     }
 
     public static void loadElementIndices(@NonNull ByteBuffer data,int drawMethod,int size){
         assertBound();
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,currentVertexBuffer.ebo);
+        bindVertexBuffer();
+        bindElementBuffer();
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, size, data, drawMethod);
         GLErrorUtils.assertNoError();
     }
 
     public static void loadElementIndices(@NonNull IntBuffer data,int drawMethod,int size){
         assertBound();
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,currentVertexBuffer.ebo);
+        bindElementBuffer();
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, size, data, drawMethod);
         GLErrorUtils.assertNoError();
     }
 
     public static void loadElementIndices(@NonNull IntBuffer data,int drawMethod){
         assertBound();
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,currentVertexBuffer.ebo);
+        bindElementBuffer();
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, data.capacity()*Integer.BYTES, data, drawMethod);
         GLErrorUtils.assertNoError();
     }
 
     public static void loadElementIndices(@NonNull ShortBuffer data,int drawMethod){
         assertBound();
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,currentVertexBuffer.ebo);
+        bindElementBuffer();
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, data.capacity()*Short.BYTES, data, drawMethod);
         GLErrorUtils.assertNoError();
     }
@@ -121,7 +144,7 @@ public class GLVertexBufferManager {
 
     public static void loadVertexAttributeData(@NonNull FloatBuffer data,int drawMethod){
         assertBound();
-        glBindBuffer(GL_ARRAY_BUFFER, currentVertexBuffer.vbo);
+        bindVertexBuffer();
         glBufferData(GL_ARRAY_BUFFER,
                 data.capacity() * Float.BYTES,
                 data,

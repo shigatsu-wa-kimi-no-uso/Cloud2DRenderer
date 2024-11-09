@@ -1,23 +1,38 @@
 package me.project.cloud2drenderer;
 
 
+import static android.opengl.GLES20.GL_ARRAY_BUFFER;
+import static android.opengl.GLES20.glBindBuffer;
+import static android.opengl.GLES20.glBufferData;
+import static me.project.cloud2drenderer.opengl.statemanager.GLVertexBufferManager.loadVertexAttributeData;
+
 import android.app.Activity;
 import android.opengl.GLSurfaceView;
 import android.opengl.Matrix;
 import android.widget.TextView;
 
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.nio.FloatBuffer;
 import java.util.Locale;
+import java.util.Map;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
+import me.project.cloud2drenderer.opengl.glresource.buffer.GLVertexBuffer;
+import me.project.cloud2drenderer.opengl.statemanager.GLVertexBufferManager;
 import me.project.cloud2drenderer.renderer.context.MixedTextureRenderContext;
 import me.project.cloud2drenderer.renderer.context.SequenceFrameRenderContext;
+import me.project.cloud2drenderer.renderer.controller.ModelController;
 import me.project.cloud2drenderer.renderer.entity.AssetBinding;
 import me.project.cloud2drenderer.renderer.entity.MaterialBinding;
 import me.project.cloud2drenderer.renderer.entity.material.DiffuseTextureMaterial;
 import me.project.cloud2drenderer.renderer.entity.material.MixedImgMaterial;
+import me.project.cloud2drenderer.renderer.entity.model.LoadedModel;
+import me.project.cloud2drenderer.renderer.entity.model.MeshModel;
 import me.project.cloud2drenderer.renderer.entity.others.SequenceFrameParams;
+import me.project.cloud2drenderer.renderer.loader.AssetLoader;
 import me.project.cloud2drenderer.renderer.procedure.pipeline.CommonPipeline;
 import me.project.cloud2drenderer.renderer.procedure.pipeline.RenderPipeline;
 import me.project.cloud2drenderer.renderer.scene.Scene;
@@ -84,7 +99,7 @@ public class GLRenderer implements GLSurfaceView.Renderer{
     }
 
 
-    AssetBinding getBillboardAssetBinding(int width,int height,float[] position){
+    AssetBinding getBillboardAssetBinding(float width,float height,float[] position){
         AssetBinding ab = new AssetBinding();
         MaterialBinding mb = new MaterialBinding();
         ab.pipelineName = "blend";
@@ -96,7 +111,6 @@ public class GLRenderer implements GLSurfaceView.Renderer{
         //CommonRenderContext context = new CommonRenderContext();
         SequenceFrameRenderContext context = new SequenceFrameRenderContext();
         float[] transform = context.getTransform();
-        Matrix.setIdentityM(transform,0);
         Matrix.scaleM(transform,0,width,height,1);
         Matrix.translateM(transform,0,position[0],position[1],position[2]);
         SequenceFrameParams seqFrameParams = context.getSeqFrameParams();
@@ -110,9 +124,19 @@ public class GLRenderer implements GLSurfaceView.Renderer{
     @Override
     public void onSurfaceCreated(GL10 gl, EGLConfig config) {
         init();
-        scene.load(getBillboardAssetBinding(1,1,new float[]{-1f,-0.5f,-5}));
-      //  scene.initRenderContexts();
-        scene.load(getCubeAssetBinding(0.5f,1,new float[]{0,-1,-5}));
+        scene.load( getCubeAssetBinding(0.5f,1,new float[]{0,0,-5}));
+        scene.load( getCubeAssetBinding(0.5f,1,new float[]{-1.0f,-1.5f,-5}));
+        //需要注意：先画远物体，再画近的
+        scene.load( getBillboardAssetBinding(3,3,new float[]{-1.0f,-1.0f,-7f}));
+        scene.load( getBillboardAssetBinding(1,1,new float[]{0f,0f,-2.5f}));
+        scene.load( getBillboardAssetBinding(0.5f,0.5f,new float[]{-1f,-1f,-2.5f}));
+        scene.load( getBillboardAssetBinding(1.5f,1.5f,new float[]{-0.5f,0.15f,-2.4f}));
+        scene.load( getBillboardAssetBinding(1,1,new float[]{-0.25f,0f,-2.3f}));
+       // scene.load( getBillboardAssetBinding(1.5f,1.5f,new float[]{-0.5f,-0.25f,-5.5f}));
+        scene.initRenderContexts();
+       // scene.load(getBillboardAssetBinding(1,1,new float[]{0f,-0.5f,-5}));
+       // scene.initRenderContexts();
+        //scene.load(getCubeAssetBinding(0.5f,1,new float[]{0,1,-5}));
      //   scene.load(getCubeAssetBinding(0.5f,1,new float[]{0,-1,-5}));
 
        // scene.load(getBillboardAssetBinding(3,3,new float[]{0.5f,-0.5f,-20}));
@@ -122,7 +146,7 @@ public class GLRenderer implements GLSurfaceView.Renderer{
        // scene.load(getBillboardAssetBinding(3,3,new float[]{0.75f,0.0f,-20}));
        // scene.load(getBillboardAssetBinding(5,5,new float[]{-0.75f,0.7f,-20}));
        // scene.load(getBillboardAssetBinding(5,5,new float[]{-0.75f,-1.7f,-20}));
-        scene.initRenderContexts();
+       // scene.initRenderContexts();
     }
 
     @Override

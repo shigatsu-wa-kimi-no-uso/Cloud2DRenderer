@@ -25,6 +25,12 @@ public class ModelController {
             return loadModel(model,name,true);
         }
     }
+
+    public void put(String name,LoadedModel loadedModel){
+        loadedModels.put(name,loadedModel);
+    }
+
+
     public LoadedModel loadModel(MeshModel model, String name, boolean elemBased) {
         return loadedModels.compute(name, (k, v) ->
                 Objects.requireNonNullElseGet(v, () -> {

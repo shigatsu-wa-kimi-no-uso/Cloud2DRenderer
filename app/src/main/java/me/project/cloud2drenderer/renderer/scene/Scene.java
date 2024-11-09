@@ -116,7 +116,9 @@ public class Scene {
         canvasController.setCanvasSize(viewportWidth,viewportHeight);
     }
 
-
+    public AssetLoader getAssetLoader(){
+        return assetLoader;
+    }
     public void load(@NonNull AssetBinding assetBinding) {
         MaterialBinding mb = assetBinding.materialBinding;
         assetLoader.loadShaderScript(mb.shaderName);
@@ -144,38 +146,42 @@ public class Scene {
         Objects.requireNonNull(renderBatchTasks.get(pipelineId)).contexts.put(context.contextId,context);
     }
 
+    private void initRenderContexts(AssetBinding ab) {
+        RenderContext.camera = camera;
+        MaterialBinding mb = ab.materialBinding;
+        RenderContext context = ab.context;
+        Material material;
+        try {
+            material = ab.materialBinding.material;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        material.setShader(shaderController.getShaderProgram(mb.shaderName));
+        context.loadedModel = modelController.getLoadedModel(ab.modelName);
+
+        if (mb.textureNames != null) {
+            for (int i = 0; i < mb.textureNames.length; i++) {
+                material.getTextures()[i] = textureController.getTexture(mb.textureNames[i]); //若textureName==null 则返回null
+                material.getTextures()[i].unit = i;
+            }
+        } else {
+            material.getTextures()[0] = Texture.nullTexture();
+        }
+        material.distribute(); //把数组中的texture对象引用分配到对应的字段
+        context.setGLResourceBinder(new CommonBinder());
+        determineDrawMethod(context);
+        shaderController.bindShaderAttributePointers(material.getShader(), context.loadedModel);
+        UniformBindingProcessor.generateShaderUniformSetter(context, material.getShader());
+        context.setMaterial(material);
+        context.initContext();
+        context.contextId = ++lastContextId;
+        renderContexts.add(context);
+        submitTask(ab.pipelineName, context);
+    }
     public void initRenderContexts() {
         RenderContext.camera = camera;
         for (AssetBinding ab : assetBindings) {
-            MaterialBinding mb = ab.materialBinding;
-            RenderContext context = ab.context;
-            Material material;
-            try {
-                material = ab.materialBinding.material;
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-            material.setShader(shaderController.getShaderProgram(mb.shaderName));
-            context.loadedModel = modelController.getLoadedModel(ab.modelName);
-
-            if (mb.textureNames != null) {
-                for (int i = 0; i < mb.textureNames.length; i++) {
-                    material.getTextures()[i] = textureController.getTexture(mb.textureNames[i]); //若textureName==null 则返回null
-                    material.getTextures()[i].unit = i;
-                }
-            } else {
-                material.getTextures()[0] = Texture.nullTexture();
-            }
-            material.distribute(); //把数组中的texture对象引用分配到对应的字段
-            context.setGLResourceBinder(new CommonBinder());
-            determineDrawMethod(context);
-            shaderController.bindShaderAttributePointers(material.getShader(), context.loadedModel);
-            UniformBindingProcessor.generateShaderUniformSetter(context,material.getShader());
-            context.setMaterial(material);
-            context.initContext();
-            context.contextId = ++lastContextId;
-            renderContexts.add(context);
-            submitTask(ab.pipelineName,context);
+            initRenderContexts(ab);
         }
         assetBindings.clear();
     }

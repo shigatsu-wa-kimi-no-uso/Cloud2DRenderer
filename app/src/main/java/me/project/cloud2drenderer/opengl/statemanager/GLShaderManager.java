@@ -205,9 +205,13 @@ public class GLShaderManager {
         glEnableVertexAttribArray(index);
         GLErrorUtils.assertNoError();
     }
+
+
     public static void setAttribute(String name, int elemCount,int elemType,boolean normalized, int strideInBytes, int startOffset){
         assertBound();
-        GLVertexBufferManager.assertBound();  //注意！设置顶点属性时，shader和vertexbuffer都要绑定！若vertexbuffer不绑定，GL不会报错！
+        GLVertexBufferManager.assertBound();
+        GLVertexBufferManager.assertVBOBindingConsistency();
+          //注意！设置顶点属性时，shader和vertexbuffer都要绑定！若vertexbuffer不绑定，GL不会报错！
         final int index = getAttribLocation(name);
         if(index == GL_INVALID_INDEX){
             Log.e("GLShaderManager","getAttribLocation(name) returned -1");

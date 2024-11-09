@@ -21,6 +21,5 @@ void main()
    // float v = debug_val;
     //vec4 color = vec4( v,v,v,1);
     vec4 color = texture(uFlipBookTexture,vTexCoords);
-    color = vec4(color.rrr,1);
     fragmentColor = color;
 }
