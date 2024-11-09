@@ -124,9 +124,16 @@ public class AssetLoader {
             }
         });
         Texture texture = textureController.createTexture2D(key, bitmap);
-     //   bitmap.recycle();
         return texture;
     }
+
+    public void freeAllBitmaps(){
+        for(Bitmap bitmap : textureBitmaps.values()){
+            bitmap.recycle();
+        }
+        textureBitmaps.clear();
+    }
+
 
     public Map<String,MeshModel> getPresetModels(){
         return presetModels;

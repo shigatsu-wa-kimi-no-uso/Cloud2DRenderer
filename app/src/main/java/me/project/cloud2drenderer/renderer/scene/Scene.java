@@ -51,24 +51,26 @@ public class Scene {
 
     private int lastPipelineId = -1;
 
-    private Vector<RenderPipeline> pipelines;   //pipelineId to pipeline
+    private final Vector<RenderPipeline> pipelines;   //pipelineId to pipeline
 
-    private Map<String,Integer> pipelineMap; // pipeline name to pipelineId
+    private final Map<String,Integer> pipelineMap; // pipeline name to pipelineId
     
     private Map<Integer,Integer> pipelineTaskBatchId; // pipilineId to batchTaskId
 
 
-    private Vector<AssetBinding> assetBindings;
+    private final Vector<AssetBinding> assetBindings;
 
-    private Vector<RenderContext> renderContexts;
+    private final Vector<RenderContext> renderContexts;
     
-    private Map<Integer, RenderBatchTask> renderBatchTasks;   // batchTaskId to batchTask
+    private final Map<Integer, RenderBatchTask> renderBatchTasks;   // batchTaskId to batchTask
 
     static class RenderBatchTask {
         public int taskId;
         public int pipelineId;
         public Map<Integer,RenderContext> contexts; //contextId in this batch
     }
+
+
 
     public void initPipeline(String name,RenderPipeline pipeline){
         int pipelineId = ++lastPipelineId;
@@ -186,7 +188,9 @@ public class Scene {
         assetBindings.clear();
     }
 
-
+    public void freeAllTextureImages(){
+        assetLoader.freeAllBitmaps();
+    }
 
     public void adjustObjects(){
         for(RenderContext context: renderContexts){
