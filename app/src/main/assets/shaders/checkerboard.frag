@@ -32,7 +32,7 @@ struct BlinnPhongLight{
 in Varying{
     vec3 position; // world space
     vec3 normal;
-    vec3 normalOS;
+   // vec3 normalOS;
 }fs_in;
 
 
@@ -114,7 +114,7 @@ void main()
 
     vec3 color = blinnPhong(fs_in.position, normalize(fs_in.normal), uEyePosition,material,light);
 
-    //fragmentColor = vec4(fs_in.normalOS*0.5+0.5,1.0);
+    //fragmentColor = vec4(fs_in.normal*0.5+0.5,1.0);
     fragmentColor = vec4(color,1.0);
 //    fragmentColor = vec4(colors[index], 1.0);
 }

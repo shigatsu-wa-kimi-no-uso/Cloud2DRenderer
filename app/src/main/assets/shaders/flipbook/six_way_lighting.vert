@@ -13,10 +13,7 @@ out Varying{
     vec2 texCoords;
     vec3 position;
     mat3 TBNInversed;
-
-    vec3 normalOS;
-    vec3 tangentOS;
-    vec3 bitangentOS;
+    mat3 TBN;
 }vs_out;
 
 
@@ -51,9 +48,7 @@ vec2 getTexCoords(vec2 originalTexCoords,vec2 flipBookShape,float currIndex){
 
 void main()
 {
-    vs_out.normalOS = aNormal;
-    vs_out.tangentOS = aTangent;
-    vs_out.bitangentOS = aBitangent;
+
     float currIndex = floor(float(uSeqFrameParams.currFrameIndex) * uSeqFrameParams.frequency);
     vs_out.texCoords = getTexCoords(aTexCoords,uSeqFrameParams.flipBookShape,currIndex);
     vs_out.position = vec3(uModeling * vec4(aPosition,1.0));
@@ -61,7 +56,7 @@ void main()
     vec3 T = normalize(modelIT * aTangent);
     vec3 B = normalize(modelIT * aBitangent);
     vec3 N = normalize(modelIT * aNormal);
-
+    vs_out.TBN = mat3(T, B, N);
     vs_out.TBNInversed = transpose(mat3(T, B, N));
 
     gl_Position = uProjection * uView * vec4(vs_out.position, 1.0);

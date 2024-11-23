@@ -113,13 +113,14 @@ public class Rectangle extends MeshModel {
 
     public static float[] getBillboardTransform(float[] eyePosOS,float[] position){
         float[] centroid = getCentroid();
-        float[] normBS = MatUtils.vec4(MatUtils.sub(eyePosOS,centroid),0);
-        MatUtils.normalize(normBS);
-        float[] up = Math.abs(normBS[1]) > 0.999 ? MatUtils.vec3(0, 0, 1) : MatUtils.vec3(0, 1, 0);
-        float[] right = MatUtils.cross(up, normBS);
-        MatUtils.normalize(right);
+        float[] zNormBS = MatUtils.vec4(MatUtils.sub(eyePosOS,centroid),0);
+        MatUtils.normalize(zNormBS);
+        float[] yUp = Math.abs(zNormBS[1]) > 0.999 ? MatUtils.vec3(0, 0, 1) : MatUtils.vec3(0, 1, 0);
+        float[] xRight = MatUtils.cross(yUp, zNormBS);
+        MatUtils.normalize(xRight);
+        float[] realY = MatUtils.cross(zNormBS,xRight);
         float[] offsetVec = MatUtils.sub(position,centroid);
-        return MatUtils.newTransform(right,up,normBS,offsetVec);
+        return MatUtils.newTransform(xRight,realY,zNormBS,offsetVec);
     }
 
 

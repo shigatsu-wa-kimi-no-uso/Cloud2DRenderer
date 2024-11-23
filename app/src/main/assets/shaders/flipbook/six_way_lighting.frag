@@ -23,10 +23,7 @@ in Varying{
     vec2 texCoords;
     vec3 position;
     mat3 TBNInversed;
-
-    vec3 normalOS;
-    vec3 tangentOS;
-    vec3 bitangentOS;
+    mat3 TBN;
 }fs_in;
 
 
@@ -68,5 +65,6 @@ void main()
    // fragmentColor = vec4(lightDirTS*0.5+0.5,1.0);
     vec3 lighting = attenuation * computeSixWayLighting(lightingRTF,lightingLBB,lightDirTS,uPointLight.intensity);
     vec4 albedo = texture(uFlipBookAlbedo,fs_in.texCoords);
+   // fragmentColor = vec4( fs_in.TBN[2]*0.5+0.5,albedo.a);
     fragmentColor = vec4(albedo.rgb * lighting,albedo.a);
 }
