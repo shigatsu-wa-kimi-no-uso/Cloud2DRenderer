@@ -5,9 +5,9 @@ import android.opengl.Matrix;
 import me.project.cloud2drenderer.renderer.entity.material.Material;
 import me.project.cloud2drenderer.renderer.entity.shader.Shader;
 import me.project.cloud2drenderer.renderer.entity.texture.Texture;
-import me.project.cloud2drenderer.renderer.procedure.binding.glresource.shader.UniformFlag;
-import me.project.cloud2drenderer.renderer.procedure.binding.glresource.shader.UniformVar;
-import me.project.cloud2drenderer.renderer.procedure.binding.glresource.shader.annotation.ShaderUniform;
+import me.project.cloud2drenderer.renderer.procedure.binding.glcomponents.shader.UniformFlag;
+import me.project.cloud2drenderer.renderer.procedure.binding.glcomponents.shader.UniformVar;
+import me.project.cloud2drenderer.renderer.procedure.binding.glcomponents.shader.annotation.ShaderUniform;
 
 
 public class CommonRenderContext extends RenderContext{
@@ -23,19 +23,21 @@ public class CommonRenderContext extends RenderContext{
     @ShaderUniform(uniformName = "uRatio")
     public UniformVar<float[]> ratio;
 
+    private float[] transform;
 
 
-    // @ShaderUniform(isStruct = true)
-    @ShaderUniform(uniformName = "uModeling",flags = {UniformFlag.USING_RAW,UniformFlag.AUTO_ASSIGN})
-    public float[] transform;
+    @Override
+    @ShaderUniform(uniformName = "uModeling")
+    public float[] getTransform(){
+        return transform;
+    }
 
+    @Override
     public void setTransform(float[] transform) {
         this.transform = transform;
     }
 
     public CommonRenderContext(){
-        transform = new float[16];
-        Matrix.setIdentityM(transform,0);
         ratio = new UniformVar<>();
     }
 

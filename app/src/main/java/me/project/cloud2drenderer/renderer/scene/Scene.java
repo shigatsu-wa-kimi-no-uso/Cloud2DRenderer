@@ -19,8 +19,8 @@ import me.project.cloud2drenderer.renderer.entity.MaterialBinding;
 import me.project.cloud2drenderer.renderer.entity.material.Material;
 import me.project.cloud2drenderer.renderer.entity.texture.Texture;
 import me.project.cloud2drenderer.renderer.loader.AssetLoader;
-import me.project.cloud2drenderer.renderer.procedure.binding.glresource.CommonBinder;
-import me.project.cloud2drenderer.renderer.procedure.binding.glresource.shader.UniformBindingProcessor;
+import me.project.cloud2drenderer.renderer.procedure.binding.glcomponents.CommonBinder;
+import me.project.cloud2drenderer.renderer.procedure.binding.glcomponents.shader.UniformBindingProcessor;
 import me.project.cloud2drenderer.renderer.procedure.pipeline.BlendPipeline;
 import me.project.cloud2drenderer.renderer.procedure.pipeline.CommonPipeline;
 import me.project.cloud2drenderer.renderer.procedure.pipeline.NonBlendPipeline;
@@ -62,9 +62,9 @@ public class Scene {
 
     private final Vector<RenderContext> renderContexts;
     
-    private final Map<Integer, RenderBatchTask> renderBatchTasks;   // batchTaskId to batchTask
+    private final Map<Integer, RenderBatch> renderBatches;   // batchTaskId to batchTask
 
-    static class RenderBatchTask {
+    static class RenderBatch {
         public int taskId;
         public int pipelineId;
         public Map<Integer,RenderContext> contexts; //contextId in this batch
@@ -76,11 +76,11 @@ public class Scene {
         int pipelineId = ++lastPipelineId;
         pipelines.add(pipeline);
         pipelineMap.put(name,pipelineId);
-        RenderBatchTask task = new RenderBatchTask();
+        RenderBatch task = new RenderBatch();
         task.taskId = pipelineId;
         task.pipelineId = pipelineId;
         task.contexts = new HashMap<>();
-        renderBatchTasks.put(pipelineId,task);
+        renderBatches.put(pipelineId,task);
     }
 
 
@@ -93,7 +93,7 @@ public class Scene {
         camera = new Camera();
         assetBindings = new Vector<>();
         renderContexts = new Vector<>();
-        renderBatchTasks = new HashMap<>();
+        renderBatches = new HashMap<>();
         pipelines = new Vector<>();
         pipelineMap = new HashMap<>();
         canvasController.enableDepthTest();
@@ -102,16 +102,28 @@ public class Scene {
         initPipeline("blend",new BlendPipeline());
     }
 
-    public void turnOnBlend(){
+    public void enableBlend(){
         canvasController.enableBlend();
     }
 
-    public void clear(){
-        canvasController.clearCanvas(0.2f, 0.3f, 0.3f, 1.0f);
+    public void enableCullFace(){
+        canvasController.enableCullFace();
+    }
+
+    public void clear(float r,float g,float b,float a){
+        canvasController.clearCanvas(r,g,b,a);
     }
     public void setViewport(int width,int height){
         viewportWidth = width;
         viewportHeight = height;
+    }
+
+    public int getViewportWidth(){
+        return viewportWidth;
+    }
+
+    public int getViewportHeight(){
+        return viewportHeight;
     }
 
     public void updateViewport(){
@@ -145,7 +157,7 @@ public class Scene {
 
     private void submitTask(String pipelineName,RenderContext context){
         int pipelineId = pipelineMap.get(pipelineName);
-        Objects.requireNonNull(renderBatchTasks.get(pipelineId)).contexts.put(context.contextId,context);
+        Objects.requireNonNull(renderBatches.get(pipelineId)).contexts.put(context.contextId,context);
     }
 
     private void initRenderContexts(AssetBinding ab) {
@@ -163,19 +175,22 @@ public class Scene {
 
         if (mb.textureNames != null) {
             for (int i = 0; i < mb.textureNames.length; i++) {
-                material.getTextures()[i] = textureController.getTexture(mb.textureNames[i]); //若textureName==null 则返回null
-                material.getTextures()[i].unit = i;
+                Texture texture = textureController.getTexture(mb.textureNames[i]); //若textureName==null 则返回null
+                texture.unit = i;
+                mb.textureSetters[i].setTexture(texture);
             }
-        } else {
-            material.getTextures()[0] = Texture.nullTexture();
         }
-        material.distribute(); //把数组中的texture对象引用分配到对应的字段
+//        } else {
+//            material.getTextures()[0] = Texture.nullTexture();
+//        }
+
         context.setGLResourceBinder(new CommonBinder());
         determineDrawMethod(context);
         shaderController.bindShaderAttributePointers(material.getShader(), context.loadedModel);
-        UniformBindingProcessor.generateShaderUniformSetter(context, material.getShader());
         context.setMaterial(material);
+        context.setTransform(ab.transform);
         context.initContext();
+        UniformBindingProcessor.generateShaderUniformSetter(context, material.getShader());
         context.contextId = ++lastContextId;
         renderContexts.add(context);
         submitTask(ab.pipelineName, context);
@@ -199,7 +214,7 @@ public class Scene {
     }
 
     public void draw(){
-        for(RenderBatchTask tasks: renderBatchTasks.values()){
+        for(RenderBatch tasks: renderBatches.values()){
             RenderPipeline pipeline = pipelines.get(tasks.pipelineId);
             pipeline.beforeTask();
             for (RenderContext context : tasks.contexts.values()){

@@ -1,41 +1,24 @@
 package me.project.cloud2drenderer;
 
 
-import static android.opengl.GLES20.GL_ARRAY_BUFFER;
-import static android.opengl.GLES20.glBindBuffer;
-import static android.opengl.GLES20.glBufferData;
-import static me.project.cloud2drenderer.opengl.statemanager.GLVertexBufferManager.loadVertexAttributeData;
+import static me.project.cloud2drenderer.util.SceneUtils.*;
+
 
 import android.app.Activity;
 import android.opengl.GLSurfaceView;
-import android.opengl.Matrix;
 import android.widget.TextView;
 
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.nio.FloatBuffer;
 import java.util.Locale;
-import java.util.Map;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
-import me.project.cloud2drenderer.opengl.glresource.buffer.GLVertexBuffer;
-import me.project.cloud2drenderer.opengl.statemanager.GLVertexBufferManager;
-import me.project.cloud2drenderer.renderer.context.MixedTextureRenderContext;
-import me.project.cloud2drenderer.renderer.context.SequenceFrameRenderContext;
-import me.project.cloud2drenderer.renderer.controller.ModelController;
-import me.project.cloud2drenderer.renderer.entity.AssetBinding;
-import me.project.cloud2drenderer.renderer.entity.MaterialBinding;
-import me.project.cloud2drenderer.renderer.entity.material.DiffuseTextureMaterial;
-import me.project.cloud2drenderer.renderer.entity.material.MixedImgMaterial;
-import me.project.cloud2drenderer.renderer.entity.model.LoadedModel;
-import me.project.cloud2drenderer.renderer.entity.model.MeshModel;
-import me.project.cloud2drenderer.renderer.entity.others.SequenceFrameParams;
-import me.project.cloud2drenderer.renderer.loader.AssetLoader;
-import me.project.cloud2drenderer.renderer.procedure.pipeline.CommonPipeline;
-import me.project.cloud2drenderer.renderer.procedure.pipeline.RenderPipeline;
+import me.project.cloud2drenderer.renderer.entity.others.light.PointLight;
 import me.project.cloud2drenderer.renderer.scene.Scene;
+import me.project.cloud2drenderer.renderer.scene.input.CameraInputHandler;
+import me.project.cloud2drenderer.renderer.scene.input.InputController;
+import me.project.cloud2drenderer.util.ColorUtils;
+import me.project.cloud2drenderer.util.SceneUtils;
 
 public class GLRenderer implements GLSurfaceView.Renderer{
 
@@ -47,12 +30,18 @@ public class GLRenderer implements GLSurfaceView.Renderer{
 
     private final TextView fpsTextView;
 
+    private final TextView cameraTextView;
+
     private long lastDrawTimeNanos;
 
-    public GLRenderer(Activity activity,TextView fpsTextView) {
+    private final InputController inputController;
+
+    private CameraInputHandler cameraInputHandler;
+    public GLRenderer(Activity activity,TextView fpsTextView,TextView cameraTextView,InputController inputController) {
         this.fpsTextView =fpsTextView;
         this.activity = activity;
-
+        this.inputController = inputController;
+        this.cameraTextView = cameraTextView;
     }
 
     void init(){
@@ -62,16 +51,27 @@ public class GLRenderer implements GLSurfaceView.Renderer{
         float aspect = (float)width/height;
         scene.setViewport(width,height);
         scene.updateViewport();
-        scene.camera.setFrustum(45,aspect,0.001f,100);
-        scene.camera.setPosition(new float[]{0,0,2});
-        scene.camera.setOrientation(new float[]{0,0,-1});
-        scene.camera.setOrientation(0,0);
+        scene.camera.setFrustum(60,aspect,0.001f,100);
+        scene.camera.setPosition(new float[]{0.0f,0.0f,0.0f});
+        scene.camera.setOrientation(new float[]{0.0f,0.0f,-1.0f});
+        scene.camera.rotate(0,0);
         scene.camera.update();
-        scene.turnOnBlend();
+    //    scene.enableBlend();
+      //  scene.enableCullFace();
+        cameraInputHandler = new CameraInputHandler();
+        inputController.setCameraInputHandler(cameraInputHandler);
+        cameraInputHandler.setCamera(scene.camera);
+        updateCameraMotionSensitivity();
     }
 
 
-    private void updateFPS() {
+    private void updateCameraMotionSensitivity(){
+        cameraInputHandler.setCameraMoveSensitivity(10.0f/scene.getViewportWidth(),10.0f/scene.getViewportHeight());
+        cameraInputHandler.setCameraRotationSensitivity(30.0f/scene.getViewportHeight(),30.0f/scene.getViewportWidth());
+        cameraInputHandler.setCameraUpDownSensitivity(10.0f/scene.getViewportHeight());
+    }
+
+    private void updateFPSText() {
         long currTimeNanos = System.nanoTime();
         long duration = currTimeNanos - lastDrawTimeNanos;
         lastDrawTimeNanos = currTimeNanos;
@@ -79,76 +79,55 @@ public class GLRenderer implements GLSurfaceView.Renderer{
         activity.runOnUiThread(()-> fpsTextView.setText(String.format(Locale.getDefault(),"FPS:%.2f",fps)));
     }
 
-    AssetBinding getCubeAssetBinding(float ratio,float scale,float[] position){
-        AssetBinding ab = new AssetBinding();
-        MaterialBinding mb = new MaterialBinding();
-        ab.pipelineName = "non_blend";
-        mb.textureNames = new String[]{"container","awesomeface"};
-        mb.shaderName = "mixed_img";
-        MixedImgMaterial material = new MixedImgMaterial();
-        material.setRatio(ratio);
-        mb.material = material;
-        ab.modelName = "cube";
-        ab.materialBinding = mb;
-        MixedTextureRenderContext context = new MixedTextureRenderContext();
-        float[] transform = context.getTransform();
-        Matrix.scaleM(transform,0,scale,scale,scale);
-        Matrix.translateM(transform,0,position[0],position[1],position[2]);
-        ab.context = context;
-        return ab;
+    private void updateCameraText(){
+        activity.runOnUiThread(() -> {
+            float[] cameraPos = scene.camera.getPosition();
+            float[] orient = scene.camera.getOrientation();
+            String posText = String.format(Locale.getDefault(),"%25s(%.1f ,%.1f, %.1f)","CamPos:",cameraPos[0],cameraPos[1],cameraPos[2]);
+            String orientText = String.format(Locale.getDefault(),"%25s(%.1f ,%.1f ,%.1f)","CamOrient:",orient[0],orient[1],orient[2]);
+            String text = posText+"\n"+orientText;
+            cameraTextView.setText(text);
+        });
     }
 
 
-    AssetBinding getBillboardAssetBinding(float width,float height,float[] position){
-        AssetBinding ab = new AssetBinding();
-        MaterialBinding mb = new MaterialBinding();
-        ab.pipelineName = "blend";
-        mb.textureNames = new String[]{"SmokeLoopPNG"};
-        mb.shaderName = "seq_frame";
-        mb.material = new DiffuseTextureMaterial();
-        ab.modelName = "rectangle";
-        ab.materialBinding = mb;
-        //CommonRenderContext context = new CommonRenderContext();
-        SequenceFrameRenderContext context = new SequenceFrameRenderContext();
-        float[] transform = context.getTransform();
-        Matrix.scaleM(transform,0,width,height,1);
-        Matrix.translateM(transform,0,position[0],position[1],position[2]);
-        SequenceFrameParams seqFrameParams = context.getSeqFrameParams();
-        seqFrameParams.setCurrentFrameIndex(0);
-        seqFrameParams.setFlipBookShape(new float[]{8.0f,8.0f});
-        seqFrameParams.setFrequency(1.0f/2.5f);
-        ab.context = context;
-        return ab;
-    }
 
     @Override
     public void onSurfaceCreated(GL10 gl, EGLConfig config) {
         init();
-        scene.load( getCubeAssetBinding(0.5f,1,new float[]{0,0,-5}));
-        scene.load( getCubeAssetBinding(0.5f,1,new float[]{-1.0f,-1.5f,-5}));
+        PointLight pointLight = new PointLight();
+        //255,235,205
+        pointLight.setIntensity(ColorUtils.getIntensity(255,235,205,3));
+        pointLight.setPosition(new float[]{-1.0f, -1.0f, 0f});
+        //  scene.load( getTerrainAssetBinding(1f,1f,new float[]{0.0f,-0.8f,-1.3f}));
+      //  scene.load( getCubeAssetBinding(0.5f,1,new float[]{0,0,-5}));
+        scene.load(getLightCubeAssetBinding(new float[]{0.0f, 0.0f, 0f}, new float[]{0.05f, 0.05f, 0.05f}, pointLight));
+        scene.load(getCubeAssetBinding2(new float[]{0.0f, 0.0f, 0f}, new float[]{1, 1, 1}, new float[]{-1f, -1.5f, -5}, pointLight));
         //需要注意：先画远物体，再画近的
-
-        scene.load( getBillboardAssetBinding(3,3,new float[]{-1.0f,-1.0f,-7f}));
-        scene.load( getBillboardAssetBinding(1,1,new float[]{0f,0f,-2.5f}));
-        scene.load( getBillboardAssetBinding(0.5f,0.5f,new float[]{-1f,-1f,-2.5f}));
-        scene.load( getBillboardAssetBinding(1.5f,1.5f,new float[]{-0.5f,0.15f,-2.3f}));
-        scene.load( getBillboardAssetBinding(1,1,new float[]{-0.25f,0f,-2.0f}));
-    //    scene.load( getBillboardAssetBinding(1.5f,1.5f,new float[]{-0.5f,-0.25f,-2.0f}));
+        scene.load(getCheckerBoardAssetBinding(new float[]{0,-3,0},new float[]{30,30,30},pointLight));
+        scene.load(getBillboardAssetBinding(1, 1, new float[]{-1f, 0f, -2.5f}));
+        scene.load(getBillboardAssetBinding(1, 1, new float[]{0f, 0f, -2.5f},new float[]{0,0,0}, pointLight));
+        scene.load(getBillboardAssetBinding(1, 1, new float[]{0.0f, 0.0f, 0f},new float[]{0,0,0}, pointLight));
+        scene.load(getBillboardAssetBinding(0.5f, 0.5f, new float[]{-1.0f, 0.0f, 0f},new float[]{0,0,0}, pointLight));
+        //scene.load( getBillboardAssetBinding(0.5f,0.5f,new float[]{-1f,-1f,-2.5f}));
+        //scene.load( getBillboardAssetBinding(1.5f,1.5f,new float[]{-0.5f,0.15f,-2.3f}));
+        //scene.load( getBillboardAssetBinding(1,1,new float[]{-0.25f,0f,-2.0f}));
+        //    scene.load( getBillboardAssetBinding(1.5f,1.5f,new float[]{-0.5f,-0.25f,-2.0f}));
         scene.freeAllTextureImages();
         scene.initRenderContexts();
-       // scene.load(getBillboardAssetBinding(1,1,new float[]{0f,-0.5f,-5}));
-       // scene.initRenderContexts();
+        // scene.load(getBillboardAssetBinding(1,1,new float[]{0f,-0.5f,-5}));
+        // scene.initRenderContexts();
         //scene.load(getCubeAssetBinding(0.5f,1,new float[]{0,1,-5}));
-     //   scene.load(getCubeAssetBinding(0.5f,1,new float[]{0,-1,-5}));
+        //   scene.load(getCubeAssetBinding(0.5f,1,new float[]{0,-1,-5}));
 
-       // scene.load(getBillboardAssetBinding(3,3,new float[]{0.5f,-0.5f,-20}));
-       // scene.load(getBillboardAssetBinding(2,2,new float[]{0.5f,0.5f,-30}));
-       // scene.load(getBillboardAssetBinding(1,1,new float[]{-0.5f,0.25f,-15}));
-       // scene.load(getBillboardAssetBinding(1,1,new float[]{0.5f,0.0f,-20}));
-       // scene.load(getBillboardAssetBinding(3,3,new float[]{0.75f,0.0f,-20}));
-       // scene.load(getBillboardAssetBinding(5,5,new float[]{-0.75f,0.7f,-20}));
-       // scene.load(getBillboardAssetBinding(5,5,new float[]{-0.75f,-1.7f,-20}));
-       // scene.initRenderContexts();
+        // scene.load(getBillboardAssetBinding(3,3,new float[]{0.5f,-0.5f,-20}));
+        // scene.load(getBillboardAssetBinding(2,2,new float[]{0.5f,0.5f,-30}));
+        // scene.load(getBillboardAssetBinding(1,1,new float[]{-0.5f,0.25f,-15}));
+        // scene.load(getBillboardAssetBinding(1,1,new float[]{0.5f,0.0f,-20}));
+        // scene.load(getBillboardAssetBinding(3,3,new float[]{0.75f,0.0f,-20}));
+        // scene.load(getBillboardAssetBinding(5,5,new float[]{-0.75f,0.7f,-20}));
+        // scene.load(getBillboardAssetBinding(5,5,new float[]{-0.75f,-1.7f,-20}));
+        // scene.initRenderContexts();
     }
 
     @Override
@@ -158,19 +137,17 @@ public class GLRenderer implements GLSurfaceView.Renderer{
         scene.updateViewport();
         scene.camera.setFrustumAspect(aspect);
         scene.camera.update();
+        updateCameraMotionSensitivity();
     }
 
     int count = 0;
     @Override
     public void onDrawFrame(GL10 gl) {
-        updateFPS();
+        updateFPSText();
+        updateCameraText();
         scene.adjustObjects();
-        scene.clear();
+        scene.clear(0.1f,0.1f,0.1f,1);
         scene.draw();
-/*        if(count > 60*5){
-            scene.load(getCubeAssetBinding(0.5f,1,new float[]{0,-1,-5}));
-            scene.initRenderContexts();
-        }*/
         count++;
     }
 }

@@ -1,13 +1,14 @@
 package me.project.cloud2drenderer.opengl.statemanager;
 
 import static android.opengl.GLES30.*;
+import static android.opengl.GLES31.GL_TEXTURE_2D_MULTISAMPLE;
 
 import android.graphics.Bitmap;
 import android.opengl.GLUtils;
 
 import androidx.annotation.NonNull;
 import me.project.cloud2drenderer.opengl.GLErrorUtils;
-import me.project.cloud2drenderer.opengl.glresource.texture.GLTexture;
+import me.project.cloud2drenderer.opengl.glcomponent.texture.GLTexture;
 
 public class GLTextureManager {
 
@@ -60,10 +61,13 @@ public class GLTextureManager {
     //使用前先bind
     public static void loadTexture2D(@NonNull Bitmap bitmap) {
         assertBound();
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    //    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
        // glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, bitmap.getWidth(), bitmap.getHeight(), 0, GL_RGB, GL_UNSIGNED_BYTE, )
         GLUtils.texImage2D(GL_TEXTURE_2D, 0, bitmap, 0);
         glGenerateMipmap(GL_TEXTURE_2D);
+
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 

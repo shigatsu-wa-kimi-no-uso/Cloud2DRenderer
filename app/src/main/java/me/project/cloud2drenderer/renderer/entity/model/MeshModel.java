@@ -1,7 +1,7 @@
 package me.project.cloud2drenderer.renderer.entity.model;
 
 
-import me.project.cloud2drenderer.renderer.procedure.binding.glresource.shader.AttributeBindingProcessor;
+import me.project.cloud2drenderer.renderer.procedure.binding.glcomponents.shader.AttributeBindingProcessor;
 
 public abstract class MeshModel {
 

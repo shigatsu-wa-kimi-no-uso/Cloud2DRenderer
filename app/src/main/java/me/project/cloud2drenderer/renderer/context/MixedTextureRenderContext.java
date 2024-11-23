@@ -6,15 +6,15 @@ import me.project.cloud2drenderer.renderer.entity.material.Material;
 import me.project.cloud2drenderer.renderer.entity.material.MixedImgMaterial;
 import me.project.cloud2drenderer.renderer.entity.shader.Shader;
 import me.project.cloud2drenderer.renderer.entity.texture.Texture;
-import me.project.cloud2drenderer.renderer.procedure.binding.glresource.shader.UniformFlag;
-import me.project.cloud2drenderer.renderer.procedure.binding.glresource.shader.annotation.ShaderUniform;
+import me.project.cloud2drenderer.renderer.procedure.binding.glcomponents.shader.UniformFlag;
+import me.project.cloud2drenderer.renderer.procedure.binding.glcomponents.shader.annotation.ShaderUniform;
 
 public class MixedTextureRenderContext extends RenderContext{
 
     private MixedImgMaterial material;
 
-    @ShaderUniform(uniformName = "uModeling",flags = {UniformFlag.USING_RAW,UniformFlag.AUTO_ASSIGN})
-    public float[] transform;
+
+    private float[] transform;
 
     @ShaderUniform(uniformName = "uRatio")
     public float getRatio(){
@@ -22,8 +22,6 @@ public class MixedTextureRenderContext extends RenderContext{
     }
 
     public MixedTextureRenderContext(){
-        transform = new float[16];
-        Matrix.setIdentityM(transform,0);
 
     }
 
@@ -31,14 +29,13 @@ public class MixedTextureRenderContext extends RenderContext{
         return material;
     }
 
-    public void setMaterial(MixedImgMaterial material) {
-        this.material = material;
-    }
-
+    @Override
+    @ShaderUniform(uniformName = "uModeling")
     public float[] getTransform() {
         return transform;
     }
 
+    @Override
     public void setTransform(float[] transform) {
         this.transform = transform;
     }

@@ -7,33 +7,28 @@ import android.opengl.GLSurfaceView;
 
 import androidx.annotation.NonNull;
 
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.nio.FloatBuffer;
 import java.util.Map;
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
 import me.project.cloud2drenderer.opengl.GLErrorUtils;
-import me.project.cloud2drenderer.opengl.glresource.buffer.GLVertexBuffer;
-import me.project.cloud2drenderer.opengl.glresource.shader.GLShaderProgram;
+import me.project.cloud2drenderer.opengl.glcomponent.buffer.GLVertexBuffer;
+import me.project.cloud2drenderer.opengl.glcomponent.shader.GLShaderProgram;
 import me.project.cloud2drenderer.opengl.statemanager.GLCanvasManager;
 import me.project.cloud2drenderer.opengl.statemanager.GLShaderManager;
 import me.project.cloud2drenderer.opengl.statemanager.GLVertexBufferManager;
-import me.project.cloud2drenderer.opengl.glresource.texture.GLTexture;
+import me.project.cloud2drenderer.opengl.glcomponent.texture.GLTexture;
 import me.project.cloud2drenderer.renderer.entity.model.LoadedModel;
 import me.project.cloud2drenderer.renderer.entity.model.MeshModel;
 import me.project.cloud2drenderer.renderer.entity.model.ModelMeta;
 import me.project.cloud2drenderer.renderer.entity.model.shape.Cube;
-import me.project.cloud2drenderer.renderer.entity.model.shape.Rectangle;
-import me.project.cloud2drenderer.renderer.entity.model.shape.Triangle;
 import me.project.cloud2drenderer.renderer.controller.CanvasController;
 import me.project.cloud2drenderer.renderer.controller.ModelController;
 import me.project.cloud2drenderer.renderer.controller.ShaderController;
 import me.project.cloud2drenderer.renderer.controller.TextureController;
 import me.project.cloud2drenderer.renderer.entity.shader.Shader;
 import me.project.cloud2drenderer.renderer.loader.AssetLoader;
-import me.project.cloud2drenderer.renderer.procedure.binding.glresource.shader.VertexAttributeMeta;
+import me.project.cloud2drenderer.renderer.procedure.binding.glcomponents.shader.VertexAttributeMeta;
 import me.project.cloud2drenderer.util.AssetUtils;
 
 

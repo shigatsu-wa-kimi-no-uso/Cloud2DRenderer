@@ -13,12 +13,14 @@ import java.util.HashSet;
 import java.util.Set;
 
 import me.project.cloud2drenderer.opengl.GLErrorUtils;
-import me.project.cloud2drenderer.opengl.glresource.shader.ShaderCode;
-import me.project.cloud2drenderer.opengl.glresource.shader.GLShaderProgram;
+import me.project.cloud2drenderer.opengl.glcomponent.shader.ShaderCode;
+import me.project.cloud2drenderer.opengl.glcomponent.shader.GLShaderProgram;
 
 public class GLShaderManager {
 
     private static GLShaderProgram currentProgram = null;
+
+    private static String tag = GLShaderManager.class.getSimpleName();
 
 /*
     private interface SetUniformFunctor{
@@ -214,7 +216,7 @@ public class GLShaderManager {
           //注意！设置顶点属性时，shader和vertexbuffer都要绑定！若vertexbuffer不绑定，GL不会报错！
         final int index = getAttribLocation(name);
         if(index == GL_INVALID_INDEX){
-            Log.e("GLShaderManager","getAttribLocation(name) returned -1");
+            Log.e(tag,"getAttribLocation('"+name+"') returned -1");
             return;
         }
 
@@ -223,6 +225,7 @@ public class GLShaderManager {
                 startOffset);
         glEnableVertexAttribArray(index);
         GLErrorUtils.assertNoError();
+        Log.d(tag,"setAttribLocation('"+name+"') success");
     }
 
 

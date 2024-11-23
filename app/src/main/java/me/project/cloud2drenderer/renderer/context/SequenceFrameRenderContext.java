@@ -1,56 +1,38 @@
 package me.project.cloud2drenderer.renderer.context;
 
-import android.opengl.Matrix;
-
 import me.project.cloud2drenderer.renderer.entity.material.DiffuseTextureMaterial;
 import me.project.cloud2drenderer.renderer.entity.material.Material;
-import me.project.cloud2drenderer.renderer.entity.others.SequenceFrameParams;
+import me.project.cloud2drenderer.renderer.entity.others.flipbook.SequenceFrameParams;
 import me.project.cloud2drenderer.renderer.entity.shader.Shader;
 import me.project.cloud2drenderer.renderer.entity.texture.Texture;
-import me.project.cloud2drenderer.renderer.procedure.binding.glresource.shader.UniformFlag;
-import me.project.cloud2drenderer.renderer.procedure.binding.glresource.shader.annotation.ShaderUniform;
+import me.project.cloud2drenderer.renderer.procedure.binding.glcomponents.shader.UniformFlag;
+import me.project.cloud2drenderer.renderer.procedure.binding.glcomponents.shader.annotation.ShaderUniform;
 
 public class SequenceFrameRenderContext extends RenderContext {
-
-    @ShaderUniform(uniformName = "uSeqFrameParams",flags = {UniformFlag.IS_STRUCT})
-    public final SequenceFrameParams seqFrameParams;
+    private SequenceFrameParams seqFrameParams;
 
     private DiffuseTextureMaterial material;
 
-    @ShaderUniform(uniformName = "uModeling",flags = {UniformFlag.USING_RAW,UniformFlag.AUTO_ASSIGN})
-    public final float[] transform;
+
+    private float[] transform;
 
 
-    public SequenceFrameRenderContext(SequenceFrameParams seqFrameParams,float[] transform){
-        this.seqFrameParams = seqFrameParams;
+    public SequenceFrameRenderContext(){
+    }
+
+    @Override
+    public void setTransform(float[] transform) {
         this.transform = transform;
     }
 
-    public SequenceFrameRenderContext(){
-        this.seqFrameParams = new SequenceFrameParams();
-        this.transform = new float[16];
-        Matrix.setIdentityM(transform,0);
+    public void setSeqFrameParams(SequenceFrameParams seqFrameParams) {
+        this.seqFrameParams = seqFrameParams;
     }
 
-
+    @ShaderUniform(uniformName = "uSeqFrameParams",flags = {UniformFlag.IS_STRUCT})
     public SequenceFrameParams getSeqFrameParams() {
         return seqFrameParams;
     }
-
-  /*  @ShaderUniform(uniformName = "uSeqFrameParams.currFrameIndex")
-    public int getCurrentFrameIndex(){
-        return seqFrameParams.getCurrentFrameIndex();
-    }
-
-    @ShaderUniform(uniformName = "uSeqFrameParams.flipBookShape")
-    public float[] getFlipBookShape(){
-        return seqFrameParams.getFlipBookShape();
-    }
-
-    @ShaderUniform(uniformName = "uSeqFrameParams.frequency")
-    public float getFrequency(){
-        return seqFrameParams.getFrequency();
-    }*/
 
 
     public DiffuseTextureMaterial getMaterial() {
@@ -70,7 +52,6 @@ public class SequenceFrameRenderContext extends RenderContext {
         this.material = (DiffuseTextureMaterial) material;
     }
 
-
     @ShaderUniform(uniformName = "uView")
     public float[] getView(){
         return camera.getView();
@@ -86,6 +67,8 @@ public class SequenceFrameRenderContext extends RenderContext {
         return material.getDiffuseTexture().unit;
     }
 
+    @Override
+    @ShaderUniform(uniformName = "uModeling")
     public float[] getTransform() {
         return transform;
     }

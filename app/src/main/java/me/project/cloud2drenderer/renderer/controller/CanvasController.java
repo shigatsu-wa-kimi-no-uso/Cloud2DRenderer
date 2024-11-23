@@ -4,6 +4,8 @@ import static android.opengl.GLES20.*;
 
 import java.util.Stack;
 
+import javax.microedition.khronos.opengles.GL;
+
 import me.project.cloud2drenderer.opengl.GLErrorUtils;
 import me.project.cloud2drenderer.opengl.statemanager.GLCanvasManager;
 
@@ -31,6 +33,11 @@ public class CanvasController {
 
     public void enableBlend(){
         GLCanvasManager.enableGLFunction(GL_BLEND);
+    }
+
+    public void enableCullFace(){
+        GLCanvasManager.enableGLFunction(GL_CULL_FACE);
+        GLCanvasManager.cullFaceMode(GL_BACK);
     }
 
     public void setCanvasSize(int width,int height){

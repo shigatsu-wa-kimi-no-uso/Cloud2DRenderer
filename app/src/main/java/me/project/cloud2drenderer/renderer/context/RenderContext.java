@@ -3,16 +3,14 @@ package me.project.cloud2drenderer.renderer.context;
 import androidx.annotation.NonNull;
 
 import java.util.Vector;
-import java.util.function.Consumer;
 
 import me.project.cloud2drenderer.renderer.entity.material.Material;
 import me.project.cloud2drenderer.renderer.entity.model.LoadedModel;
 import me.project.cloud2drenderer.renderer.entity.shader.Shader;
 import me.project.cloud2drenderer.renderer.entity.texture.Texture;
-import me.project.cloud2drenderer.renderer.procedure.binding.glresource.shader.ShaderUniformSetterWrapper;
-import me.project.cloud2drenderer.renderer.procedure.binding.glresource.ResBindingMethod;
-import me.project.cloud2drenderer.renderer.procedure.binding.glresource.shader.UniformVar;
-import me.project.cloud2drenderer.renderer.procedure.binding.glresource.shader.annotation.ShaderUniform;
+import me.project.cloud2drenderer.renderer.procedure.binding.glcomponents.shader.ShaderUniformSetterWrapper;
+import me.project.cloud2drenderer.renderer.procedure.binding.glcomponents.ResBindingMethod;
+import me.project.cloud2drenderer.renderer.procedure.binding.glcomponents.shader.UniformVar;
 import me.project.cloud2drenderer.renderer.procedure.drawing.DrawMethod;
 import me.project.cloud2drenderer.renderer.scene.Camera;
 
@@ -40,6 +38,9 @@ public abstract class RenderContext {
         autoAssignedUniforms = new Vector<>();
         assignments = new Vector<>();
     }
+
+    public abstract float[] getTransform();
+    public abstract void setTransform(float[] transform);
 
     public void setDrawMethod(DrawMethod drawMethod) {
        this.drawMethod=drawMethod;
@@ -75,9 +76,7 @@ public abstract class RenderContext {
     public abstract Shader getShader();
 
 
-    public Texture[] getTextures(){
-        return new Texture[]{Texture.nullTexture()};
-    }
+    public abstract Texture[] getTextures();
 
     public abstract void setMaterial(Material material);
 

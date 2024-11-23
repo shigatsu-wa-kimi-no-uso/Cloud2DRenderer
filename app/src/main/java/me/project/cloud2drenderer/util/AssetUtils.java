@@ -6,6 +6,7 @@ import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.Matrix;
 import android.util.Log;
 
 
@@ -34,10 +35,18 @@ public class AssetUtils {
         return BitmapFactory.decodeResource(ctx.getResources(), resourceId, options);
     }
 
+    public static Bitmap flipBitmapVertically(Bitmap bitmap){
+        Matrix matrix = new Matrix();
+        matrix.preScale(1,-1);
+        return Bitmap.createBitmap(bitmap,0,0,bitmap.getWidth(),bitmap.getHeight(),matrix,true);
+    }
+
+
     public static Bitmap getBitmapFromAsset(Context context, String filePath) {
         AssetManager assetManager = context.getAssets();
         InputStream istr;
         Bitmap bitmap;
+
         String suffix = FileUtils.getFileSuffix(filePath);
         try {
             istr = assetManager.open(filePath);
@@ -54,7 +63,9 @@ public class AssetUtils {
             throw new RuntimeException(e);
         }
         assert bitmap!=null;
-        return bitmap;
+
+
+        return flipBitmapVertically(bitmap);
     }
 
     public static String readAssetFile(Context ctx, String fileName){
