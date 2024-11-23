@@ -18,6 +18,14 @@ public class MixedImgMaterial extends Material{
         textures[1] = texture;
     }
 
+    public Texture getTexture1(){
+        return textures[0];
+    }
+
+    public Texture getTexture2(){
+        return textures[1];
+    }
+
     public void setRatio(float ratio){
         this.ratio = ratio;
     }
@@ -28,8 +36,5 @@ public class MixedImgMaterial extends Material{
     }
 
 
-    @Override
-    public void distribute() {
 
-    }
 }

@@ -8,9 +8,10 @@ import android.graphics.Bitmap;
 import java.util.HashMap;
 import java.util.Map;
 
-import me.project.cloud2drenderer.opengl.glresource.buffer.GLVertexBuffer;
+import me.project.cloud2drenderer.opengl.glcomponent.buffer.GLVertexBuffer;
 import me.project.cloud2drenderer.renderer.entity.model.LoadedModel;
 import me.project.cloud2drenderer.renderer.entity.model.MeshModel;
+import me.project.cloud2drenderer.renderer.entity.model.TerrainMesh;
 import me.project.cloud2drenderer.renderer.entity.model.shape.Cube;
 import me.project.cloud2drenderer.renderer.entity.model.shape.Rectangle;
 import me.project.cloud2drenderer.renderer.entity.model.shape.Triangle;
@@ -43,7 +44,8 @@ public class AssetLoader {
     Map<String, MeshModel> presetModels = Map.of(
             "triangle",new Triangle(),
             "rectangle",new Rectangle(),
-            "cube",new Cube()
+            "cube",new Cube(),
+            "terrain_mesh",new TerrainMesh(100,100)
             );
 
 
@@ -171,4 +173,8 @@ public class AssetLoader {
     public void setTextureDirectory(String textureDirectory) {
         this.textureDirectory = textureDirectory;
     }
+
+
+
+
 }

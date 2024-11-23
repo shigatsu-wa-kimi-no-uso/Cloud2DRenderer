@@ -1,9 +1,11 @@
 package me.project.cloud2drenderer.renderer.entity.model;
 
-import me.project.cloud2drenderer.opengl.glresource.buffer.GLVertexBuffer;
+import me.project.cloud2drenderer.opengl.glcomponent.buffer.GLVertexBuffer;
 
 public class LoadedModel {
     public GLVertexBuffer vertexBuffer;
+
+    public String modelName;
 
     public int vertexCount;
 

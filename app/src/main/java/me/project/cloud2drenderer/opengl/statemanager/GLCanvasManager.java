@@ -56,6 +56,7 @@ public class GLCanvasManager {
         GLErrorUtils.assertNoError();
     }
 
+
     public static void setBlendFunction(int sfactor,int dfactor){
         glBlendFunc(sfactor,dfactor);
 
@@ -70,6 +71,12 @@ public class GLCanvasManager {
 
     public static void enableGLFunction(int cap){
         glEnable(cap);
+        GLErrorUtils.assertNoError();
+    }
+
+
+    public static void cullFaceMode(int mode){
+        glCullFace(mode);
         GLErrorUtils.assertNoError();
     }
 

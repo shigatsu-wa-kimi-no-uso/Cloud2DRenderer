@@ -16,6 +16,8 @@ public class AssetBinding {
 
     public String pipelineName;
 
+    public float[] transform;
+
     public AssetBinding(){
     }
 

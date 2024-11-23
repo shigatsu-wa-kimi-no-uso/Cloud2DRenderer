@@ -1,11 +1,8 @@
 package me.project.cloud2drenderer.renderer.scene;
 
 
-import static android.opengl.GLES20.glViewport;
-
 import android.opengl.Matrix;
 
-import me.project.cloud2drenderer.renderer.procedure.binding.glresource.shader.annotation.ShaderUniform;
 import me.project.cloud2drenderer.util.MatUtils;
 
 public class Camera {
@@ -17,6 +14,10 @@ public class Camera {
 
     private float[] orientation;
     private final float[] yup = {0.0F, 1.0F, 0.0F};
+
+    private float[] axisX;
+
+    private float[] axisY;
 
     private float aspect;
     private float fovy = 45;
@@ -38,10 +39,36 @@ public class Camera {
     public void setPosition(float[] pos){
         this.cameraPos = pos;
     }
+    public float[] getPosition(){
+        return cameraPos;
+    }
+
+    public float[] getOrientation(){
+        return orientation;
+    }
+
+    public float[] getYup(){
+        return yup;
+    }
+
+    public float[] getAxisX(){
+        return axisX;
+    }
+
+    public float[] getAxisY(){
+        return axisY;
+    }
+
     public void setOrientation(float[] orientation){
         this.orientation = orientation;
+        MatUtils.normalize(this.orientation);
     }
-    public void setOrientation(float camXAngle,float camYAngle){
+
+    void updateAxis(){
+        axisX = MatUtils.cross(orientation,yup);
+        axisY = MatUtils.cross(axisX,orientation);
+    }
+    public void rotate(float camXAngle, float camYAngle){
         float[] cross = MatUtils.cross(orientation, yup);
         float[] newOrientation = MatUtils.rotateVec3(orientation, camXAngle, cross);
         float aa = MatUtils.angle(newOrientation, yup);
@@ -49,6 +76,7 @@ public class Camera {
             orientation = newOrientation;
         }
         orientation = MatUtils.rotateVec3(orientation, camYAngle, yup);
+        MatUtils.normalize(this.orientation);
     }
 
     public void setFrustumFieldOfView(float fov){
@@ -85,7 +113,16 @@ public class Camera {
         float[] cent = MatUtils.add(cameraPos, orientation);
         Matrix.setLookAtM(view, 0, cameraPos[0], cameraPos[1], cameraPos[2],
                 cent[0], cent[1], cent[2], yup[0], yup[1], yup[2]);
+        updateAxis();
     }
+
+    public void moveCamera(float deltaX,float deltaY,float deltaZ){
+        cameraPos[0] += deltaX;
+        cameraPos[1] += deltaY;
+        cameraPos[2] += deltaZ;
+    }
+
+
 
 
     public float[] getView(){

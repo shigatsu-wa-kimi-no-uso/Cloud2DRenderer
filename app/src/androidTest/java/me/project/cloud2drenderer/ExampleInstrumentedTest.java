@@ -10,10 +10,9 @@ import org.junit.runner.RunWith;
 
 import static org.junit.Assert.*;
 
-import me.project.cloud2drenderer.renderer.procedure.binding.glresource.shader.AttributeBindingProcessor;
 import me.project.cloud2drenderer.renderer.context.CommonRenderContext;
 import me.project.cloud2drenderer.renderer.context.RenderContext;
-import me.project.cloud2drenderer.renderer.procedure.binding.glresource.shader.UniformBindingProcessor;
+import me.project.cloud2drenderer.renderer.procedure.binding.glcomponents.shader.UniformBindingProcessor;
 
 /**
  * Instrumented test, which will execute on an Android device.

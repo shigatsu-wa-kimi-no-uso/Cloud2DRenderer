@@ -7,6 +7,7 @@ import android.view.View;
 import androidx.appcompat.app.AppCompatActivity;
 
 import me.project.cloud2drenderer.databinding.ActivityMainBinding;
+import me.project.cloud2drenderer.renderer.scene.input.InputController;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -24,14 +25,25 @@ public class MainActivity extends AppCompatActivity {
 
     private View view;
 
+    private InputController inputController;
+
     private boolean initialize(){
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         surfaceView = binding.glSurfaceView;
         view = binding.getRoot();
         setContentView(view);
-        renderer = new GLRenderer(this,binding.fpsTextView);
+        inputController = new InputController(this,
+                binding.moveImageButton,
+                binding.rotateImageButton,
+                binding.upDownImageButton,
+                binding.resetImageButton);
+        renderer = new GLRenderer(this,binding.fpsTextView,binding.cameraTextView,inputController);
+
+
+    //    surfaceView.setEGLConfigChooser(new MultisampleConfigChooser());
         surfaceView.setEGLContextClientVersion(3);
         surfaceView.setRenderer(renderer);
+        surfaceView.setOnTouchListener(inputController);
         return true;
     }
 

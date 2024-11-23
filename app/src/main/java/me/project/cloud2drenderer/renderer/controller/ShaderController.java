@@ -3,9 +3,12 @@ package me.project.cloud2drenderer.renderer.controller;
 
 import static android.opengl.GLES32.*;
 
+import android.util.Log;
+
 import androidx.annotation.NonNull;
 
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 
@@ -13,11 +16,13 @@ import me.project.cloud2drenderer.opengl.statemanager.GLShaderManager;
 import me.project.cloud2drenderer.opengl.statemanager.GLVertexBufferManager;
 import me.project.cloud2drenderer.renderer.entity.model.LoadedModel;
 import me.project.cloud2drenderer.renderer.entity.shader.Shader;
-import me.project.cloud2drenderer.renderer.procedure.binding.glresource.shader.ShaderUniformMeta;
-import me.project.cloud2drenderer.renderer.procedure.binding.glresource.shader.VertexAttributeMeta;
+import me.project.cloud2drenderer.renderer.procedure.binding.glcomponents.shader.ShaderUniformMeta;
+import me.project.cloud2drenderer.renderer.procedure.binding.glcomponents.shader.VertexAttributeMeta;
 import me.project.cloud2drenderer.util.DebugUtils;
 
 public class ShaderController {
+
+    private String tag = this.getClass().getSimpleName();
 
     static class ShaderContainer{
         Map<String, String> shaderCodes;
@@ -103,6 +108,7 @@ public class ShaderController {
                             Shader shader = new Shader();
                             shader.program = GLShaderManager.createProgram(vertId, fragId);
                             shader.setUniformMetas(getUniformInfo(shader));
+                            shader.name = name;
                            // shader.uniformSetters = generateShaderUniformBinders();
                             return shader;
                         }
@@ -120,6 +126,16 @@ public class ShaderController {
             VertexAttributeMeta attribMeta = entry.getValue();
             String attributeName = attribMeta.attributeName;
             GLShaderManager.setAttribute(attributeName,attribMeta.elemCnt,attribMeta.elemType,attribMeta.normalized,attribMeta.strideInBytes,attribMeta.offset);
+
+            Log.d(tag, String.format(Locale.getDefault(),
+                    "bound %d-elem shader attribute %s@shader['%s'] pointer to model +%d@model['%s'] with stride %d",
+                    attribMeta.elemCnt,
+                    attributeName,
+                    shader.name,
+                    attribMeta.offset,
+                    model.modelName,
+                    attribMeta.strideInBytes
+                    ));
         }
         GLVertexBufferManager.unbind();
     }

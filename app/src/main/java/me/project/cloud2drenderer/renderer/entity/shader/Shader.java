@@ -2,11 +2,12 @@ package me.project.cloud2drenderer.renderer.entity.shader;
 
 import java.util.Map;
 
-import me.project.cloud2drenderer.opengl.glresource.shader.GLShaderProgram;
-import me.project.cloud2drenderer.renderer.procedure.binding.glresource.shader.ShaderUniformMeta;
+import me.project.cloud2drenderer.opengl.glcomponent.shader.GLShaderProgram;
+import me.project.cloud2drenderer.renderer.procedure.binding.glcomponents.shader.ShaderUniformMeta;
 
 public class Shader {
 
+    public String name;
 
     public GLShaderProgram program;
 

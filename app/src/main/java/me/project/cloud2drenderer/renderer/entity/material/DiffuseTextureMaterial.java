@@ -4,7 +4,7 @@ import me.project.cloud2drenderer.renderer.entity.texture.Texture;
 
 public class DiffuseTextureMaterial extends Material{
 
-    private Texture diffuseTexture;
+
 
     public DiffuseTextureMaterial(){
         textures = new Texture[1];
@@ -12,17 +12,12 @@ public class DiffuseTextureMaterial extends Material{
 
 
     public Texture getDiffuseTexture() {
-        return diffuseTexture;
+        return textures[0];
     }
 
-    public void setDiffuseTexture(Texture diffuseTexture) {
-        this.diffuseTexture = diffuseTexture;
-        textures[0] = diffuseTexture;
+    public void setDiffuseTexture(Texture texture){
+        textures[0] = texture;
     }
 
 
-    @Override
-    public void distribute() {
-        diffuseTexture = textures[0];
-    }
 }

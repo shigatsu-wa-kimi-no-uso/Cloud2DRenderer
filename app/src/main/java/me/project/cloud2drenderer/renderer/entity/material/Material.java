@@ -25,5 +25,4 @@ public abstract class Material {
         return shader;
     }
 
-    public abstract void distribute();
 }

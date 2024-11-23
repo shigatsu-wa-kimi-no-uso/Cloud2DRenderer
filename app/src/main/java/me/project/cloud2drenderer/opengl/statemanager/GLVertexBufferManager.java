@@ -11,7 +11,7 @@ import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
 
 import me.project.cloud2drenderer.opengl.GLErrorUtils;
-import me.project.cloud2drenderer.opengl.glresource.buffer.GLVertexBuffer;
+import me.project.cloud2drenderer.opengl.glcomponent.buffer.GLVertexBuffer;
 
 public class GLVertexBufferManager {
 

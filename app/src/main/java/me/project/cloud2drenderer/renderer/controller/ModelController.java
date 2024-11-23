@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-import me.project.cloud2drenderer.opengl.glresource.buffer.GLVertexBuffer;
+import me.project.cloud2drenderer.opengl.glcomponent.buffer.GLVertexBuffer;
 import me.project.cloud2drenderer.opengl.statemanager.GLVertexBufferManager;
 import me.project.cloud2drenderer.renderer.entity.model.LoadedModel;
 import me.project.cloud2drenderer.renderer.entity.model.MeshModel;
@@ -49,7 +49,7 @@ public class ModelController {
                             loadedModel.elemBased = elemBased;
                             loadedModel.vertexBuffer = vertexBuffer;
                             loadedModel.vertexCount = model.getVertexCount();
-
+                            loadedModel.modelName = name;
                             loadedModel.modelMetaGetter = model::getModelMeta;
                             GLVertexBufferManager.unbind();
                             return loadedModel;
