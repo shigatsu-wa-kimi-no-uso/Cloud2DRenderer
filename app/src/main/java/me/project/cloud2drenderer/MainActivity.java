@@ -1,25 +1,32 @@
 package me.project.cloud2drenderer;
 
+import static android.opengl.GLES20.glGetString;
+
+import android.app.ActivityManager;
+import android.content.pm.ConfigurationInfo;
+import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 
 import androidx.appcompat.app.AppCompatActivity;
+
+import java.util.Locale;
 
 import me.project.cloud2drenderer.databinding.ActivityMainBinding;
 import me.project.cloud2drenderer.renderer.scene.input.InputController;
 
 public class MainActivity extends AppCompatActivity {
 
+    private final static String tag = MainActivity.class.getSimpleName();
     private ActivityMainBinding binding;
 
-/*    void showGLESVersion(){
+    String getGLESVersion(){
         final ActivityManager activityManager=(ActivityManager)getSystemService(ACTIVITY_SERVICE);
         final ConfigurationInfo configurationInfo=activityManager.getDeviceConfigurationInfo();
-        //以16进制显示GLES版本
-        String strResult = Integer.toString(configurationInfo.reqGlEsVersion, 16);
-        binding.text.setText(strResult);
-    }*/
+        return configurationInfo.getGlEsVersion();
+    }
     private GLSurfaceView.Renderer renderer;
     private GLSurfaceView surfaceView;
 
@@ -28,6 +35,7 @@ public class MainActivity extends AppCompatActivity {
     private InputController inputController;
 
     private boolean initialize(){
+
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         surfaceView = binding.glSurfaceView;
         view = binding.getRoot();
@@ -44,6 +52,7 @@ public class MainActivity extends AppCompatActivity {
         surfaceView.setEGLContextClientVersion(3);
         surfaceView.setRenderer(renderer);
         surfaceView.setOnTouchListener(inputController);
+
         return true;
     }
 

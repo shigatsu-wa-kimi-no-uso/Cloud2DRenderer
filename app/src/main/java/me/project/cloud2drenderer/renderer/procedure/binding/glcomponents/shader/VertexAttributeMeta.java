@@ -5,6 +5,7 @@ public class VertexAttributeMeta {
 
     public int elemCnt;
     public int elemType;
+
     public boolean normalized;
     public int strideInBytes;
 

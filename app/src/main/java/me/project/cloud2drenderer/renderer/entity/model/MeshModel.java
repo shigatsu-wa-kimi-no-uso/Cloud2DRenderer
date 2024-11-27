@@ -1,9 +1,9 @@
 package me.project.cloud2drenderer.renderer.entity.model;
 
 
-import me.project.cloud2drenderer.renderer.procedure.binding.glcomponents.shader.AttributeBindingProcessor;
-
 public abstract class MeshModel {
+
+    public String name = this.getClass().getSimpleName();
 
     protected float[] vertexData;
 
@@ -34,6 +34,7 @@ public abstract class MeshModel {
         return vertexCount;
     }
 
+
     public int getDrawMethod(){
         return drawMethod;
     }
@@ -46,9 +47,10 @@ public abstract class MeshModel {
         this.vertexIndices = vertexIndices;
     }
 
+    /*
     public ModelMeta getModelMeta() {
         return AttributeBindingProcessor.getModelMeta(this);
-    }
+    }*/
 
 /*
     class VertexAttributeMeta{

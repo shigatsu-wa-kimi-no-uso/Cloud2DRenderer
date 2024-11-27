@@ -4,6 +4,7 @@ precision mediump float;
 in vec3 aPosition;
 
 out vec3 vPosition;
+
 uniform mat4 uModeling;
 uniform mat4 uView;
 uniform mat4 uProjection;

@@ -8,6 +8,7 @@ import me.project.cloud2drenderer.opengl.glcomponent.buffer.GLVertexBuffer;
 import me.project.cloud2drenderer.opengl.statemanager.GLVertexBufferManager;
 import me.project.cloud2drenderer.renderer.entity.model.LoadedModel;
 import me.project.cloud2drenderer.renderer.entity.model.MeshModel;
+import me.project.cloud2drenderer.renderer.entity.model.ModelMeta;
 import me.project.cloud2drenderer.util.DebugUtils;
 
 public class ModelController {
@@ -49,8 +50,8 @@ public class ModelController {
                             loadedModel.elemBased = elemBased;
                             loadedModel.vertexBuffer = vertexBuffer;
                             loadedModel.vertexCount = model.getVertexCount();
-                            loadedModel.modelName = name;
-                            loadedModel.modelMetaGetter = model::getModelMeta;
+                            loadedModel.name = name;
+                            loadedModel.modelClass = model.getClass();
                             GLVertexBufferManager.unbind();
                             return loadedModel;
                         }

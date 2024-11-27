@@ -1,5 +1,4 @@
-#version 310 es
-#extension GL_EXT_shader_io_blocks : enable
+#version 300 es
 precision mediump float;
 precision highp int;
 
@@ -19,12 +18,12 @@ struct SeqFrameParams {
     vec2 flipBookShape;
 };
 
-in Varying{
-    vec2 texCoords;
-    vec3 position;
-    mat3 TBNInversed;
-    mat3 TBN;
-}fs_in;
+
+in vec2 vTexCoords;
+in vec3 vPosition;
+in mat3 vTBNInversed;
+in mat3 vTBN;
+
 
 
 out vec4 fragmentColor;
@@ -53,18 +52,18 @@ vec3 computeSixWayLighting(vec3 RTF,vec3 LBB,vec3 lightDir,vec3 lightColor) {
 
 void main()
 {
-    vec3 lightingRLT = texture(uFlipBookLightingMap.mapRLT,fs_in.texCoords).rgb;
-    vec3 lightingBBF = texture(uFlipBookLightingMap.mapBBF,fs_in.texCoords).rgb;
+    vec3 lightingRLT = texture(uFlipBookLightingMap.mapRLT, vTexCoords).rgb;
+    vec3 lightingBBF = texture(uFlipBookLightingMap.mapBBF, vTexCoords).rgb;
     vec3 lightingRTF = vec3(lightingRLT.rb,lightingBBF.b); //right top front
     vec3 lightingLBB = vec3(lightingRLT.g,lightingBBF.rg); //left bottom back
-    float attenuation = getIntensityAttenuation(uPointLight.position,fs_in.position);
-    vec3 lightDir = uPointLight.position - fs_in.position;
-    vec3 lightDirTS = fs_in.TBNInversed * lightDir;
+    float attenuation = getIntensityAttenuation(uPointLight.position, vPosition);
+    vec3 lightDir = uPointLight.position - vPosition;
+    vec3 lightDirTS = vTBNInversed * lightDir;
 
-    //mat3 TBN = transpose(fs_in.TBNInversed);
+    //mat3 TBN = transpose(TBNInversed);
    // fragmentColor = vec4(lightDirTS*0.5+0.5,1.0);
     vec3 lighting = attenuation * computeSixWayLighting(lightingRTF,lightingLBB,lightDirTS,uPointLight.intensity);
-    vec4 albedo = texture(uFlipBookAlbedo,fs_in.texCoords);
-   // fragmentColor = vec4( fs_in.TBN[2]*0.5+0.5,albedo.a);
+    vec4 albedo = texture(uFlipBookAlbedo, vTexCoords);
+   // fragmentColor = vec4( TBN[2]*0.5+0.5,albedo.a);
     fragmentColor = vec4(albedo.rgb * lighting,albedo.a);
 }

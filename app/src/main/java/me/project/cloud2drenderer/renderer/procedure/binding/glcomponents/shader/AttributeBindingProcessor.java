@@ -2,15 +2,22 @@ package me.project.cloud2drenderer.renderer.procedure.binding.glcomponents.shade
 
 import static android.opengl.GLES20.*;
 
+import android.util.Log;
+
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 
+import me.project.cloud2drenderer.opengl.statemanager.GLVertexBufferManager;
+import me.project.cloud2drenderer.renderer.context.RenderContext;
+import me.project.cloud2drenderer.renderer.entity.model.LoadedModel;
 import me.project.cloud2drenderer.renderer.entity.model.MeshModel;
 import me.project.cloud2drenderer.renderer.entity.model.ModelMeta;
+import me.project.cloud2drenderer.renderer.entity.shader.Shader;
 import me.project.cloud2drenderer.renderer.procedure.binding.glcomponents.shader.annotation.VertexAttribute;
 import me.project.cloud2drenderer.renderer.procedure.binding.glcomponents.shader.annotation.VertexDataClass;
 import me.project.cloud2drenderer.util.DebugUtils;
@@ -18,6 +25,8 @@ import me.project.cloud2drenderer.util.DebugUtils;
 import androidx.annotation.NonNull;
 
 public class AttributeBindingProcessor {
+
+    private static final String tag = AttributeBindingProcessor.class.getSimpleName();
 
     private static final Map<String,Integer> typeNameToGLType;
 
@@ -35,8 +44,6 @@ public class AttributeBindingProcessor {
     }
 
     public AttributeBindingProcessor(){
-
-
     }
 
     private static int glTypeToSize(int glTypeEnum){
@@ -119,8 +126,7 @@ public class AttributeBindingProcessor {
     }
 
     @NonNull
-    public static ModelMeta getModelMeta(@NonNull MeshModel model)  {
-        Class<? extends MeshModel> modelClass = model.getClass();
+    private static ModelMeta getModelMeta(Class<? extends MeshModel> modelClass,int vertexCount)  {
         VertexDataClass vertexDataClassAnno = modelClass.getAnnotation(VertexDataClass.class);
         DebugUtils.checkNotNull(vertexDataClassAnno);
         BufferMode bufferMode = vertexDataClassAnno.bufferMode();
@@ -140,7 +146,7 @@ public class AttributeBindingProcessor {
             metas[i] = Map.entry(meta.attributeName,meta);
             i++;
         }
-        modelMeta.vertexCount = model.getVertexCount();
+        modelMeta.vertexCount = vertexCount;
         if(autoLocate){
             switch (bufferMode){
                 case INTERLEAVED:
@@ -154,8 +160,55 @@ public class AttributeBindingProcessor {
         return modelMeta;
     }
 
+    private static boolean checkConsistency(VertexAttributeMeta vertexMeta,ShaderVariableMeta shaderMeta){
+        //TODO: 对于向量 glGetActiveAttribute返回的类型是整体类型(如vec3) 这种类型，
+        // 但对于vertex buffer 获取的是elemCnt和每个元素的类型(如vec3对应类型float和elemCnt==3)
+        // 一致性检查逻辑待实现
+        return vertexMeta!=null && shaderMeta!=null;
+    }
 
 
+    public static void generateShaderAttributeSetters(RenderContext context,LoadedModel model, Shader shader){
+        ModelMeta modelMeta = getModelMeta(model.modelClass,model.vertexCount);
+        Map<String, VertexAttributeMeta> vertexMetaMap = modelMeta.attributeMetas;
+        Map<String,ShaderVariableMeta> shaderMetaMap = shader.getAttributeMetas();
+        Log.i(tag,String.format(Locale.getDefault(),
+                "Generating attribute setters for shader %s and model %s...",shader.name,model.name));
+        for(Map.Entry<String, VertexAttributeMeta> entry : vertexMetaMap.entrySet()){
+            VertexAttributeMeta vertexMeta = entry.getValue();
+            ShaderVariableMeta shaderMeta = shaderMetaMap.get(vertexMeta.attributeName);
+            String attributeName = vertexMeta.attributeName;
+            String vertexAttributeAddr = String.format(Locale.getDefault(),"+%d@vertex_buffer['%s']",
+                    vertexMeta.offset,model.name);
+            String shaderAttributeAddr = String.format(Locale.getDefault(),"%s@shader['%s']",
+                    attributeName,
+                    shader.name);
 
+            if(checkConsistency(vertexMeta,shaderMeta)){
+                ShaderVariableSetterWrapper wrapper = () ->
+                        GLVertexBufferManager.setAttributePointer(
+                                shaderMeta.location[0],
+                                vertexMeta.elemCnt,
+                                vertexMeta.elemType,
+                                vertexMeta.normalized,
+                                vertexMeta.strideInBytes,
+                                vertexMeta.offset);
+                context.addAttributeSetters(wrapper);
+                String text = String.format(Locale.getDefault(),
+                        "bound %d-elem shader attribute %s pointer to model %s with stride %d, attribute location %d",
+                        vertexMeta.elemCnt,
+                        shaderAttributeAddr,
+                        vertexAttributeAddr,
+                        vertexMeta.strideInBytes,
+                        shaderMeta.location[0]);
+                Log.d(tag,text);
+            }else {
+                String text = String.format(Locale.getDefault(),
+                        "shader attribute %s is missing or isn't consistent with the vertex attribute %s!",
+                        shaderAttributeAddr,vertexAttributeAddr);
+                Log.e(tag,text);
+            }
+        }
+    }
 
 }

@@ -1,7 +1,8 @@
-package me.project.cloud2drenderer.renderer.context;
+package me.project.cloud2drenderer.renderer.context.flipbook;
 
 import android.opengl.Matrix;
 
+import me.project.cloud2drenderer.renderer.context.RenderContext;
 import me.project.cloud2drenderer.renderer.entity.model.shape.Rectangle;
 import me.project.cloud2drenderer.renderer.entity.others.light.PointLight;
 import me.project.cloud2drenderer.renderer.entity.material.Material;
@@ -13,7 +14,7 @@ import me.project.cloud2drenderer.renderer.procedure.binding.glcomponents.shader
 import me.project.cloud2drenderer.renderer.procedure.binding.glcomponents.shader.annotation.ShaderUniform;
 import me.project.cloud2drenderer.util.MatUtils;
 
-public class SixWayLightingRenderContext extends RenderContext{
+public class SixWayLightingRenderContext extends RenderContext {
 
     private SequenceFrameParams seqFrameParams;
 

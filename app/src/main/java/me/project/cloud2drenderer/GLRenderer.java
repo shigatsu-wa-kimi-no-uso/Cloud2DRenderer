@@ -1,11 +1,15 @@
 package me.project.cloud2drenderer;
 
 
+import static android.opengl.GLES20.GL_SHADING_LANGUAGE_VERSION;
+import static android.opengl.GLES20.glGetString;
 import static me.project.cloud2drenderer.util.SceneUtils.*;
 
 
 import android.app.Activity;
+import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
+import android.util.Log;
 import android.widget.TextView;
 
 import java.util.Locale;
@@ -45,6 +49,9 @@ public class GLRenderer implements GLSurfaceView.Renderer{
     }
 
     void init(){
+
+        Log.d(GLRenderer.class.getSimpleName(),"GLES Version: " +  glGetString(GLES20.GL_VERSION));
+        Log.d(GLRenderer.class.getSimpleName(),"GLSL Version: " +  glGetString(GL_SHADING_LANGUAGE_VERSION));
         scene = new Scene(activity);
         int width = 100;
         int height = 250;
@@ -101,14 +108,15 @@ public class GLRenderer implements GLSurfaceView.Renderer{
         pointLight.setPosition(new float[]{-1.0f, -1.0f, 0f});
         //  scene.load( getTerrainAssetBinding(1f,1f,new float[]{0.0f,-0.8f,-1.3f}));
       //  scene.load( getCubeAssetBinding(0.5f,1,new float[]{0,0,-5}));
-        scene.load(getLightCubeAssetBinding(new float[]{0.0f, 0.0f, 0f}, new float[]{0.05f, 0.05f, 0.05f}, pointLight));
-        scene.load(getCubeAssetBinding2(new float[]{0.0f, 0.0f, 0f}, new float[]{1, 1, 1}, new float[]{-1f, -1.5f, -5}, pointLight));
+        scene.load(getCubeAssetBinding2("wood cube",new float[]{0.0f, 0.0f, 0f}, new float[]{1, 1, 1}, new float[]{-1f, -1.5f, -5}, pointLight));
+        scene.load(getLightCubeAssetBinding("light cube",new float[]{0.0f, 0.0f, 0f}, new float[]{0.05f, 0.05f, 0.05f}, pointLight));
+
         //需要注意：先画远物体，再画近的
-        scene.load(getCheckerBoardAssetBinding(new float[]{0,-3,0},new float[]{30,30,30},pointLight));
+        scene.load(getCheckerBoardAssetBinding("checker board",new float[]{0,-3,0},new float[]{30,30,30},pointLight));
         scene.load(getBillboardAssetBinding(1, 1, new float[]{-1f, 0f, -2.5f}));
         scene.load(getBillboardAssetBinding(1, 1, new float[]{0f, 0f, -2.5f},new float[]{0,0,0}, pointLight));
         scene.load(getBillboardAssetBinding(1, 1, new float[]{0.0f, 0.0f, 0f},new float[]{0,0,0}, pointLight));
-        scene.load(getBillboardAssetBinding(0.5f, 0.5f, new float[]{-1.0f, 0.0f, 0f},new float[]{0,0,0}, pointLight));
+        scene.load(getBillboardAssetBinding2(1f, 1f, new float[]{-1.3f, 0.0f, 0f},new float[]{0,0,0}, pointLight));
         //scene.load( getBillboardAssetBinding(0.5f,0.5f,new float[]{-1f,-1f,-2.5f}));
         //scene.load( getBillboardAssetBinding(1.5f,1.5f,new float[]{-0.5f,0.15f,-2.3f}));
         //scene.load( getBillboardAssetBinding(1,1,new float[]{-0.25f,0f,-2.0f}));

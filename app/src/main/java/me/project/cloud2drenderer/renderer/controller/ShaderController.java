@@ -16,7 +16,7 @@ import me.project.cloud2drenderer.opengl.statemanager.GLShaderManager;
 import me.project.cloud2drenderer.opengl.statemanager.GLVertexBufferManager;
 import me.project.cloud2drenderer.renderer.entity.model.LoadedModel;
 import me.project.cloud2drenderer.renderer.entity.shader.Shader;
-import me.project.cloud2drenderer.renderer.procedure.binding.glcomponents.shader.ShaderUniformMeta;
+import me.project.cloud2drenderer.renderer.procedure.binding.glcomponents.shader.ShaderVariableMeta;
 import me.project.cloud2drenderer.renderer.procedure.binding.glcomponents.shader.VertexAttributeMeta;
 import me.project.cloud2drenderer.util.DebugUtils;
 
@@ -74,7 +74,14 @@ public class ShaderController {
         assert container != null;
         container.compiledShaderIds.compute(name,
                 (k, v) -> Objects.requireNonNullElseGet(v,
-                        () -> GLShaderManager.compileShader(code, type)
+                        () -> {
+                            Log.d(tag, String.format(Locale.getDefault(),
+                                    "compiling shader code '%s' type %d...", name,type));
+                            int id = GLShaderManager.compileShader(code, type);
+                            Log.d(tag, String.format(Locale.getDefault(),
+                                    "compiled shader code '%s' type %d success.", name,type));
+                            return id;
+                        }
                 )
         );
     }
@@ -93,7 +100,8 @@ public class ShaderController {
         container.compiledShaderIds.compute(name, (k, v) ->
                 Objects.requireNonNullElseGet(v, () -> {
                             String code = container.shaderCodes.get(name);
-                            return GLShaderManager.compileShader(code, type);
+                            int id = GLShaderManager.compileShader(code, type);
+                            return id;
                         }
                 )
         );
@@ -108,7 +116,10 @@ public class ShaderController {
                             Shader shader = new Shader();
                             shader.program = GLShaderManager.createProgram(vertId, fragId);
                             shader.setUniformMetas(getUniformInfo(shader));
+                            shader.setAttributeMetas(getAttributeInfo(shader));
                             shader.name = name;
+                            Log.d(tag,String.format(Locale.getDefault(),
+                                    "created shader program '%s' success.",name));
                            // shader.uniformSetters = generateShaderUniformBinders();
                             return shader;
                         }
@@ -116,8 +127,8 @@ public class ShaderController {
         );
     }
 
-
-    public void bindShaderAttributePointers(Shader shader, @NonNull LoadedModel model){
+    @Deprecated
+    private static void bindShaderAttributePointers(Shader shader, @NonNull LoadedModel model){
         Map<String, VertexAttributeMeta> metaMap = model.modelMetaGetter.getModelMeta().attributeMetas;
         GLShaderManager.use(shader.program);
         GLVertexBufferManager.bind(model.vertexBuffer);
@@ -125,34 +136,34 @@ public class ShaderController {
         for(Map.Entry<String, VertexAttributeMeta> entry : metaMap.entrySet()){
             VertexAttributeMeta attribMeta = entry.getValue();
             String attributeName = attribMeta.attributeName;
-            GLShaderManager.setAttribute(attributeName,attribMeta.elemCnt,attribMeta.elemType,attribMeta.normalized,attribMeta.strideInBytes,attribMeta.offset);
-
-            Log.d(tag, String.format(Locale.getDefault(),
-                    "bound %d-elem shader attribute %s@shader['%s'] pointer to model +%d@model['%s'] with stride %d",
+            Log.d(ShaderController.class.getSimpleName(), String.format(Locale.getDefault(),
+                    "binding %d-elem shader attribute %s@shader['%s'] pointer to model +%d@model['%s'] with stride %d",
                     attribMeta.elemCnt,
                     attributeName,
                     shader.name,
                     attribMeta.offset,
-                    model.modelName,
+                    model.name,
                     attribMeta.strideInBytes
-                    ));
+            ));
+
+            GLShaderManager.setAttribute(attributeName,attribMeta.elemCnt,attribMeta.elemType,attribMeta.normalized,attribMeta.strideInBytes,attribMeta.offset);
         }
         GLVertexBufferManager.unbind();
     }
 
 
-    private Map<String,ShaderUniformMeta> getUniformInfo(@NonNull Shader shader){
+    private Map<String, ShaderVariableMeta> getAttributeInfo(@NonNull Shader shader){
         String[][] names = new String[1][];
         int[][] types = new int[1][];
         int[][] sizes = new int[1][];
         GLShaderManager.use(shader.program);
-        GLShaderManager.getShaderUniformInfo(names,types,sizes);
+        GLShaderManager.getShaderAttributeInfo(names,types,sizes);
         int count = names[0].length;
-        Map<String,ShaderUniformMeta> metas = new HashMap<>();
+        Map<String, ShaderVariableMeta> metas = new HashMap<>();
         for(int i = 0; i < count; i++){
             // Get the name of the uniform block
-            ShaderUniformMeta meta = new ShaderUniformMeta();
-            meta.uniformName = names[0][i];
+            ShaderVariableMeta meta = new ShaderVariableMeta();
+            meta.name = names[0][i];
             meta.elemCnt = sizes[0][i];
             meta.type = types[0][i];
             meta.location = new int[meta.elemCnt];
@@ -160,15 +171,50 @@ public class ShaderController {
             if(meta.elemCnt>1){
                 String arrayMarker = "[0]";
                 int len = arrayMarker.length();
-                String arrayName = meta.uniformName.substring(0,meta.uniformName.length() - len);
+                String arrayName = meta.name.substring(0,meta.name.length() - len);
+                keyName = arrayName;
+                for(int j =0;j<meta.elemCnt;j++){
+                    String elemName = arrayName + "[" + j+ "]";
+                    meta.location[j] = GLShaderManager.getAttributeLocation(elemName);
+                }
+            }else {
+                meta.location[0] = GLShaderManager.getAttributeLocation(meta.name);
+                keyName = meta.name;
+            }
+            meta.intBased = GLShaderManager.typeIsIntBased(meta.type);
+            metas.put(keyName,meta);
+        }
+        return metas;
+    }
+
+    private Map<String, ShaderVariableMeta> getUniformInfo(@NonNull Shader shader){
+        String[][] names = new String[1][];
+        int[][] types = new int[1][];
+        int[][] sizes = new int[1][];
+        GLShaderManager.use(shader.program);
+        GLShaderManager.getShaderUniformInfo(names,types,sizes);
+        int count = names[0].length;
+        Map<String, ShaderVariableMeta> metas = new HashMap<>();
+        for(int i = 0; i < count; i++){
+            // Get the name of the uniform block
+            ShaderVariableMeta meta = new ShaderVariableMeta();
+            meta.name = names[0][i];
+            meta.elemCnt = sizes[0][i];
+            meta.type = types[0][i];
+            meta.location = new int[meta.elemCnt];
+            String keyName;
+            if(meta.elemCnt>1){
+                String arrayMarker = "[0]";
+                int len = arrayMarker.length();
+                String arrayName = meta.name.substring(0,meta.name.length() - len);
                 keyName = arrayName;
                 for(int j =0;j<meta.elemCnt;j++){
                     String elemName = arrayName + "[" + j+ "]";
                     meta.location[j] = GLShaderManager.getUniformLocation(elemName);
                 }
             }else {
-                meta.location[0] = GLShaderManager.getUniformLocation(meta.uniformName);
-                keyName = meta.uniformName;
+                meta.location[0] = GLShaderManager.getUniformLocation(meta.name);
+                keyName = meta.name;
             }
             meta.intBased = GLShaderManager.typeIsIntBased(meta.type);
             metas.put(keyName,meta);

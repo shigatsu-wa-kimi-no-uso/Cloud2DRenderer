@@ -4,8 +4,9 @@ import me.project.cloud2drenderer.renderer.context.BlinnPhongRenderContext;
 import me.project.cloud2drenderer.renderer.context.CheckerBoardRenderContext;
 import me.project.cloud2drenderer.renderer.context.LuminousRenderContext;
 import me.project.cloud2drenderer.renderer.context.MixedTextureRenderContext;
-import me.project.cloud2drenderer.renderer.context.SequenceFrameRenderContext;
-import me.project.cloud2drenderer.renderer.context.SixWayLightingRenderContext;
+import me.project.cloud2drenderer.renderer.context.flipbook.FlipbookBlinnPhongRenderContext;
+import me.project.cloud2drenderer.renderer.context.flipbook.SequenceFrameRenderContext;
+import me.project.cloud2drenderer.renderer.context.flipbook.SixWayLightingRenderContext;
 import me.project.cloud2drenderer.renderer.context.TerrainMeshRenderContext;
 import me.project.cloud2drenderer.renderer.entity.AssetBinding;
 import me.project.cloud2drenderer.renderer.entity.MaterialBinding;
@@ -40,7 +41,7 @@ public class SceneUtils {
         return ab;
     }
 
-    public static AssetBinding getCubeAssetBinding2(float[] rotate, float[] scale, float[] position, PointLight pointLight){
+    public static AssetBinding getCubeAssetBinding2(String name,float[] rotate, float[] scale, float[] position, PointLight pointLight){
         AssetBinding ab = new AssetBinding();
         MaterialBinding mb = new MaterialBinding();
         BlinnPhong material = new BlinnPhong();
@@ -56,7 +57,8 @@ public class SceneUtils {
         ab.modelName = "cube";
         ab.materialBinding = mb;
         BlinnPhongRenderContext context = new BlinnPhongRenderContext();
-        context.setAmbientIntensity(new float[]{0.2f,0.2f,0.2f});
+        context.name = name;
+        context.setAmbientIntensity(new float[]{1f,1f,1f});
         context.setPointLight(pointLight);
         ab.transform = MatUtils.newTransform(position,scale,rotate);
         ab.context = context;
@@ -64,7 +66,7 @@ public class SceneUtils {
     }
 
 
-    public static AssetBinding getLightCubeAssetBinding(float[] rotate, float[] scale, PointLight pointLight){
+    public static AssetBinding getLightCubeAssetBinding(String name,float[] rotate, float[] scale, PointLight pointLight){
         AssetBinding ab = new AssetBinding();
         MaterialBinding mb = new MaterialBinding();
         Luminous material = new Luminous();
@@ -76,13 +78,14 @@ public class SceneUtils {
         ab.materialBinding = mb;
         LuminousRenderContext context = new LuminousRenderContext();
         context.setPointLight(pointLight);
+        context.name = name;
         ab.transform = MatUtils.newTransform(pointLight.getPosition(),scale,rotate);
         ab.context = context;
         return ab;
     }
 
 
-    public static AssetBinding getCheckerBoardAssetBinding( float[] scale, float[] position,PointLight pointLight){
+    public static AssetBinding getCheckerBoardAssetBinding(String name, float[] scale, float[] position,PointLight pointLight){
         AssetBinding ab = new AssetBinding();
         MaterialBinding mb = new MaterialBinding();
         ab.pipelineName = "non_blend";
@@ -100,6 +103,7 @@ public class SceneUtils {
         CheckerBoardRenderContext context = new CheckerBoardRenderContext();
         context.setAmbientIntensity(new float[]{0.2f,0.2f,0.2f});
         context.setPointLight(pointLight);
+        context.name = name;
         ab.transform = MatUtils.newTransform(scale,position,new float[]{90,0,0});
         ab.context = context;
         return ab;
@@ -154,6 +158,39 @@ public class SceneUtils {
         context.setSeqFrameParams(seqFrameParams);
         context.setPosition(position);
         context.setScale(new float[]{width,height,1});
+        ab.transform = MatUtils.newTransform(position,new float[]{width,height,1},rotation);
+        ab.context = context;
+        return ab;
+    }
+
+
+
+
+    public static AssetBinding getBillboardAssetBinding2(float width, float height, float[] position, float[] rotation, PointLight pointLight){
+        AssetBinding ab = new AssetBinding();
+        MaterialBinding mb = new MaterialBinding();
+        ab.pipelineName = "blend";
+
+        BlinnPhong material = new BlinnPhong(true);
+        mb.material = material;
+        material.setKa(new float[]{0.3f,0.3f,0.3f});
+        material.setKs(new float[]{0.01f,0.01f,0.01f});
+        material.setKd(new float[]{1f,1f,1f});
+        material.setShininess(64);
+        mb.textureNames = new String[]{"SmokeBall_Albedo","SmokeBall_Normal"};
+        mb.textureSetters = new TextureSetter[]{material::setDiffuseMap,material::setNormalMap};
+        mb.shaderName = "flipbook/normal_lighting";
+        ab.modelName = "rectangle";
+        ab.materialBinding = mb;
+
+        FlipbookBlinnPhongRenderContext context = new FlipbookBlinnPhongRenderContext();
+        context.setPointLight(pointLight);
+        context.setAmbientIntensity(new float[]{0.2f,0.2f,0.2f});
+        SequenceFrameParams seqFrameParams = new SequenceFrameParams();
+        seqFrameParams.setCurrentFrameIndex(0);
+        seqFrameParams.setFlipBookShape(new float[]{8.0f,8.0f});
+        seqFrameParams.setFrequency(1.0f/2.5f);
+        context.setSeqFrameParams(seqFrameParams);
         ab.transform = MatUtils.newTransform(position,new float[]{width,height,1},rotation);
         ab.context = context;
         return ab;

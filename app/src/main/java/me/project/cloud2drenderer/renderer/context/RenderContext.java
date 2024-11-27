@@ -8,7 +8,7 @@ import me.project.cloud2drenderer.renderer.entity.material.Material;
 import me.project.cloud2drenderer.renderer.entity.model.LoadedModel;
 import me.project.cloud2drenderer.renderer.entity.shader.Shader;
 import me.project.cloud2drenderer.renderer.entity.texture.Texture;
-import me.project.cloud2drenderer.renderer.procedure.binding.glcomponents.shader.ShaderUniformSetterWrapper;
+import me.project.cloud2drenderer.renderer.procedure.binding.glcomponents.shader.ShaderVariableSetterWrapper;
 import me.project.cloud2drenderer.renderer.procedure.binding.glcomponents.ResBindingMethod;
 import me.project.cloud2drenderer.renderer.procedure.binding.glcomponents.shader.UniformVar;
 import me.project.cloud2drenderer.renderer.procedure.drawing.DrawMethod;
@@ -18,6 +18,8 @@ import me.project.cloud2drenderer.renderer.scene.Camera;
 
 public abstract class RenderContext {
 
+
+    public String name;
 
     public static Camera camera;
 
@@ -29,14 +31,22 @@ public abstract class RenderContext {
 
     private ResBindingMethod resourseBinder;
 
-    private final Vector<ShaderUniformSetterWrapper> autoAssignedUniforms;
+    private final Vector<ShaderVariableSetterWrapper> autoAssignedUniforms;
 
-    private final Vector<ShaderUniformSetterWrapper> assignments;
+    private final Vector<ShaderVariableSetterWrapper> uniformAssignments;
+
+    private final Vector<ShaderVariableSetterWrapper> attributeSetters;
 
 
     public RenderContext(){
         autoAssignedUniforms = new Vector<>();
-        assignments = new Vector<>();
+        uniformAssignments = new Vector<>();
+        attributeSetters = new Vector<>();
+    }
+
+
+    public void addAttributeSetters(ShaderVariableSetterWrapper setterWrapper) {
+        attributeSetters.add(setterWrapper);
     }
 
     public abstract float[] getTransform();
@@ -51,18 +61,28 @@ public abstract class RenderContext {
     }
 
     public <T> void commitUniformAssignment(@NonNull UniformVar<T> uniformVar){
-        assignments.add(uniformVar.getUniformSetterWrapper());
+        uniformAssignments.add(uniformVar.getUniformSetterWrapper());
     }
 
-    public void addAutoAssignedUniforms(ShaderUniformSetterWrapper setterWrapper){
+    public void addAutoAssignedUniforms(ShaderVariableSetterWrapper setterWrapper){
         autoAssignedUniforms.add(setterWrapper);
     }
 
 
+    public void bindShaderAttributePointers(){
+        for(ShaderVariableSetterWrapper wrapper: attributeSetters){
+            wrapper.apply();
+        }
+    }
+
     public void applyUniformAssignments(){
-        autoAssignedUniforms.forEach(ShaderUniformSetterWrapper::apply);
-        assignments.forEach(ShaderUniformSetterWrapper::apply);
-        assignments.clear();
+        for(ShaderVariableSetterWrapper wrapper: autoAssignedUniforms){
+            wrapper.apply();
+        }
+        for(ShaderVariableSetterWrapper wrapper: uniformAssignments){
+            wrapper.apply();
+        }
+        uniformAssignments.clear();
     }
 
     public void draw(){

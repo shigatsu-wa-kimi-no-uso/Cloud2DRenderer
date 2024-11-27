@@ -1,26 +1,6 @@
-#version 310 es
-#extension GL_EXT_shader_io_blocks : enable
+#version 300 es
 precision mediump float;
 precision highp int;
-
-in vec3 aPosition;
-in vec2 aTexCoords;
-in vec3 aNormal;
-in vec3 aTangent;
-in vec3 aBitangent;
-
-out Varying{
-    vec2 texCoords;
-    vec3 position;
-    mat3 TBNInversed;
-    mat3 TBN;
-}vs_out;
-
-
-uniform mat4 uModeling;
-uniform mat4 uModelIT;
-uniform mat4 uView;
-uniform mat4 uProjection;
 
 struct SeqFrameParams {
     int currFrameIndex; // 从0开始
@@ -28,6 +8,24 @@ struct SeqFrameParams {
     vec2 flipBookShape;
 };
 
+in vec3 aPosition;
+in vec2 aTexCoords;
+in vec3 aNormal;
+in vec3 aTangent;
+in vec3 aBitangent;
+
+
+out vec2 vTexCoords;
+out vec3 vPosition;
+out mat3 vTBNInversed;
+out mat3 vTBN;
+
+
+
+uniform mat4 uModeling;
+uniform mat4 uModelIT;
+uniform mat4 uView;
+uniform mat4 uProjection;
 uniform SeqFrameParams uSeqFrameParams;
 
 
@@ -50,14 +48,14 @@ void main()
 {
 
     float currIndex = floor(float(uSeqFrameParams.currFrameIndex) * uSeqFrameParams.frequency);
-    vs_out.texCoords = getTexCoords(aTexCoords,uSeqFrameParams.flipBookShape,currIndex);
-    vs_out.position = vec3(uModeling * vec4(aPosition,1.0));
+    vTexCoords = getTexCoords(aTexCoords, uSeqFrameParams.flipBookShape, currIndex);
+    vPosition = vec3(uModeling * vec4(aPosition,1.0));
     mat3 modelIT = mat3(uModelIT);
     vec3 T = normalize(modelIT * aTangent);
     vec3 B = normalize(modelIT * aBitangent);
     vec3 N = normalize(modelIT * aNormal);
-    vs_out.TBN = mat3(T, B, N);
-    vs_out.TBNInversed = transpose(mat3(T, B, N));
+    vTBN = mat3(T, B, N);
+    vTBNInversed = transpose(mat3(T, B, N));
 
-    gl_Position = uProjection * uView * vec4(vs_out.position, 1.0);
+    gl_Position = uProjection * uView * vec4(vPosition, 1.0);
 }

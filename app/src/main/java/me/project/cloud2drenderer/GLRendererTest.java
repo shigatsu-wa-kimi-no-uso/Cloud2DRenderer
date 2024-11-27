@@ -138,7 +138,7 @@ public class GLRendererTest implements GLSurfaceView.Renderer{
        // VertexBufferManager.loadElementIndices(model.getVertexIndices(), model.getDrawMethod());
      //   VertexBufferManager.bind(buffer);
         //shader.uniformBinders;
-        bindShaderAttributePointers(shader.program, model.getModelMeta());
+      //  bindShaderAttributePointers(shader.program, model.getModelMeta());
         //texture = TextureManager.genTexture2D();
        // TextureManager.bind(texture);
        // Bitmap bitmap = AssetUtils.getBitmapFromAsset(context, "textures/container.jpg");
@@ -187,7 +187,7 @@ public class GLRendererTest implements GLSurfaceView.Renderer{
         buffer = loadedModel.vertexBuffer;
      //   GLVertexBufferManager.bind(buffer);*
 
-        shaderController.bindShaderAttributePointers(shader, loadedModel);
+     //   shaderController.bindShaderAttributePointers(shader, loadedModel);
     //    modelController.bindVertexBuffer(loadedModel.vertexBuffer);
         //buffer = VertexBufferManager.genVertexBuffer(false);
         //   VertexBufferManager.bind(buffer);

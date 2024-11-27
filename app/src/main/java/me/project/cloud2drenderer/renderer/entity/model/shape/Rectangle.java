@@ -50,7 +50,6 @@ public class Rectangle extends MeshModel {
             vertexData[i++] = aBitangent[bitangentIndex++];
             vertexData[i++] = aBitangent[bitangentIndex++];
             vertexData[i++] = aBitangent[bitangentIndex++];
-
         }
     }
 

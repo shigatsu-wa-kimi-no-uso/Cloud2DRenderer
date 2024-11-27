@@ -11,8 +11,26 @@ public class BlinnPhong extends Material{
     private float[] ks;
 
     private float shininess;
+
+
+    void initNullTextures(){
+        for(int i = 0;i<textures.length;i++){
+            textures[i] = Texture.nullTexture();
+        }
+    }
+
     public BlinnPhong(){
         textures = new Texture[2];
+        initNullTextures();
+    }
+
+    public BlinnPhong(boolean withNormalMap){
+        if(withNormalMap){
+            textures = new Texture[3];
+        }else{
+            textures = new Texture[2];
+        }
+        initNullTextures();
     }
 
 
@@ -39,12 +57,16 @@ public class BlinnPhong extends Material{
         setKa(factor);
     }
 
-    public void setDiffuseMap(Texture map){
-         textures[0] = map;
+    public void setDiffuseMap(Texture texture){
+         textures[0] = texture;
     }
 
-    public void setSpecularMap(Texture map) {
-         textures[1] = map;
+    public void setSpecularMap(Texture texture) {
+         textures[1] = texture;
+    }
+
+    public void setNormalMap(Texture texture){
+        textures[2] = texture;
     }
     @ShaderUniform(uniformName = "shininess")
     public float getShininess() {
@@ -75,6 +97,11 @@ public class BlinnPhong extends Material{
     @ShaderUniform(uniformName = "specularMap")
     public int getSpecularMapUnit(){
         return textures[1].unit;
+    }
+
+    @ShaderUniform(uniformName = "normalMap")
+    public int getNormalMapUnit(){
+        return textures[2].unit;
     }
 
 }

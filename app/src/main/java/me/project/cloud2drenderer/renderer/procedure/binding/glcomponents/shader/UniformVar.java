@@ -11,9 +11,9 @@ public class UniformVar<T> {
 
     private int index;
 
-    private ShaderUniformSetterWrapper uniformSetterWrapper;
+    private ShaderVariableSetterWrapper uniformSetterWrapper;
 
-    public ShaderUniformMeta meta;
+    public ShaderVariableMeta meta;
 
 
     public UniformVar(){
@@ -32,19 +32,19 @@ public class UniformVar<T> {
         return meta.location[index];
     }
 
-    public ShaderUniformSetterWrapper getUniformSetterWrapper() {
+    public ShaderVariableSetterWrapper getUniformSetterWrapper() {
         return uniformSetterWrapper;
     }
 
-    public void setUniformSetterWrapper(ShaderUniformSetterWrapper uniformSetterWrapper) {
+    public void setUniformSetterWrapper(ShaderVariableSetterWrapper uniformSetterWrapper) {
         this.uniformSetterWrapper = uniformSetterWrapper;
     }
 
-    public ShaderUniformMeta getMeta() {
+    public ShaderVariableMeta getMeta() {
         return meta;
     }
 
-    public void setMeta(ShaderUniformMeta meta) {
+    public void setMeta(ShaderVariableMeta meta) {
         this.meta = meta;
     }
 

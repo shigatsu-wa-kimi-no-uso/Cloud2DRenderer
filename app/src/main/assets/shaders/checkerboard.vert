@@ -1,15 +1,12 @@
-#version 310 es
-#extension GL_EXT_shader_io_blocks : enable
+#version 300 es
 precision mediump float;
 
 in vec3 aPosition;
-layout (location = 2) in vec3 aNormal;
+in vec3 aNormal;
 
-out Varying{
-    vec3 position; // world space
-    vec3 normal;
- //   vec3 normalOS;
-}vs_out;
+
+out vec3 vPosition; // world space
+out vec3 vNormal;
 
 uniform mat4 uModeling;
 uniform mat4 uModelIT;
@@ -19,8 +16,8 @@ uniform mat4 uProjection;
 
 void main()
 {
-    vs_out.position = vec3(uModeling * vec4(aPosition, 1.0));
-    vs_out.normal = mat3(uModelIT) * aNormal;
+    vPosition = vec3(uModeling * vec4(aPosition, 1.0));
+    vNormal = mat3(uModelIT) * aNormal;
     //vs_out.normalOS = aNormal;
-    gl_Position = uProjection * uView * vec4(vs_out.position,1.0);
+    gl_Position = uProjection * uView * vec4(vPosition,1.0);
 }

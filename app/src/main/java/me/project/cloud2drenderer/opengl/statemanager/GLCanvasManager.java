@@ -1,9 +1,7 @@
 package me.project.cloud2drenderer.opengl.statemanager;
 
 
-import static android.opengl.GLES32.*;
-
-import android.opengl.GLDebugHelper;
+import static android.opengl.GLES30.*;
 
 import java.util.Stack;
 
