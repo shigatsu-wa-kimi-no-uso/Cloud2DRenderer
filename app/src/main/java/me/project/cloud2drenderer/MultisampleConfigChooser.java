@@ -10,6 +10,7 @@ import android.os.Build;
 
 import androidx.annotation.RequiresApi;
 
+
 public class MultisampleConfigChooser implements GLSurfaceView.EGLConfigChooser {
     @RequiresApi(api = Build.VERSION_CODES.Q)
     @Override

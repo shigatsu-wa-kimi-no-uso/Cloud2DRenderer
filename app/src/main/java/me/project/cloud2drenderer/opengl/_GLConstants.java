@@ -1,7 +1,7 @@
 package me.project.cloud2drenderer.opengl;
 
 
-import static android.opengl.GLES32.*;
+import static android.opengl.GLES30.*;
 
 
 public class _GLConstants  {

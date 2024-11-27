@@ -2,6 +2,6 @@ package me.project.cloud2drenderer.renderer.procedure.binding.glcomponents.shade
 
 
 @FunctionalInterface
-public interface ShaderUniformSetterWrapper{
+public interface ShaderVariableSetterWrapper {
     void apply();
 }

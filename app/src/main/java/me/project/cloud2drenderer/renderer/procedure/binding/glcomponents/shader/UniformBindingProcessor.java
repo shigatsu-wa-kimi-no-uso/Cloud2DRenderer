@@ -6,7 +6,6 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.List;
@@ -116,16 +115,16 @@ public class UniformBindingProcessor {
     }
 
     @NonNull
-    private static void setUniformVar(@NonNull UniformVar uniformVar, @NonNull ShaderUniformMeta meta){
+    private static void setUniformVar(@NonNull UniformVar uniformVar, @NonNull ShaderVariableMeta meta){
         uniformVar.meta = meta;
         uniformVar.setCount(meta.elemCnt);
-        uniformVar.setName(meta.uniformName);
+        uniformVar.setName(meta.name);
         uniformVar.setOffset(0);
         uniformVar.setTranspose(false);
     }
 
     @NonNull
-    private static UniformVar newUniformVar(ShaderUniformMeta meta){
+    private static UniformVar newUniformVar(ShaderVariableMeta meta){
         UniformVar uniformVar=new UniformVar();
         setUniformVar(uniformVar,meta);
         return uniformVar;
@@ -133,8 +132,8 @@ public class UniformBindingProcessor {
 
     @NonNull
     @Deprecated
-    private static ShaderUniformSetterWrapper injectUniformVar(Field field, RenderContext context, @NonNull ShaderUniformMeta meta){
-        ShaderUniformSetterWrapper setterWrapper;
+    private static ShaderVariableSetterWrapper injectUniformVar(Field field, RenderContext context, @NonNull ShaderVariableMeta meta){
+        ShaderVariableSetterWrapper setterWrapper;
         UniformVar uniformVar;
         if (meta.intBased) {
             UniformVar<int[]> intUniformVar = newUniformVar(meta);
@@ -159,8 +158,8 @@ public class UniformBindingProcessor {
     }
 
     @NonNull
-    private static ShaderUniformSetterWrapper getUniformVarSetterWrapper(Field field, Object object, @NonNull ShaderUniformMeta meta){
-        ShaderUniformSetterWrapper setterWrapper;
+    private static ShaderVariableSetterWrapper getUniformVarSetterWrapper(Field field, Object object, @NonNull ShaderVariableMeta meta){
+        ShaderVariableSetterWrapper setterWrapper;
         UniformVar uniformVar;
         if (meta.intBased) {
             UniformVar<int[]> intUniformVar;
@@ -194,7 +193,7 @@ public class UniformBindingProcessor {
     }
 
     @NonNull
-    private static ShaderUniformSetterWrapper getRawFieldSetterWrapper(@NonNull Field field, Object object, ShaderUniformMeta meta) {
+    private static ShaderVariableSetterWrapper getRawFieldSetterWrapper(@NonNull Field field, Object object, ShaderVariableMeta meta) {
         //注意：不使用UniformVar封装时，类型必须是引用类型才能在后续修改时同步在setter中修改，且此种方法无法修改count，transpose，offset等属性！
         Object value;
         try {
@@ -208,7 +207,7 @@ public class UniformBindingProcessor {
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
         }
-        ShaderUniformSetterWrapper setterWrapper;
+        ShaderVariableSetterWrapper setterWrapper;
         // TODO: value类型转换在被调用时才发生，需要有一种方法将类型转换移动到调用之前
         if (meta.intBased) {
             GLShaderIntUniformSetter setter = DebugUtils.assertNotNull(intTypeToSetter.get(meta.type));
@@ -220,12 +219,12 @@ public class UniformBindingProcessor {
         return setterWrapper;
     }
 
-    private static void processFields(@NonNull RenderContext context, @NonNull List<Field> fields, Map<String, ShaderUniformMeta> uniformMetas,Object object,String fieldNamePrefix,String uniformNamePrefix){
+    private static void processFields(@NonNull RenderContext context, @NonNull List<Field> fields, Map<String, ShaderVariableMeta> uniformMetas, Object object, String fieldNamePrefix, String uniformNamePrefix){
         for (Field field : fields) {
             ShaderUniform anno = field.getAnnotation(ShaderUniform.class);
             DebugUtils.assertNotNull(anno);
             String uniformName = uniformNamePrefix + anno.uniformName();
-            ShaderUniformMeta meta = uniformMetas.get(uniformName);
+            ShaderVariableMeta meta = uniformMetas.get(uniformName);
             String fieldName = fieldNamePrefix + field.getName();
 
             String initMode;
@@ -237,7 +236,7 @@ public class UniformBindingProcessor {
                 mask |= flag.mask;
             }
 
-            ShaderUniformSetterWrapper setterWrapper;
+            ShaderVariableSetterWrapper setterWrapper;
             if((mask&UniformFlag.AUTO_INITIALIZE.mask)!=0){
                 try{
                     field.set(object,field.getClass().newInstance());
@@ -252,7 +251,7 @@ public class UniformBindingProcessor {
             //对于shader中的结构体，没有对应的metadata，只有结构体成员展开后的metadata
             if((mask&UniformFlag.IS_STRUCT.mask)!=0){
                 try {
-                    generateShaderUniformSetter(context,uniformMetas,field.get(object),fieldName+".",uniformName+".");
+                    generateShaderUniformSetters(context,uniformMetas,field.get(object),fieldName+".",uniformName+".");
                     continue;
                 } catch (IllegalAccessException e) {
                     String msg = String.format("Binding shader uniform variable \"%s\" failed!",uniformName);
@@ -302,12 +301,12 @@ public class UniformBindingProcessor {
     }
 
     //采用method绑定只能为自动提交
-    private static void processMethods(@NonNull RenderContext context, @NonNull List<Method> methods, Map<String, ShaderUniformMeta> uniformMetas,Object object,String fieldNamePrefix,String uniformNamePrefix)  {
+    private static void processMethods(@NonNull RenderContext context, @NonNull List<Method> methods, Map<String, ShaderVariableMeta> uniformMetas, Object object, String fieldNamePrefix, String uniformNamePrefix)  {
         for (Method method : methods) {
             ShaderUniform anno = method.getAnnotation(ShaderUniform.class);
             DebugUtils.assertNotNull(anno);
             String uniformName = uniformNamePrefix + anno.uniformName();
-            ShaderUniformMeta meta = uniformMetas.get(uniformName);
+            ShaderVariableMeta meta = uniformMetas.get(uniformName);
             String methodName = fieldNamePrefix + method.getName();
 
             UniformFlag[] flags = anno.flags();
@@ -319,7 +318,7 @@ public class UniformBindingProcessor {
             //对于shader中的结构体，没有对应的metadata，只有结构体成员展开后的metadata
             if((mask&UniformFlag.IS_STRUCT.mask)!=0){
                 try {
-                    generateShaderUniformSetter(context,uniformMetas, Objects.requireNonNull(method.invoke(object)),methodName+".",uniformName+".");
+                    generateShaderUniformSetters(context,uniformMetas, Objects.requireNonNull(method.invoke(object)),methodName+".",uniformName+".");
                     continue;
                 } catch (Exception e) {
                     String msg = String.format("Binding shader uniform variable \"%s\" failed!",uniformName);
@@ -334,7 +333,7 @@ public class UniformBindingProcessor {
                 }
             }
 
-            ShaderUniformSetterWrapper setterWrapper;
+            ShaderVariableSetterWrapper setterWrapper;
             boolean isArray = method.getReturnType().isArray();
             // TODO: value类型转换在被调用时才发生，需要有一种方法将类型转换移动到调用之前
 
@@ -387,19 +386,13 @@ public class UniformBindingProcessor {
         }
     }
 
-    public static void generateShaderUniformSetter(@NonNull RenderContext context, @NonNull Shader shader) {
-        Map<String, ShaderUniformMeta> uniformMetas = shader.getUniformMetas();
-        generateShaderUniformSetter(context,uniformMetas,context,"","");
-      /*  Class<? extends RenderContext> contextClass = context.getClass();
-        List<Field> fields = AnnotationUtils.getAnnotatedFields(contextClass,ShaderUniform.class);
-        List<Method> methods = AnnotationUtils.getAnnotatedMethods(contextClass,ShaderUniform.class);
-        Map<String, ShaderUniformMeta> uniformMetas = shader.getUniformMetas();
-        processFields(context,fields,uniformMetas,context,"","");
-        processMethods(context,methods,uniformMetas,context,"","");*/
+    public static void generateShaderUniformSetters(@NonNull RenderContext context, @NonNull Shader shader) {
+        Map<String, ShaderVariableMeta> uniformMetas = shader.getUniformMetas();
+        generateShaderUniformSetters(context,uniformMetas,context,"","");
     }
 
 
-    public static void generateShaderUniformSetter(@NonNull RenderContext context, @NonNull Map<String, ShaderUniformMeta>  uniformMetas,Object object,String fieldNamePrefix,String uniformNamePrefix) {
+    private static void generateShaderUniformSetters(@NonNull RenderContext context, @NonNull Map<String, ShaderVariableMeta>  uniformMetas, Object object, String fieldNamePrefix, String uniformNamePrefix) {
         Class<?> structClass = object.getClass();
         List<Field> fields = AnnotationUtils.getAnnotatedFields(structClass,ShaderUniform.class);
         List<Method> methods = AnnotationUtils.getAnnotatedMethods(structClass,ShaderUniform.class);

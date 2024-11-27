@@ -1,5 +1,4 @@
-#version 310 es
-#extension GL_EXT_shader_io_blocks : enable
+#version 300 es
 precision mediump float;
 
 struct PointLight{
@@ -29,14 +28,15 @@ struct BlinnPhongLight{
     vec3 direction;
 };
 
-in Varying{
-    vec2 texCoords;
-    vec3 position; // world space
-    vec3 normal;
-}fs_in;
+
+in vec2 vTexCoords;
+in vec3 vPosition; // world space
+in vec3 vNormal;
+
 
 
 out vec4 fragmentColor;
+
 uniform vec3 uEyePosition;
 uniform vec3 uAmbientIntensity;
 uniform PointLight uPointLight;
@@ -63,25 +63,24 @@ vec3 phong(vec3 ks, float cosAlpha, float specularFact, vec3 lightIntensity){
 }
 
 
-float getSpecularCosAlpha(vec3 eyePos,vec3 reflectPoint,vec3 lightVec,vec3 normal){
-    vec3 viewVec = normalize(eyePos - reflectPoint);
+float getSpecularCosAlpha(vec3 viewVec,vec3 lightVec,vec3 normal){
     vec3 halfVec = normalize(viewVec + lightVec);
     return dot(normal,halfVec);
 }
 
 
 
-vec3 getDiffuseSpecular(vec3 reflectPoint, vec3 normal, vec3 eyePos, BlinnPhongMaterial material,
+vec3 getDiffuseSpecular(vec3 viewVec, vec3 normal, BlinnPhongMaterial material,
                         BlinnPhongLight light){
-    float cosAlpha = getSpecularCosAlpha(eyePos,reflectPoint,light.direction,normal);
+    float cosAlpha = getSpecularCosAlpha(viewVec,light.direction,normal);
     vec3 diffuseColor = lambert(material.kd, normal, light.direction, light.castIntensityArrived);
     vec3 specularColor = phong(material.ks, cosAlpha, material.shininess, light.castIntensityArrived);
     return diffuseColor + specularColor;
 }
 
-vec3 blinnPhong(vec3 reflectPoint, vec3 normal, vec3 eyePos, BlinnPhongMaterial material, BlinnPhongLight light){
+vec3 blinnPhong(vec3 viewVec, vec3 normal, BlinnPhongMaterial material, BlinnPhongLight light){
     vec3 ambient = light.ambientIntensity * material.ka;
-    vec3 diffSpec = getDiffuseSpecular(reflectPoint, normal, eyePos,
+    vec3 diffSpec = getDiffuseSpecular(viewVec, normal,
                                        material,
                                        light);
     vec3 color = ambient + diffSpec;
@@ -91,18 +90,19 @@ vec3 blinnPhong(vec3 reflectPoint, vec3 normal, vec3 eyePos, BlinnPhongMaterial 
 void main()
 {
     BlinnPhongMaterial material;
-    vec4 sampledKd = texture(uMaterial.diffuseMap, fs_in.texCoords);
-    vec4 sampledKs = texture(uMaterial.diffuseMap, fs_in.texCoords);
+    vec4 sampledKd = texture(uMaterial.diffuseMap, vTexCoords);
+    vec4 sampledKs = texture(uMaterial.diffuseMap, vTexCoords);
     material.kd = vec3(sampledKd)*uMaterial.kd;
     material.ks = vec3(sampledKs)*uMaterial.ks;
-    material.ka = uMaterial.ka;
+    material.ka = vec3(sampledKd)*uMaterial.ka;
     material.shininess = uMaterial.shininess;
-
+    vec3 viewVec = normalize(uEyePosition - vPosition);
     BlinnPhongLight light;
     light.ambientIntensity = uAmbientIntensity;
-    light.castIntensityArrived = uPointLight.intensity*getIntensityAttenuation(uPointLight.position,fs_in.position);
-    light.direction = normalize(uPointLight.position - fs_in.position);
+    light.castIntensityArrived = uPointLight.intensity*getIntensityAttenuation(uPointLight.position, vPosition);
+    light.direction = normalize(uPointLight.position - vPosition);
 
-    vec3 color = blinnPhong(fs_in.position, normalize(fs_in.normal), uEyePosition,material,light);
+    vec3 color = blinnPhong(viewVec, normalize(vNormal), material, light);
+   // fragmentColor = vec4(vTexCoords*0.5+0.5,0.0,sampledKd.a);
     fragmentColor = vec4(color,sampledKd.a);
 }

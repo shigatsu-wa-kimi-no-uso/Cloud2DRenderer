@@ -1,7 +1,40 @@
 package me.project.cloud2drenderer.opengl.statemanager;
 
-import static android.opengl.GLES32.*;
+import static android.opengl.GLES30.*;
+import static android.opengl.GLES31.GL_IMAGE_2D;
+import static android.opengl.GLES31.GL_IMAGE_2D_ARRAY;
+import static android.opengl.GLES31.GL_IMAGE_3D;
+import static android.opengl.GLES31.GL_IMAGE_CUBE;
+import static android.opengl.GLES31.GL_INT_IMAGE_2D;
+import static android.opengl.GLES31.GL_INT_IMAGE_2D_ARRAY;
+import static android.opengl.GLES31.GL_INT_IMAGE_3D;
+import static android.opengl.GLES31.GL_INT_IMAGE_CUBE;
+import static android.opengl.GLES31.GL_INT_SAMPLER_2D_MULTISAMPLE;
+import static android.opengl.GLES31.GL_SAMPLER_2D_MULTISAMPLE;
+import static android.opengl.GLES31.GL_UNSIGNED_INT_ATOMIC_COUNTER;
+import static android.opengl.GLES31.GL_UNSIGNED_INT_IMAGE_2D;
+import static android.opengl.GLES31.GL_UNSIGNED_INT_IMAGE_2D_ARRAY;
+import static android.opengl.GLES31.GL_UNSIGNED_INT_IMAGE_3D;
+import static android.opengl.GLES31.GL_UNSIGNED_INT_IMAGE_CUBE;
+import static android.opengl.GLES31.GL_UNSIGNED_INT_SAMPLER_2D_MULTISAMPLE;
+import static android.opengl.GLES32.GL_IMAGE_BUFFER;
+import static android.opengl.GLES32.GL_IMAGE_CUBE_MAP_ARRAY;
+import static android.opengl.GLES32.GL_INT_IMAGE_BUFFER;
+import static android.opengl.GLES32.GL_INT_IMAGE_CUBE_MAP_ARRAY;
+import static android.opengl.GLES32.GL_INT_SAMPLER_2D_MULTISAMPLE_ARRAY;
+import static android.opengl.GLES32.GL_INT_SAMPLER_BUFFER;
+import static android.opengl.GLES32.GL_INT_SAMPLER_CUBE_MAP_ARRAY;
+import static android.opengl.GLES32.GL_SAMPLER_2D_MULTISAMPLE_ARRAY;
+import static android.opengl.GLES32.GL_SAMPLER_BUFFER;
+import static android.opengl.GLES32.GL_SAMPLER_CUBE_MAP_ARRAY;
+import static android.opengl.GLES32.GL_SAMPLER_CUBE_MAP_ARRAY_SHADOW;
+import static android.opengl.GLES32.GL_UNSIGNED_INT_IMAGE_BUFFER;
+import static android.opengl.GLES32.GL_UNSIGNED_INT_IMAGE_CUBE_MAP_ARRAY;
+import static android.opengl.GLES32.GL_UNSIGNED_INT_SAMPLER_2D_MULTISAMPLE_ARRAY;
+import static android.opengl.GLES32.GL_UNSIGNED_INT_SAMPLER_BUFFER;
+import static android.opengl.GLES32.GL_UNSIGNED_INT_SAMPLER_CUBE_MAP_ARRAY;
 
+import android.opengl.GLUtils;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -118,8 +151,37 @@ public class GLShaderManager {
 
     public static int getUniformLocation(String name){
         assertBound();
-        return glGetUniformLocation(currentProgram.programId,name);
+        int location = glGetUniformLocation(currentProgram.programId,name);
+        GLErrorUtils.assertNoError();
+        return location;
     }
+
+    public static int getAttributeLocation(String name){
+        assertBound();
+        int location = glGetAttribLocation(currentProgram.programId,name);
+        GLErrorUtils.assertNoError();
+        return location;
+    }
+
+    public static void getShaderAttributeInfo(String[][] names,int[][] types,int[][] sizes){
+        assertBound();
+        int[] buf = new int[1];
+        int programId = currentProgram.programId;
+        glGetProgramiv(programId, GL_ACTIVE_ATTRIBUTES, buf,0);
+        int count = buf[0];
+        names[0] = new String[count];
+        types[0] = new int[count];
+        sizes[0] = new int[count];
+        for(int i = 0; i < count; i++){
+            int[] type = new int[1];
+            int[] size = new int[1];
+            names[0][i]  = glGetActiveAttrib(programId,i,size,0,type,0);
+            types[0][i] = type[0];
+            sizes[0][i] = size[0];
+        }
+    }
+
+
     public static void getShaderUniformInfo(String[][] names,int[][] types,int[][] sizes){
         assertBound();
         int[] buf = new int[1];
@@ -195,36 +257,24 @@ public class GLShaderManager {
     }
 
     private static int getAttribLocation(String name){
+        assertBound();
         return glGetAttribLocation(currentProgram.programId, name);
     }
 
-    public static void setAttributeSequential(String name, int length,int type,boolean normalized, int strideInBytes, int offset){
-        assertBound();
-        final int index = getAttribLocation(name);
-        glVertexAttribPointer(index, length, type, normalized,
-                strideInBytes,
-                offset);
-        glEnableVertexAttribArray(index);
-        GLErrorUtils.assertNoError();
-    }
 
 
+
+
+    @Deprecated
     public static void setAttribute(String name, int elemCount,int elemType,boolean normalized, int strideInBytes, int startOffset){
-        assertBound();
-        GLVertexBufferManager.assertBound();
-        GLVertexBufferManager.assertVBOBindingConsistency();
           //注意！设置顶点属性时，shader和vertexbuffer都要绑定！若vertexbuffer不绑定，GL不会报错！
         final int index = getAttribLocation(name);
         if(index == GL_INVALID_INDEX){
             Log.e(tag,"getAttribLocation('"+name+"') returned -1");
             return;
         }
-
-        glVertexAttribPointer(index, elemCount, elemType, normalized,
-                strideInBytes,
-                startOffset);
-        glEnableVertexAttribArray(index);
-        GLErrorUtils.assertNoError();
+        Log.d(tag,"getAttribLocation('"+name+"') returned "+index);
+        GLVertexBufferManager.setAttributePointer(index, elemCount,elemType, normalized,strideInBytes, startOffset);
         Log.d(tag,"setAttribLocation('"+name+"') success");
     }
 

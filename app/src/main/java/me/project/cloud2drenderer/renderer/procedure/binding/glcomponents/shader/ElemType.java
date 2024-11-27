@@ -4,7 +4,7 @@ package me.project.cloud2drenderer.renderer.procedure.binding.glcomponents.shade
 import static android.opengl.GLES20.*;
 
 public enum ElemType {
-
+//保证与GL中的一致
     AUTO(-1),
     INT(GL_INT),
     UNSIGNED_INT(GL_UNSIGNED_INT),

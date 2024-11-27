@@ -1,5 +1,6 @@
-package me.project.cloud2drenderer.renderer.context;
+package me.project.cloud2drenderer.renderer.context.flipbook;
 
+import me.project.cloud2drenderer.renderer.context.RenderContext;
 import me.project.cloud2drenderer.renderer.entity.material.DiffuseTextureMaterial;
 import me.project.cloud2drenderer.renderer.entity.material.Material;
 import me.project.cloud2drenderer.renderer.entity.others.flipbook.SequenceFrameParams;

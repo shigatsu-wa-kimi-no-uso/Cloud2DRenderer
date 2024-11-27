@@ -3,7 +3,6 @@ package me.project.cloud2drenderer.opengl.statemanager;
 import static android.opengl.GLES30.*;
 
 import androidx.annotation.NonNull;
-
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
@@ -168,6 +167,16 @@ public class GLVertexBufferManager {
         loadVertexAttributeData(verticesAttributesBytes,drawMethod,data.length);
     }
 
+    public static void setAttributePointer(int index, int elemCount,int elemType,boolean normalized, int strideInBytes, int startOffset){
+        assertBound();
+        assertVBOBindingConsistency();
+        glVertexAttribPointer(index, elemCount, elemType, normalized,
+                strideInBytes,
+                startOffset);
+        glEnableVertexAttribArray(index);
+        GLErrorUtils.assertNoError();
+    }
+
     public static void bind(@NonNull GLVertexBuffer buffer){
         glBindVertexArray(buffer.vao);
         currentVertexBuffer = buffer;
@@ -176,6 +185,8 @@ public class GLVertexBufferManager {
     public static void unbind(){
         assertBound();
         glBindVertexArray(GL_NONE);
+        glBindBuffer(GL_ARRAY_BUFFER, GL_NONE);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, GL_NONE);
         currentVertexBuffer = null;
     }
 }

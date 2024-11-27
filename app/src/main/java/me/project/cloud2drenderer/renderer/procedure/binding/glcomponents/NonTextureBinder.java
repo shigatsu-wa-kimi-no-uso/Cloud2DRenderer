@@ -9,5 +9,6 @@ public class NonTextureBinder implements ResBindingMethod {
     public void bind(RenderContext context) {
         GLShaderManager.use(context.getShader().program);
         GLVertexBufferManager.bind(context.loadedModel.vertexBuffer);
+        context.bindShaderAttributePointers();
     }
 }

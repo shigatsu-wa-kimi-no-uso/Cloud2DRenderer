@@ -1,6 +1,7 @@
 package me.project.cloud2drenderer.renderer.scene;
 
 import android.content.Context;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 
@@ -20,6 +21,7 @@ import me.project.cloud2drenderer.renderer.entity.material.Material;
 import me.project.cloud2drenderer.renderer.entity.texture.Texture;
 import me.project.cloud2drenderer.renderer.loader.AssetLoader;
 import me.project.cloud2drenderer.renderer.procedure.binding.glcomponents.CommonBinder;
+import me.project.cloud2drenderer.renderer.procedure.binding.glcomponents.shader.AttributeBindingProcessor;
 import me.project.cloud2drenderer.renderer.procedure.binding.glcomponents.shader.UniformBindingProcessor;
 import me.project.cloud2drenderer.renderer.procedure.pipeline.BlendPipeline;
 import me.project.cloud2drenderer.renderer.procedure.pipeline.CommonPipeline;
@@ -30,6 +32,7 @@ import me.project.cloud2drenderer.renderer.procedure.drawing.ElemDraw;
 
 public class Scene {
 
+    private static final String tag = Scene.class.getSimpleName();
     private final AssetLoader assetLoader;
 
     private final CanvasController canvasController;
@@ -160,7 +163,8 @@ public class Scene {
         Objects.requireNonNull(renderBatches.get(pipelineId)).contexts.put(context.contextId,context);
     }
 
-    private void initRenderContexts(AssetBinding ab) {
+    private void initRenderContext(AssetBinding ab) {
+        Log.i(tag,"initializing render context:"+ab.context.name);
         RenderContext.camera = camera;
         MaterialBinding mb = ab.materialBinding;
         RenderContext context = ab.context;
@@ -176,7 +180,7 @@ public class Scene {
         if (mb.textureNames != null) {
             for (int i = 0; i < mb.textureNames.length; i++) {
                 Texture texture = textureController.getTexture(mb.textureNames[i]); //若textureName==null 则返回null
-                texture.unit = i;
+                texture.unit = i + 1;
                 mb.textureSetters[i].setTexture(texture);
             }
         }
@@ -186,19 +190,21 @@ public class Scene {
 
         context.setGLResourceBinder(new CommonBinder());
         determineDrawMethod(context);
-        shaderController.bindShaderAttributePointers(material.getShader(), context.loadedModel);
+       // shaderController.bindShaderAttributePointers(material.getShader(), context.loadedModel);
         context.setMaterial(material);
         context.setTransform(ab.transform);
         context.initContext();
-        UniformBindingProcessor.generateShaderUniformSetter(context, material.getShader());
+        AttributeBindingProcessor.generateShaderAttributeSetters(context,context.loadedModel,material.getShader());
+        UniformBindingProcessor.generateShaderUniformSetters(context, material.getShader());
         context.contextId = ++lastContextId;
         renderContexts.add(context);
         submitTask(ab.pipelineName, context);
     }
+
     public void initRenderContexts() {
         RenderContext.camera = camera;
         for (AssetBinding ab : assetBindings) {
-            initRenderContexts(ab);
+            initRenderContext(ab);
         }
         assetBindings.clear();
     }

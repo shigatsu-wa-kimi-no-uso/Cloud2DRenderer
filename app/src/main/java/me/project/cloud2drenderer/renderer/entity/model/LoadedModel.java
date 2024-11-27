@@ -5,7 +5,7 @@ import me.project.cloud2drenderer.opengl.glcomponent.buffer.GLVertexBuffer;
 public class LoadedModel {
     public GLVertexBuffer vertexBuffer;
 
-    public String modelName;
+    public String name;
 
     public int vertexCount;
 
@@ -13,6 +13,10 @@ public class LoadedModel {
 
     public boolean elemBased;
 
+
+    public Class<? extends MeshModel> modelClass;
+
+    @Deprecated
     public ModelMeta.ModelMetaGetter modelMetaGetter;
 
 

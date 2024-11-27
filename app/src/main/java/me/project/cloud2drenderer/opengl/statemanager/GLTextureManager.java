@@ -1,11 +1,8 @@
 package me.project.cloud2drenderer.opengl.statemanager;
 
 import static android.opengl.GLES30.*;
-import static android.opengl.GLES31.GL_TEXTURE_2D_MULTISAMPLE;
-
 import android.graphics.Bitmap;
 import android.opengl.GLUtils;
-
 import androidx.annotation.NonNull;
 import me.project.cloud2drenderer.opengl.GLErrorUtils;
 import me.project.cloud2drenderer.opengl.glcomponent.texture.GLTexture;
