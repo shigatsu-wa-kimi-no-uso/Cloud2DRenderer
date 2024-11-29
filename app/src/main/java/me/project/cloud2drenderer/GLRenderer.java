@@ -116,7 +116,7 @@ public class GLRenderer implements GLSurfaceView.Renderer{
         scene.load(getBillboardAssetBinding(1, 1, new float[]{-1f, 0f, -2.5f}));
         scene.load(getBillboardAssetBinding(1, 1, new float[]{0f, 0f, -2.5f},new float[]{0,0,0}, pointLight));
         scene.load(getBillboardAssetBinding(1, 1, new float[]{0.0f, 0.0f, 0f},new float[]{0,0,0}, pointLight));
-        scene.load(getBillboardAssetBinding2(1f, 1f, new float[]{-1.3f, 0.0f, 0f},new float[]{0,0,0}, pointLight));
+        scene.load(getBillboardAssetBinding(1f, 1f, new float[]{-1.3f, 0.0f, 0f},new float[]{0,0,0}, pointLight));
         //scene.load( getBillboardAssetBinding(0.5f,0.5f,new float[]{-1f,-1f,-2.5f}));
         //scene.load( getBillboardAssetBinding(1.5f,1.5f,new float[]{-0.5f,0.15f,-2.3f}));
         //scene.load( getBillboardAssetBinding(1,1,new float[]{-0.25f,0f,-2.0f}));

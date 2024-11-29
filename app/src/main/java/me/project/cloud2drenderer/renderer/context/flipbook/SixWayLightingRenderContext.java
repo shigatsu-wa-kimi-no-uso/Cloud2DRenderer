@@ -26,6 +26,15 @@ public class SixWayLightingRenderContext extends RenderContext {
 
     private final float[] modelIT;
 
+
+    private float[] position;
+
+    private float[] scale;
+
+
+
+    private PointLight pointLight;
+
     public float[] getPosition() {
         return position;
     }
@@ -42,11 +51,6 @@ public class SixWayLightingRenderContext extends RenderContext {
         this.scale = scale;
     }
 
-    private float[] position;
-
-    private float[] scale;
-
-    private PointLight pointLight;
 
     public SixWayLightingRenderContext(){
         modelInverse = new float[16];
@@ -114,14 +118,24 @@ public class SixWayLightingRenderContext extends RenderContext {
         return sixWayLighting.getDiffuseTexture().unit;
     }
 
-    @ShaderUniform(uniformName = "uFlipBookLightingMap.mapRLT")
+    @ShaderUniform(uniformName = "uFlipBookLightMap.mapRLT")
     public int getFlipBookLightingRLTUnit(){
-        return sixWayLighting.getRLTLighting().unit;
+        return sixWayLighting.getLightMapA().unit;
     }
 
-    @ShaderUniform(uniformName = "uFlipBookLightingMap.mapBBF")
+    @ShaderUniform(uniformName = "uFlipBookLightMap.mapBBF")
     public int getFlipBookLightingBBFUnit(){
-        return sixWayLighting.getBBFLighting().unit;
+        return sixWayLighting.getLightMapB().unit;
+    }
+
+    @ShaderUniform(uniformName = "uFlipBookLightMap.mapRTB")
+    public int getFlipBookLightingRTBUnit(){
+        return sixWayLighting.getLightMapA().unit;
+    }
+
+    @ShaderUniform(uniformName = "uFlipBookLightMap.mapLBF")
+    public int getFlipBookLightingLBFUnit(){
+        return sixWayLighting.getLightMapB().unit;
     }
 
     @Override
