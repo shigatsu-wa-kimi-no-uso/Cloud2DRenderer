@@ -141,9 +141,10 @@ public class SceneUtils {
 
         SixWayLighting material = new SixWayLighting();
         mb.material = material;
-        mb.textureNames = new String[]{"SmokeBall_Albedo","SmokeBall_BBF","SmokeBall_RLT"};
-        mb.textureSetters = new TextureSetter[]{material::setDiffuseTexture,material::setBBFLighting,material::setRLTLighting};
-        mb.shaderName = "flipbook/six_way_lighting";
+       // mb.textureNames = new String[]{"SmokeBall_Albedo","SmokeBall_RLT","SmokeBall_BBF"};
+        mb.textureNames = new String[]{"vex.albedo","vex.A_RTB","vex.B_LBF"};
+        mb.textureSetters = new TextureSetter[]{material::setDiffuseTexture,material::setLightMapA,material::setLightMapB};
+        mb.shaderName = "flipbook/six_way_lighting2";
         ab.modelName = "rectangle";
         ab.materialBinding = mb;
 
@@ -191,6 +192,8 @@ public class SceneUtils {
         seqFrameParams.setFlipBookShape(new float[]{8.0f,8.0f});
         seqFrameParams.setFrequency(1.0f/2.5f);
         context.setSeqFrameParams(seqFrameParams);
+        context.setPosition(position);
+        context.setScale(new float[]{width,height,1});
         ab.transform = MatUtils.newTransform(position,new float[]{width,height,1},rotation);
         ab.context = context;
         return ab;

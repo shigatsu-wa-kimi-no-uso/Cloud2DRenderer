@@ -8,8 +8,8 @@ struct Light{
 };
 
 struct SixWayLightingMap{
-    sampler2D mapRLT; //right left top
-    sampler2D mapBBF; //bottom back front
+    sampler2D mapRTB; //right top back
+    sampler2D mapLBF; //left bottom front
 };
 
 struct SeqFrameParams {
@@ -51,10 +51,10 @@ vec3 computeSixWayLighting(vec3 sampledRTF, vec3 sampledLBB, vec3 lightDir, vec3
 
 void main()
 {
-    vec3 lightMapRLT = texture(uFlipBookLightMap.mapRLT, vTexCoords).rgb;
-    vec3 lightMapBBF = texture(uFlipBookLightMap.mapBBF, vTexCoords).rgb;
-    vec3 lightingRTF = vec3(lightMapRLT.rb, lightMapBBF.b); //right top front
-    vec3 lightingLBB = vec3(lightMapRLT.g, lightMapBBF.rg); //left bottom back
+    vec3 lightMapRTB = texture(uFlipBookLightMap.mapRTB, vTexCoords).rgb;
+    vec3 lightMapLBF = texture(uFlipBookLightMap.mapLBF, vTexCoords).rgb;
+    vec3 lightingRTF = vec3(lightMapRTB.rg, lightMapLBF.b); //right top front
+    vec3 lightingLBB = vec3(lightMapLBF.rg, lightMapRTB.b); //left bottom back
     float attenuation = getIntensityAttenuation(uPointLight.position, vPosition);
     vec3 lightDir = normalize(uPointLight.position - vPosition);
     vec3 lightDirTS = normalize(vTBNInversed * lightDir);

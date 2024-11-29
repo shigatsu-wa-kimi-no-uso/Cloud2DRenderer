@@ -8,19 +8,22 @@ public class SixWayLighting extends DiffuseTextureMaterial{
         textures = new Texture[3];
     }
 
-    public void setRLTLighting(Texture texture){
+    public void setLightMapA(Texture texture){
         textures[1] = texture;
     }
 
-    public void setBBFLighting(Texture texture){
+    public void setLightMapB(Texture texture){
         textures[2] = texture;
     }
 
-    public Texture getRLTLighting(){
+
+    //maybe right left top  or   right top back
+    public Texture getLightMapA(){
         return textures[1];
     }
 
-    public Texture getBBFLighting(){
+    //maybe bottom back front  or  left bottom front
+    public Texture getLightMapB(){
         return textures[2];
     }
 
