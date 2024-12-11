@@ -126,6 +126,7 @@ public class AssetLoader {
             }
         });
         Texture texture = textureController.createTexture2D(key, bitmap);
+        bitmap.recycle();
         return texture;
     }
 

@@ -80,6 +80,11 @@ public class CommonRenderContext extends RenderContext{
         this.material = material;
     }
 
+    @Override
+    public void setMaterial(Material[] material) {
+
+    }
+
 
     @ShaderUniform(uniformName = "uView")
     public float[] getView(){

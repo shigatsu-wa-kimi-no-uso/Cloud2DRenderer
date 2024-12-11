@@ -20,7 +20,7 @@ out vec3 vPosition;
 out mat3 vTBNInversed;
 out mat3 vTBN;
 
-
+out float debug_val;
 
 uniform mat4 uModeling;
 uniform mat4 uModelIT;
@@ -33,11 +33,10 @@ vec2 getTexCoords(vec2 originalTexCoords,vec2 flipBookShape,float currIndex){
     vec2 stridePerTile = vec2(1.0,1.0)/flipBookShape;
     vec2 relativeCoords = originalTexCoords*stridePerTile;
     float tileIndex = mod(currIndex, (flipBookShape.x*flipBookShape.y));
-    float currTileV = flipBookShape.y - floor(tileIndex / flipBookShape.y) - 1.0;
+    float currTileV = flipBookShape.y - floor(tileIndex / flipBookShape.x) - 1.0;
     float currTileH = mod(tileIndex, flipBookShape.x);
     vec2 currTilePos = vec2(currTileH,currTileV);
     vec2 currTileCoordTopLeft = currTilePos*stridePerTile;
-    //  debug_val = currTileCoordTopLeft.x;
     vec2 texCoord = currTileCoordTopLeft  + relativeCoords;
     //  texCoord = relativeCoords + stridePerTile*vec2(7.0,0.0);
     return texCoord;

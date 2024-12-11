@@ -110,6 +110,11 @@ public class BlinnPhongRenderContext extends RenderContext{
     }
 
     @Override
+    public void setMaterial(Material[] material) {
+
+    }
+
+    @Override
     public void adjustContext() {
 
     }

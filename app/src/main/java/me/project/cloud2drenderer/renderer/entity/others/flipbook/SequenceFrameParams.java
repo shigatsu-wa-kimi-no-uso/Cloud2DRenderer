@@ -6,6 +6,7 @@ public class SequenceFrameParams {
 
     private float frequency; //每多少帧序列帧切换到下一帧
 
+    private int currentMapIndex;
 
     private int currentFrameIndex;
 
@@ -30,6 +31,9 @@ public class SequenceFrameParams {
         this.currentFrameIndex = currentFrameIndex;
     }
 
+    public void resetCurrentFrameIndex(){
+        currentFrameIndex = 0;
+    }
     public void increaseCurrentFrameIndex() {
         this.currentFrameIndex++;
     }
