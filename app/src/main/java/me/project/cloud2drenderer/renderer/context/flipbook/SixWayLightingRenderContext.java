@@ -35,8 +35,6 @@ public class SixWayLightingRenderContext extends RenderContext {
 
     private DistantLight distantLight;
 
-    private DistantLight distantLight;
-
     private PointLight pointLight;
 
     public float[] getPosition() {
@@ -169,11 +167,17 @@ public class SixWayLightingRenderContext extends RenderContext {
 
     }
 
+    long lastTick;
+
 
     @Override
     public void adjustContext() {
        // seqFrameParams.setFrequency(1);
-        seqFrameParams.increaseCurrentFrameIndex();
+        long thisTick = System.nanoTime();
+        float durationInSecond = (thisTick - lastTick)/1E9f;
+        lastTick = thisTick;
+        float fps = sixWayLighting.getFramesPerSecond();
+        seqFrameParams.increaseCurrentFrameIndex(durationInSecond*fps);
         float[] eyePos = camera.getPosition();
         float[] eyePosOS = MatUtils.sub(eyePos,position);
         float[] transform = Rectangle.getBillboardTransform(eyePosOS,position);
@@ -181,11 +185,14 @@ public class SixWayLightingRenderContext extends RenderContext {
         setTransform(transform);
     }
 
+
+
     @Override
     public void initContext() {
         seqFrameParams = new SequenceFrameParams();
         seqFrameParams.setCurrentFrameIndex(0);
         seqFrameParams.setFlipBookShape(sixWayLighting.getShape());
-        seqFrameParams.setFrequency(sixWayLighting.getFrequency());
+        lastTick = System.nanoTime();
+       // seqFrameParams.setFrequency(sixWayLighting.getFramesPerSecond());
     }
 }

@@ -6,36 +6,48 @@ public class SequenceFrameParams {
 
     private float frequency; //每多少帧序列帧切换到下一帧
 
+    private float delta;
+
     private int currentMapIndex;
 
-    private int currentFrameIndex;
+    private float currentFrameIndex;
 
 
     private float[] flipBookShape;
 
+    /*
+
     @ShaderUniform(uniformName = "frequency")
     public float getFrequency() {
         return frequency;
-    }
+    }*/
 
     public void setFrequency(float frequency) {
         this.frequency = frequency;
     }
 
+
+
     @ShaderUniform(uniformName = "currFrameIndex")
-    public int getCurrentFrameIndex() {
+    public float getCurrentFrameIndex() {
         return currentFrameIndex;
     }
 
-    public void setCurrentFrameIndex(int currentFrameIndex) {
+    public void setCurrentFrameIndex(float currentFrameIndex) {
         this.currentFrameIndex = currentFrameIndex;
     }
 
     public void resetCurrentFrameIndex(){
         currentFrameIndex = 0;
     }
+
     public void increaseCurrentFrameIndex() {
         this.currentFrameIndex++;
+    }
+
+
+    public void increaseCurrentFrameIndex(float increment) {
+        this.currentFrameIndex+=increment;
     }
 
     @ShaderUniform(uniformName = "flipBookShape")

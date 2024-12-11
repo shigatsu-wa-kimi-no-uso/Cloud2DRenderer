@@ -140,7 +140,10 @@ public class GLRenderer implements GLSurfaceView.Renderer{
         MaterialBinding jap_cumulus_4_thin = getSixWayLightingMaterialBinding(
                 "jap_cumulus_preset3_2_thin_Albedo","jap_cumulus_preset3_2_thin_A","jap_cumulus_preset3_2_thin_B",16,11,24,"flipbook/six_way_lighting2");
         MaterialBinding jap_cumulo_5 = getSixWayLightingMaterialBinding(
-                "jap_cumulo_preset5_1_Albedo","jap_cumulo_preset5_1_A","jap_cumulo_preset5_1_B",12,10,24,"flipbook/six_way_lighting2");
+                "jap_cumulo_preset5_1_Albedo","jap_cumulo_preset5_1_A","jap_cumulo_preset5_1_B",12,10,5,"flipbook/six_way_lighting2");
+        MaterialBinding jap_cumulo_5_my = getSixWayLightingMaterialBinding(
+                "jap_cumulo_preset5_1_my_Albedo","jap_cumulo_preset5_1_my_A","jap_cumulo_preset5_1_my_B",12,10,5,"flipbook/six_way_lighting2");
+
 
 
 
@@ -153,6 +156,7 @@ public class GLRenderer implements GLSurfaceView.Renderer{
         materialBindings.put("jap_cumulus_preset3_1_thin",jap_cumulus_3_thin);
         materialBindings.put("jap_cumulus_preset3_2_thin",jap_cumulus_4_thin);
         materialBindings.put("jap_cumulo_preset5_1",jap_cumulo_5);
+        materialBindings.put("jap_cumulo_preset5_1_my",jap_cumulo_5_my);
       //  materialBindings.put("SmokeBall",smokeBall);
         cloudMaterials.add(cumulonimbus_76_1.material);
       //  cloudMaterials.add(cumulonimbus_252_3.material);
@@ -162,6 +166,7 @@ public class GLRenderer implements GLSurfaceView.Renderer{
         cloudMaterials.add(jap_cumulus_3_thin.material);
         cloudMaterials.add(jap_cumulus_4_thin.material);
         cloudMaterials.add(jap_cumulo_5.material);
+        cloudMaterials.add(jap_cumulo_5_my.material);
         loadMaterials();
         PointLight pointLight = new PointLight();
         //255,235,205
@@ -169,8 +174,13 @@ public class GLRenderer implements GLSurfaceView.Renderer{
         pointLight.setPosition(new float[]{-1.0f, -1.0f, 0f});
 
         DistantLight distantLight = new DistantLight();
-        distantLight.setIntensity(ColorUtils.getIntensity(255,255,255,2f));
-        distantLight.setDirection(new float[]{-1,-1,0.2f});
+        distantLight.setIntensity(ColorUtils.getIntensity(255,255,255,1f));
+        distantLight.setDirection(new float[]{-1,-0.5f,0f});
+      //  distantLight.setDirection(new float[]{-1,-1,0.2f});
+//        DistantLight distantLight2 = new DistantLight();
+//        distantLight2.setDirection(new float[]{-1,0,0});
+//        distantLight2.setIntensity(ColorUtils.getIntensity(255,255,255,1.5f));
+        //distantLight2.setDirection(new float[]{-1,-1,0.2f});
         //  scene.load( getTerrainAssetBinding(1f,1f,new float[]{0.0f,-0.8f,-1.3f}));
       //  scene.load( getCubeAssetBinding(0.5f,1,new float[]{0,0,-5}));
         scene.load(getCubeAssetBinding2("wood cube",new float[]{0.0f, 0.0f, 0f}, new float[]{1, 1, 1}, new float[]{-1f, -1.5f, -5}, pointLight,distantLight));
@@ -179,7 +189,8 @@ public class GLRenderer implements GLSurfaceView.Renderer{
         //需要注意：先画远物体，再画近的
         scene.load(getCheckerBoardAssetBinding("checker board",new float[]{0,-3,0},new float[]{30,30,30},pointLight,distantLight));
         //scene.load(getBillboardAssetBinding(1, 1, new float[]{-1f, 0f, -2.5f}));
-        scene.load(getBillboardAssetBinding(1, 1, new float[]{0f, 0f, -2.5f},new float[]{0,0,0},jap_cumulo_5, pointLight,distantLight));
+        scene.load(getBillboardAssetBinding(1, 1, new float[]{0.5f, 0f, -2.5f},new float[]{0,0,0},jap_cumulo_5_my, pointLight,distantLight));
+        //scene.load(getBillboardAssetBinding(1, 1, new float[]{0f, 0f, -2.5f},new float[]{0,0,0},jap_cumulo_5, pointLight,distantLight));
       //  scene.load(getBillboardAssetBinding(1, 1, new float[]{0.0f, 0.0f, 0f},new float[]{0,0,0},jap_cumulus_4_thin, pointLight));
        // scene.load(getBillboardAssetBinding(3f, 3f, new float[]{-1.3f, 1.0f, 0f},new float[]{0,0,0},jap_cumulus_3_thin, pointLight));
 

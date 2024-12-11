@@ -6,20 +6,20 @@ public class SixWayLighting extends DiffuseTextureMaterial{
 
     private final float[] shape = new float[2];
 
-    private float frequency;
+    private float framesPerSecond;
 
     public void setShape(int imagesPerLine,int rowCnt){
         shape[0] = imagesPerLine;
         shape[1] = rowCnt;
     }
 
-    public void setFrequency(float framesPerSecond){
-        frequency = framesPerSecond/60.0f; //TODO: FPS转每帧翻帧数,需根据当前帧率动态翻页
+    public void setFramesPerSecond(float framesPerSecond){
+        this.framesPerSecond = framesPerSecond; //TODO: FPS转每帧翻帧数,需根据当前帧率动态翻页
     }
 
 
-    public float getFrequency(){
-        return frequency;
+    public float getFramesPerSecond(){
+        return framesPerSecond;
     }
 
     public final float[] getShape(){

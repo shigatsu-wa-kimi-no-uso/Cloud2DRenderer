@@ -3,10 +3,10 @@ precision mediump float;
 precision highp int;
 
 struct SeqFrameParams {
-    int currFrameIndex; // 从0开始
-    float frequency;
+    float currFrameIndex; // 从0开始
     vec2 flipBookShape;
 };
+
 
 in vec3 aPosition;
 in vec2 aTexCoords;
@@ -14,7 +14,8 @@ in vec3 aNormal;
 in vec3 aTangent;
 in vec3 aBitangent;
 
-
+out float vRatio;
+out vec2 vNextTexCoords;
 out vec2 vTexCoords;
 out vec3 vPosition;
 out mat3 vTBNInversed;
@@ -45,9 +46,11 @@ vec2 getTexCoords(vec2 originalTexCoords,vec2 flipBookShape,float currIndex){
 
 void main()
 {
-
-    float currIndex = floor(float(uSeqFrameParams.currFrameIndex) * uSeqFrameParams.frequency);
+    float currIndex = floor(uSeqFrameParams.currFrameIndex);
+    float nextIndex = ceil(uSeqFrameParams.currFrameIndex);
+    vRatio = fract(uSeqFrameParams.currFrameIndex);
     vTexCoords = getTexCoords(aTexCoords, uSeqFrameParams.flipBookShape, currIndex);
+    vNextTexCoords = getTexCoords(aTexCoords, uSeqFrameParams.flipBookShape, nextIndex);
     vPosition = vec3(uModeling * vec4(aPosition,1.0));
     mat3 modelIT = mat3(uModelIT);
     vec3 T = normalize(modelIT * aTangent);

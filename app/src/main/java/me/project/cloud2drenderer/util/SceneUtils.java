@@ -145,7 +145,7 @@ public class SceneUtils {
         //  mb.textureNames = new String[]{"cloud_v830.albedo","cloud_v830.lightmap_RLT","cloud_v830.lightmap_BBF"};
         //   mb.textureNames = new String[]{"1-76_Albedo","1-76_A","1-76_B"};
         material.setShape(imagesPerLine, rowCnt);
-        material.setFrequency(framesPerSecond);
+        material.setFramesPerSecond(framesPerSecond);
         mb.textureNames = new String[]{albedoTex,lightMapA,lightMapB};
         mb.textureSetters = new TextureSetter[]{material::setDiffuseTexture,material::setLightMapA,material::setLightMapB};
         mb.shaderName = shaderName;

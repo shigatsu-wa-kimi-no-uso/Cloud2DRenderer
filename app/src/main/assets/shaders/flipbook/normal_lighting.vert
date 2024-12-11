@@ -29,7 +29,7 @@ uniform mat4 uProjection;
 uniform SeqFrameParams uSeqFrameParams;
 
 
-vec2 getTexCoords(vec2 originalTexCoords,vec2 flipBookShape,float currIndex){
+vec2 getTexCoords(vec2 originalTexCoords, vec2 flipBookShape, float currIndex){
     vec2 stridePerTile = vec2(1.0,1.0)/flipBookShape;
     vec2 relativeCoords = originalTexCoords*stridePerTile;
     float tileIndex = mod(currIndex, (flipBookShape.x*flipBookShape.y));
@@ -54,7 +54,7 @@ void main()
     vec3 N = normalize(modelIT * aNormal);
     vTBN = mat3(T, B, N);
     vTBNInversed = transpose(mat3(T, B, N));
-    vTexCoords = getTexCoords(aTexCoords,uSeqFrameParams.flipBookShape,currIndex);
+    vTexCoords = getTexCoords(aTexCoords, uSeqFrameParams.flipBookShape, currIndex);
     vPosition = vec3(uModeling * vec4(aPosition, 1.0));
     vNormal = mat3(uModelIT) * aNormal;
     gl_Position = uProjection * uView * vec4(vPosition, 1.0);
