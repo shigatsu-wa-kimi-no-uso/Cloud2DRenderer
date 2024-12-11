@@ -6,6 +6,13 @@ struct PointLight{
     vec3 position;  //world space
 };
 
+struct DistantLight{
+    vec3 intensity;
+    vec3 direction;
+};
+
+
+
 struct Material{
     vec3 ka;   //ambient
     vec3 ks;    //specular factor
@@ -40,6 +47,7 @@ out vec4 fragmentColor;
 uniform vec3 uEyePosition;
 uniform vec3 uAmbientIntensity;
 uniform PointLight uPointLight;
+uniform DistantLight uDistantLight;
 uniform Material uMaterial;
 uniform vec3 colors[2];
 
@@ -103,14 +111,24 @@ void main()
     material.ka = uMaterial.ka;
     material.shininess = uMaterial.shininess;
     vec3 viewVec = normalize(uEyePosition - vPosition);
-    BlinnPhongLight light;
-    light.ambientIntensity = uAmbientIntensity;
-    light.castIntensityArrived = uPointLight.intensity*getIntensityAttenuation(uPointLight.position, vPosition);
-    light.direction = normalize(uPointLight.position - vPosition);
 
-    vec3 color = blinnPhong(viewVec, normalize(vNormal), material, light);
+    BlinnPhongLight pointLight;
+    pointLight.ambientIntensity = uAmbientIntensity;
+    pointLight.castIntensityArrived = uPointLight.intensity*getIntensityAttenuation(uPointLight.position, vPosition);
+    pointLight.direction = normalize(uPointLight.position - vPosition);
 
-   // fragmentColor = vec4(normalize(vNormal)*0.5+0.5,1.0);
-    fragmentColor = vec4(color,1.0);
-//    fragmentColor = vec4(colors[index], 1.0);
+    vec3 color1 = blinnPhong(viewVec, normalize(vNormal), material, pointLight);
+
+    BlinnPhongLight distantLight;
+    distantLight.ambientIntensity = vec3(0,0,0);
+    distantLight.castIntensityArrived = uDistantLight.intensity;
+    distantLight.direction = normalize(-uDistantLight.direction);
+
+    vec3 color2 = blinnPhong(viewVec, normalize(vNormal), material, distantLight);
+
+
+    // fragmentColor = vec4(vTexCoords*0.5+0.5,0.0,sampledKd.a);
+    fragmentColor = vec4(color1+color2,1.0);
+
+
 }

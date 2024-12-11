@@ -100,6 +100,8 @@ public abstract class RenderContext {
 
     public abstract void setMaterial(Material material);
 
+    public abstract void setMaterial(Material[] material);
+
     public abstract void adjustContext();
 
     public abstract void initContext();

@@ -4,6 +4,7 @@ import android.opengl.Matrix;
 
 import me.project.cloud2drenderer.renderer.entity.material.Material;
 import me.project.cloud2drenderer.renderer.entity.material.luminous.Luminous;
+import me.project.cloud2drenderer.renderer.entity.others.light.DistantLight;
 import me.project.cloud2drenderer.renderer.entity.others.light.PointLight;
 import me.project.cloud2drenderer.renderer.entity.shader.Shader;
 import me.project.cloud2drenderer.renderer.entity.texture.Texture;
@@ -14,6 +15,8 @@ public class LuminousRenderContext extends RenderContext{
     private float[] transform;
 
     private PointLight pointLight;
+
+
 
     private Luminous material;
 
@@ -72,6 +75,11 @@ public class LuminousRenderContext extends RenderContext{
         this.material = (Luminous) material;
     }
 
+    @Override
+    public void setMaterial(Material[] material) {
+
+    }
+
     long startTimeMillis = System.currentTimeMillis();
 
 
@@ -91,13 +99,14 @@ public class LuminousRenderContext extends RenderContext{
 
     @Override
     public void adjustContext() {
+        /*
         long currTimeMillis = System.currentTimeMillis();
         long timeElapsedMillis = currTimeMillis - startTimeMillis;
         float degreesPerSecond = 20f;
         float angle = (timeElapsedMillis/1000.0f)*degreesPerSecond;
         float[] newPos = getCoordinates(angle,1.0f);
         pointLight.setPosition(newPos);
-        setTransformPosition(newPos);
+        setTransformPosition(newPos);*/
     }
 
     @Override

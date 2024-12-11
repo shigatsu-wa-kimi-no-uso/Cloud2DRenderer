@@ -2,9 +2,14 @@
 precision mediump float;
 precision highp int;
 
-struct Light{
+struct PointLight {
     vec3 intensity;
     vec3 position;
+};
+
+struct DistantLight{
+    vec3 intensity;
+    vec3 direction;
 };
 
 struct SixWayLightingMap{
@@ -23,13 +28,14 @@ in vec2 vTexCoords;
 in vec3 vPosition;
 in mat3 vTBNInversed;
 in mat3 vTBN;
-
+in float debug_val;
 
 
 out vec4 fragmentColor;
 
 
-uniform Light uPointLight;
+uniform PointLight uPointLight;
+uniform DistantLight uDistantLight;
 uniform sampler2D uFlipBookAlbedo;
 uniform SixWayLightingMap uFlipBookLightMap;
 uniform SeqFrameParams uSeqFrameParams;
@@ -49,20 +55,35 @@ vec3 computeSixWayLighting(vec3 sampledRTF, vec3 sampledLBB, vec3 lightDir, vec3
 }
 
 
+vec3 getLighting(mat3 inversedTBN,vec3 lightDir,vec3 lightMapRTF,vec3 lightMapLBB,vec3 intensity){
+    vec3 lightDirTS = normalize(inversedTBN * lightDir);
+    vec3 lighting = computeSixWayLighting(lightMapRTF,lightMapLBB,lightDirTS,intensity);
+    return lighting;
+}
+
 void main()
 {
     vec3 lightMapRTB = texture(uFlipBookLightMap.mapRTB, vTexCoords).rgb;
     vec3 lightMapLBF = texture(uFlipBookLightMap.mapLBF, vTexCoords).rgb;
-    vec3 lightingRTF = vec3(lightMapRTB.rg, lightMapLBF.b); //right top front
-    vec3 lightingLBB = vec3(lightMapLBF.rg, lightMapRTB.b); //left bottom back
+    vec3 lightMapRTF = vec3(lightMapRTB.rg, lightMapLBF.b); //right top front
+    vec3 lightMapLBB = vec3(lightMapLBF.rg, lightMapRTB.b); //left bottom back
     float attenuation = getIntensityAttenuation(uPointLight.position, vPosition);
     vec3 lightDir = normalize(uPointLight.position - vPosition);
-    vec3 lightDirTS = normalize(vTBNInversed * lightDir);
 
-    //mat3 TBN = transpose(TBNInversed);
-   // fragmentColor = vec4(lightDirTS*0.5+0.5,1.0);
-    vec3 lighting = attenuation * computeSixWayLighting(lightingRTF,lightingLBB,lightDirTS,uPointLight.intensity);
+    vec3 pointLighting = attenuation * getLighting(vTBNInversed,lightDir,lightMapRTF,lightMapLBB,uPointLight.intensity);
+    vec3 distantLighting = getLighting(vTBNInversed,normalize(-uDistantLight.direction),lightMapRTF,lightMapLBB,uDistantLight.intensity);
+   // vec4 albedo = texture(uFlipBookAlbedo, vTexCoords);
     vec4 albedo = texture(uFlipBookAlbedo, vTexCoords);
+    vec3 ambient = vec3(1,1,1);
    // fragmentColor = vec4( TBN[2]*0.5+0.5,albedo.a);
-    fragmentColor = vec4(albedo.rgb * lighting,albedo.a);
+    float alpha = albedo.a;
+/**    if(alpha>0.5){
+        alpha=1.0;
+    }*/
+
+    alpha = pow(alpha,5.0);
+    vec3 color = mix(vec3(1,1,1),distantLighting,alpha);
+
+    fragmentColor = vec4(clamp(color,0.0,0.95),alpha);
+    //fragmentColor = vec4(debug_val,debug_val,debug_val,1);
 }

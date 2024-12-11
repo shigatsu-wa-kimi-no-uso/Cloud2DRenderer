@@ -12,6 +12,7 @@ import me.project.cloud2drenderer.renderer.entity.AssetBinding;
 import me.project.cloud2drenderer.renderer.entity.MaterialBinding;
 import me.project.cloud2drenderer.renderer.entity.material.CheckerBoard;
 import me.project.cloud2drenderer.renderer.entity.material.luminous.Luminous;
+import me.project.cloud2drenderer.renderer.entity.others.light.DistantLight;
 import me.project.cloud2drenderer.renderer.entity.others.light.PointLight;
 import me.project.cloud2drenderer.renderer.entity.material.BlinnPhong;
 import me.project.cloud2drenderer.renderer.entity.material.DiffuseTextureMaterial;
@@ -41,7 +42,7 @@ public class SceneUtils {
         return ab;
     }
 
-    public static AssetBinding getCubeAssetBinding2(String name,float[] rotate, float[] scale, float[] position, PointLight pointLight){
+    public static AssetBinding getCubeAssetBinding2(String name,float[] rotate, float[] scale, float[] position, PointLight pointLight,DistantLight distantLight){
         AssetBinding ab = new AssetBinding();
         MaterialBinding mb = new MaterialBinding();
         BlinnPhong material = new BlinnPhong();
@@ -60,6 +61,7 @@ public class SceneUtils {
         context.name = name;
         context.setAmbientIntensity(new float[]{1f,1f,1f});
         context.setPointLight(pointLight);
+        context.setDistantLight(distantLight);
         ab.transform = MatUtils.newTransform(position,scale,rotate);
         ab.context = context;
         return ab;
@@ -85,14 +87,14 @@ public class SceneUtils {
     }
 
 
-    public static AssetBinding getCheckerBoardAssetBinding(String name, float[] scale, float[] position,PointLight pointLight){
+    public static AssetBinding getCheckerBoardAssetBinding(String name, float[] scale, float[] position,PointLight pointLight,DistantLight distantLight){
         AssetBinding ab = new AssetBinding();
         MaterialBinding mb = new MaterialBinding();
         ab.pipelineName = "non_blend";
         CheckerBoard material = new CheckerBoard();
-        material.setKa(new float[]{0.3f,0.3f,0.3f});
+        material.setKa(new float[]{1f,1f,1f});
         material.setKs(new float[]{0.03f,0.03f,0.03f});
-        material.setKd(new float[]{0.25f,0.25f,0.25f});
+        material.setKd(new float[]{0.6f,0.6f,0.6f});
         material.setShininess(64);
         material.setColor1(1.0f,174.0f/255.0f,201.0f/255.0f);
         material.setColor2(1.0f,127.0f/255.0f,39.0f/255.0f);
@@ -103,6 +105,7 @@ public class SceneUtils {
         CheckerBoardRenderContext context = new CheckerBoardRenderContext();
         context.setAmbientIntensity(new float[]{0.2f,0.2f,0.2f});
         context.setPointLight(pointLight);
+        context.setDistantLight(distantLight);
         context.name = name;
         ab.transform = MatUtils.newTransform(scale,position,new float[]{90,0,0});
         ab.context = context;
@@ -133,31 +136,36 @@ public class SceneUtils {
         return ab;
     }
 
-
-    public static AssetBinding getBillboardAssetBinding(float width, float height, float[] position, float[] rotation, PointLight pointLight){
-        AssetBinding ab = new AssetBinding();
+    public static MaterialBinding getSixWayLightingMaterialBinding(String albedoTex,String lightMapA,String lightMapB,int imagesPerLine,int rowCnt, float framesPerSecond,String shaderName){
         MaterialBinding mb = new MaterialBinding();
-        ab.pipelineName = "blend";
-
         SixWayLighting material = new SixWayLighting();
         mb.material = material;
-       // mb.textureNames = new String[]{"SmokeBall_Albedo","SmokeBall_RLT","SmokeBall_BBF"};
-    //    mb.textureNames = new String[]{"vex.albedo","vex.A_RTB","vex.B_LBF"};
-        mb.textureNames = new String[]{"cloud_v830.albedo","cloud_v830.lightmap_RLT","cloud_v830.lightmap_BBF"};
+        // mb.textureNames = new String[]{"SmokeBall_Albedo","SmokeBall_RLT","SmokeBall_BBF"};
+        //    mb.textureNames = new String[]{"vex.albedo","vex.A_RTB","vex.B_LBF"};
+        //  mb.textureNames = new String[]{"cloud_v830.albedo","cloud_v830.lightmap_RLT","cloud_v830.lightmap_BBF"};
+        //   mb.textureNames = new String[]{"1-76_Albedo","1-76_A","1-76_B"};
+        material.setShape(imagesPerLine, rowCnt);
+        material.setFrequency(framesPerSecond);
+        mb.textureNames = new String[]{albedoTex,lightMapA,lightMapB};
         mb.textureSetters = new TextureSetter[]{material::setDiffuseTexture,material::setLightMapA,material::setLightMapB};
-        mb.shaderName = "flipbook/six_way_lighting2";
+        mb.shaderName = shaderName;
+        return mb;
+    }
+
+    public static AssetBinding getBillboardAssetBinding(float width, float height, float[] position, float[] rotation, MaterialBinding mb, PointLight pointLight, DistantLight distantLight){
+        AssetBinding ab = new AssetBinding();
+        ab.pipelineName = "blend";
         ab.modelName = "rectangle";
         ab.materialBinding = mb;
-
         SixWayLightingRenderContext context = new SixWayLightingRenderContext();
         context.setPointLight(pointLight);
+        context.setDistantLight(distantLight);
 
-
-        SequenceFrameParams seqFrameParams = new SequenceFrameParams();
-        seqFrameParams.setCurrentFrameIndex(0);
-        seqFrameParams.setFlipBookShape(new float[]{8.0f,8.0f});
-        seqFrameParams.setFrequency(1.0f/2.5f);
-        context.setSeqFrameParams(seqFrameParams);
+//        SequenceFrameParams seqFrameParams = new SequenceFrameParams();
+//        seqFrameParams.setCurrentFrameIndex(0);
+//        seqFrameParams.setFlipBookShape(new float[]{18.0f,14.0f});
+//        seqFrameParams.setFrequency(8.0f/60.0f);
+ //       context.setSeqFrameParams(seqFrameParams);
         context.setPosition(position);
         context.setScale(new float[]{width,height,1});
         ab.transform = MatUtils.newTransform(position,new float[]{width,height,1},rotation);

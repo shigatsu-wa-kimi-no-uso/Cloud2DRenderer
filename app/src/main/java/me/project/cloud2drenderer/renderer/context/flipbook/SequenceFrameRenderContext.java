@@ -53,6 +53,11 @@ public class SequenceFrameRenderContext extends RenderContext {
         this.material = (DiffuseTextureMaterial) material;
     }
 
+    @Override
+    public void setMaterial(Material[] material) {
+
+    }
+
     @ShaderUniform(uniformName = "uView")
     public float[] getView(){
         return camera.getView();

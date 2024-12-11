@@ -42,6 +42,11 @@ public class TerrainMeshRenderContext extends RenderContext{
         this.material = (TerrainMaterial) material;
     }
 
+    @Override
+    public void setMaterial(Material[] material) {
+
+    }
+
     @ShaderUniform(uniformName = "uView")
     public float[] getView(){
         return camera.getView();

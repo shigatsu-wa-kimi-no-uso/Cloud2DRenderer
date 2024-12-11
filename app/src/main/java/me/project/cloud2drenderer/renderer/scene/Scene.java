@@ -105,6 +105,9 @@ public class Scene {
         initPipeline("blend",new BlendPipeline());
     }
 
+
+
+
     public void enableBlend(){
         canvasController.enableBlend();
     }
@@ -136,16 +139,23 @@ public class Scene {
     public AssetLoader getAssetLoader(){
         return assetLoader;
     }
+
     public void load(@NonNull AssetBinding assetBinding) {
-        MaterialBinding mb = assetBinding.materialBinding;
+        loadMaterial(assetBinding.materialBinding);
+        assetLoader.loadModel(assetBinding.modelName);
+        assetBindings.add(assetBinding);
+    }
+
+
+    public void loadMaterial(@NonNull MaterialBinding mb) {
         assetLoader.loadShaderScript(mb.shaderName);
         if(mb.textureNames != null){
             for(String textureName : mb.textureNames){
+                Log.d(tag,"loading texture " + textureName + "...");
                 assetLoader.loadTexture(textureName);
+                Log.d(tag,"loaded texture " + textureName + " success.");
             }
         }
-        assetLoader.loadModel(assetBinding.modelName);
-        assetBindings.add(assetBinding);
     }
 
 
@@ -163,20 +173,10 @@ public class Scene {
         Objects.requireNonNull(renderBatches.get(pipelineId)).contexts.put(context.contextId,context);
     }
 
-    private void initRenderContext(AssetBinding ab) {
-        Log.i(tag,"initializing render context:"+ab.context.name);
-        RenderContext.camera = camera;
-        MaterialBinding mb = ab.materialBinding;
-        RenderContext context = ab.context;
-        Material material;
-        try {
-            material = ab.materialBinding.material;
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-        material.setShader(shaderController.getShaderProgram(mb.shaderName));
-        context.loadedModel = modelController.getLoadedModel(ab.modelName);
 
+    private Material getMaterial(MaterialBinding mb){
+        Material material = mb.material;
+        material.setShader(shaderController.getShaderProgram(mb.shaderName));
         if (mb.textureNames != null) {
             for (int i = 0; i < mb.textureNames.length; i++) {
                 Texture texture = textureController.getTexture(mb.textureNames[i]); //若textureName==null 则返回null
@@ -184,17 +184,27 @@ public class Scene {
                 mb.textureSetters[i].setTexture(texture);
             }
         }
-//        } else {
-//            material.getTextures()[0] = Texture.nullTexture();
-//        }
+        return material;
+    }
+
+
+    private void initRenderContext(AssetBinding ab) {
+
+        Log.i(tag,"initializing render context:"+ab.context.name);
+        RenderContext.camera = camera;
+        RenderContext context = ab.context;
+        context.loadedModel = modelController.getLoadedModel(ab.modelName);
+        Material material = getMaterial(ab.materialBinding);
+        context.setMaterial(material);
 
         context.setGLResourceBinder(new CommonBinder());
         determineDrawMethod(context);
        // shaderController.bindShaderAttributePointers(material.getShader(), context.loadedModel);
-        context.setMaterial(material);
+
         context.setTransform(ab.transform);
         context.initContext();
         AttributeBindingProcessor.generateShaderAttributeSetters(context,context.loadedModel,material.getShader());
+
         UniformBindingProcessor.generateShaderUniformSetters(context, material.getShader());
         context.contextId = ++lastContextId;
         renderContexts.add(context);

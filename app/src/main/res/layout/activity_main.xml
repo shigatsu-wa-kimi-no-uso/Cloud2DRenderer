@@ -18,8 +18,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:background="@color/transparent"
-        android:text="FPS:%d"
-        android:textColor="@color/white"
+        android:text="FPS:%.2f"
+        android:textColor="@color/gray"
         android:textSize="20sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -32,7 +32,7 @@
         android:layout_marginTop="36dp"
         android:background="@color/transparent"
         android:text="CameraPos:%s\nOrient:%s"
-        android:textColor="@color/white"
+        android:textColor="@color/gray"
         android:textSize="20sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />

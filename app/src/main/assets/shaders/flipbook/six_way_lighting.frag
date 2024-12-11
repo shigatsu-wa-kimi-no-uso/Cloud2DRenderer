@@ -2,7 +2,7 @@
 precision mediump float;
 precision highp int;
 
-struct Light{
+struct PointLight {
     vec3 intensity;
     vec3 position;
 };
@@ -29,7 +29,7 @@ in mat3 vTBN;
 out vec4 fragmentColor;
 
 
-uniform Light uPointLight;
+uniform PointLight uPointLight;
 uniform sampler2D uFlipBookAlbedo;
 uniform SixWayLightingMap uFlipBookLightMap;
 uniform SeqFrameParams uSeqFrameParams;

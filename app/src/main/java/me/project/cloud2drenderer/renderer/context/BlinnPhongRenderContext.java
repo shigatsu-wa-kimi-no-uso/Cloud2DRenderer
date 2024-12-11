@@ -2,6 +2,7 @@ package me.project.cloud2drenderer.renderer.context;
 
 import android.opengl.Matrix;
 
+import me.project.cloud2drenderer.renderer.entity.others.light.DistantLight;
 import me.project.cloud2drenderer.renderer.entity.others.light.PointLight;
 import me.project.cloud2drenderer.renderer.entity.material.BlinnPhong;
 import me.project.cloud2drenderer.renderer.entity.material.Material;
@@ -17,6 +18,7 @@ public class BlinnPhongRenderContext extends RenderContext{
 
     protected PointLight pointLight;
 
+    private DistantLight distantLight;
 
     private float[] ambientIntensity;
 
@@ -50,6 +52,16 @@ public class BlinnPhongRenderContext extends RenderContext{
     public BlinnPhong getMaterial(){
         return material;
     }
+
+    @ShaderUniform(uniformName = "uDistantLight",flags = {UniformFlag.IS_STRUCT})
+    public DistantLight getDistantLight() {
+        return distantLight;
+    }
+
+    public void setDistantLight(DistantLight distantLight) {
+        this.distantLight = distantLight;
+    }
+
 
     @ShaderUniform(uniformName = "uPointLight",flags = {UniformFlag.IS_STRUCT})
     public PointLight getPointLight() {
@@ -107,6 +119,11 @@ public class BlinnPhongRenderContext extends RenderContext{
     @Override
     public void setMaterial(Material material) {
         this.material = (BlinnPhong) material;
+    }
+
+    @Override
+    public void setMaterial(Material[] material) {
+
     }
 
     @Override

@@ -4,6 +4,7 @@ import android.opengl.Matrix;
 
 import me.project.cloud2drenderer.renderer.context.RenderContext;
 import me.project.cloud2drenderer.renderer.entity.model.shape.Rectangle;
+import me.project.cloud2drenderer.renderer.entity.others.light.DistantLight;
 import me.project.cloud2drenderer.renderer.entity.others.light.PointLight;
 import me.project.cloud2drenderer.renderer.entity.material.Material;
 import me.project.cloud2drenderer.renderer.entity.material.SixWayLighting;
@@ -20,6 +21,7 @@ public class SixWayLightingRenderContext extends RenderContext {
 
     private SixWayLighting sixWayLighting;
 
+
     private float[] transform;
 
     private final float[] modelInverse;
@@ -31,7 +33,7 @@ public class SixWayLightingRenderContext extends RenderContext {
 
     private float[] scale;
 
-
+    private DistantLight distantLight;
 
     private PointLight pointLight;
 
@@ -111,7 +113,14 @@ public class SixWayLightingRenderContext extends RenderContext {
         this.sixWayLighting = sixWayLighting;
     }
 
+    @ShaderUniform(uniformName = "uDistantLight",flags = {UniformFlag.IS_STRUCT})
+    public DistantLight getDistantLight() {
+        return distantLight;
+    }
 
+    public void setDistantLight(DistantLight distantLight) {
+        this.distantLight = distantLight;
+    }
 
     @ShaderUniform(uniformName = "uFlipBookAlbedo")
     public int getFlipBookAlbedoUnit(){
@@ -153,11 +162,15 @@ public class SixWayLightingRenderContext extends RenderContext {
         sixWayLighting = (SixWayLighting) material;
     }
 
+    @Override
+    public void setMaterial(Material[] material) {
 
+    }
 
 
     @Override
     public void adjustContext() {
+       // seqFrameParams.setFrequency(1);
         seqFrameParams.increaseCurrentFrameIndex();
         float[] eyePos = camera.getPosition();
         float[] eyePosOS = MatUtils.sub(eyePos,position);
@@ -168,6 +181,9 @@ public class SixWayLightingRenderContext extends RenderContext {
 
     @Override
     public void initContext() {
-
+        seqFrameParams = new SequenceFrameParams();
+        seqFrameParams.setCurrentFrameIndex(0);
+        seqFrameParams.setFlipBookShape(sixWayLighting.getShape());
+        seqFrameParams.setFrequency(sixWayLighting.getFrequency());
     }
 }
