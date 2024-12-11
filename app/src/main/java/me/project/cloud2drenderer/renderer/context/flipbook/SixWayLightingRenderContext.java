@@ -35,6 +35,8 @@ public class SixWayLightingRenderContext extends RenderContext {
 
     private DistantLight distantLight;
 
+    private DistantLight distantLight;
+
     private PointLight pointLight;
 
     public float[] getPosition() {
