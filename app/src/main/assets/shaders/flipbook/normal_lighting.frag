@@ -55,7 +55,7 @@ float getIntensityAttenuation(vec3 lightPos,vec3 litPoint){
 vec3 lambert(vec3 kd, vec3 normal, vec3 lightVec, vec3 lightIntensity){
     float cosNL = dot(normal,lightVec);
     vec3 diffColor = kd * max(0.0,cosNL) * lightIntensity;
-  //  fragmentColor = vec4(cosNL ,cosNL ,cosNL , 1.0);
+   // fragmentColor = vec4(cosNL ,cosNL ,cosNL , 1.0);
     return diffColor;
 }
 
@@ -115,6 +115,6 @@ void main()
     vec3 normalMapVal = texture(uMaterial.normalMap, vTexCoords).rgb;
     vec3 normalTS = normalize(normalMapVal * 2.0 - 1.0);
     vec3 color = blinnPhong(viewVecTS, normalTS, material, light);
-    //fragmentColor = vec4(sampledKd);
+   // fragmentColor = vec4(sam);
     fragmentColor = vec4(color, sampledKd.a);
 }

@@ -18,6 +18,16 @@ public class FlipbookBlinnPhongRenderContext extends BlinnPhongRenderContext {
 
     private float[] scale;
 
+
+    public void setSeqFrameParams(SequenceFrameParams seqFrameParams) {
+        this.seqFrameParams = seqFrameParams;
+    }
+
+    @ShaderUniform(uniformName = "uSeqFrameParams",flags = {UniformFlag.IS_STRUCT})
+    public SequenceFrameParams getSeqFrameParams() {
+        return seqFrameParams;
+    }
+
     public float[] getPosition() {
         return position;
     }
@@ -33,16 +43,6 @@ public class FlipbookBlinnPhongRenderContext extends BlinnPhongRenderContext {
     public void setScale(float[] scale) {
         this.scale = scale;
     }
-
-    public void setSeqFrameParams(SequenceFrameParams seqFrameParams) {
-        this.seqFrameParams = seqFrameParams;
-    }
-
-    @ShaderUniform(uniformName = "uSeqFrameParams",flags = {UniformFlag.IS_STRUCT})
-    public SequenceFrameParams getSeqFrameParams() {
-        return seqFrameParams;
-    }
-
 
     @Override
     public void adjustContext() {

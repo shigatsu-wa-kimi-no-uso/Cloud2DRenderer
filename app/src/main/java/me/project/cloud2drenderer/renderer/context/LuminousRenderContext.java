@@ -72,6 +72,11 @@ public class LuminousRenderContext extends RenderContext{
         this.material = (Luminous) material;
     }
 
+    @Override
+    public void setMaterial(Material[] material) {
+
+    }
+
     long startTimeMillis = System.currentTimeMillis();
 
 

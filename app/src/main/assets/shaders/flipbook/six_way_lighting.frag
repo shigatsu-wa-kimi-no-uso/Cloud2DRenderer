@@ -2,7 +2,7 @@
 precision mediump float;
 precision highp int;
 
-struct Light{
+struct PointLight {
     vec3 intensity;
     vec3 position;
 };
@@ -29,9 +29,9 @@ in mat3 vTBN;
 out vec4 fragmentColor;
 
 
-uniform Light uPointLight;
+uniform PointLight uPointLight;
 uniform sampler2D uFlipBookAlbedo;
-uniform SixWayLightingMap uFlipBookLightingMap;
+uniform SixWayLightingMap uFlipBookLightMap;
 uniform SeqFrameParams uSeqFrameParams;
 
 
@@ -41,24 +41,23 @@ float getIntensityAttenuation(vec3 lightPos,vec3 litPoint){
     return 1.0;
 }
 
-vec3 computeSixWayLighting(vec3 RTF,vec3 LBB,vec3 lightDir,vec3 lightColor) {
-    vec3 normalizedLightDir = normalize(lightDir);
-    vec3 clampedDir = clamp(normalizedLightDir, vec3(0.0,0.0,0.0), vec3(1.0,1.0,1.0));
-    vec3 clampedNegDir = clamp(-normalizedLightDir, vec3(0.0,0.0,0.0), vec3(1.0,1.0,1.0));
-    vec3 factor = RTF * clampedDir + LBB * clampedNegDir;
+vec3 computeSixWayLighting(vec3 sampledRTF, vec3 sampledLBB, vec3 lightDir, vec3 lightColor) {
+    vec3 clampedDir = clamp(lightDir, vec3(0.0,0.0,0.0), vec3(1.0,1.0,1.0));
+    vec3 clampedNegDir = clamp(-lightDir, vec3(0.0,0.0,0.0), vec3(1.0,1.0,1.0));
+    vec3 factor = sampledRTF * clampedDir + sampledLBB * clampedNegDir;
     return lightColor*(factor.x+factor.y+factor.z);
 }
 
 
 void main()
 {
-    vec3 lightingRLT = texture(uFlipBookLightingMap.mapRLT, vTexCoords).rgb;
-    vec3 lightingBBF = texture(uFlipBookLightingMap.mapBBF, vTexCoords).rgb;
-    vec3 lightingRTF = vec3(lightingRLT.rb,lightingBBF.b); //right top front
-    vec3 lightingLBB = vec3(lightingRLT.g,lightingBBF.rg); //left bottom back
+    vec3 lightMapRLT = texture(uFlipBookLightMap.mapRLT, vTexCoords).rgb;
+    vec3 lightMapBBF = texture(uFlipBookLightMap.mapBBF, vTexCoords).rgb;
+    vec3 lightingRTF = vec3(lightMapRLT.rb, lightMapBBF.b); //right top front
+    vec3 lightingLBB = vec3(lightMapRLT.g, lightMapBBF.rg); //left bottom back
     float attenuation = getIntensityAttenuation(uPointLight.position, vPosition);
-    vec3 lightDir = uPointLight.position - vPosition;
-    vec3 lightDirTS = vTBNInversed * lightDir;
+    vec3 lightDir = normalize(uPointLight.position - vPosition);
+    vec3 lightDirTS = normalize(vTBNInversed * lightDir);
 
     //mat3 TBN = transpose(TBNInversed);
    // fragmentColor = vec4(lightDirTS*0.5+0.5,1.0);
