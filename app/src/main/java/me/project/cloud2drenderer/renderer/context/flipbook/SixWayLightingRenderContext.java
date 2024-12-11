@@ -33,7 +33,7 @@ public class SixWayLightingRenderContext extends RenderContext {
 
     private float[] scale;
 
-
+    private DistantLight distantLight;
 
     private DistantLight distantLight;
 
@@ -172,6 +172,7 @@ public class SixWayLightingRenderContext extends RenderContext {
 
     @Override
     public void adjustContext() {
+       // seqFrameParams.setFrequency(1);
         seqFrameParams.increaseCurrentFrameIndex();
         float[] eyePos = camera.getPosition();
         float[] eyePosOS = MatUtils.sub(eyePos,position);

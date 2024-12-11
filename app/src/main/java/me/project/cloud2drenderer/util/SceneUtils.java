@@ -42,7 +42,7 @@ public class SceneUtils {
         return ab;
     }
 
-    public static AssetBinding getCubeAssetBinding2(String name,float[] rotate, float[] scale, float[] position, PointLight pointLight){
+    public static AssetBinding getCubeAssetBinding2(String name,float[] rotate, float[] scale, float[] position, PointLight pointLight,DistantLight distantLight){
         AssetBinding ab = new AssetBinding();
         MaterialBinding mb = new MaterialBinding();
         BlinnPhong material = new BlinnPhong();
@@ -61,6 +61,7 @@ public class SceneUtils {
         context.name = name;
         context.setAmbientIntensity(new float[]{1f,1f,1f});
         context.setPointLight(pointLight);
+        context.setDistantLight(distantLight);
         ab.transform = MatUtils.newTransform(position,scale,rotate);
         ab.context = context;
         return ab;
@@ -86,14 +87,14 @@ public class SceneUtils {
     }
 
 
-    public static AssetBinding getCheckerBoardAssetBinding(String name, float[] scale, float[] position,PointLight pointLight){
+    public static AssetBinding getCheckerBoardAssetBinding(String name, float[] scale, float[] position,PointLight pointLight,DistantLight distantLight){
         AssetBinding ab = new AssetBinding();
         MaterialBinding mb = new MaterialBinding();
         ab.pipelineName = "non_blend";
         CheckerBoard material = new CheckerBoard();
-        material.setKa(new float[]{0.3f,0.3f,0.3f});
+        material.setKa(new float[]{1f,1f,1f});
         material.setKs(new float[]{0.03f,0.03f,0.03f});
-        material.setKd(new float[]{0.25f,0.25f,0.25f});
+        material.setKd(new float[]{0.6f,0.6f,0.6f});
         material.setShininess(64);
         material.setColor1(1.0f,174.0f/255.0f,201.0f/255.0f);
         material.setColor2(1.0f,127.0f/255.0f,39.0f/255.0f);
@@ -104,6 +105,7 @@ public class SceneUtils {
         CheckerBoardRenderContext context = new CheckerBoardRenderContext();
         context.setAmbientIntensity(new float[]{0.2f,0.2f,0.2f});
         context.setPointLight(pointLight);
+        context.setDistantLight(distantLight);
         context.name = name;
         ab.transform = MatUtils.newTransform(scale,position,new float[]{90,0,0});
         ab.context = context;

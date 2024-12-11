@@ -165,19 +165,19 @@ public class GLRenderer implements GLSurfaceView.Renderer{
         loadMaterials();
         PointLight pointLight = new PointLight();
         //255,235,205
-        pointLight.setIntensity(ColorUtils.getIntensity(255,235,205,3));
+        pointLight.setIntensity(ColorUtils.getIntensity(255,235,205,0));
         pointLight.setPosition(new float[]{-1.0f, -1.0f, 0f});
 
         DistantLight distantLight = new DistantLight();
-        distantLight.setIntensity(ColorUtils.getIntensity(255,235,205,4));
-        distantLight.setDirection(new float[]{-1,0,0.0f});
+        distantLight.setIntensity(ColorUtils.getIntensity(255,255,255,2f));
+        distantLight.setDirection(new float[]{-1,-1,0.2f});
         //  scene.load( getTerrainAssetBinding(1f,1f,new float[]{0.0f,-0.8f,-1.3f}));
       //  scene.load( getCubeAssetBinding(0.5f,1,new float[]{0,0,-5}));
-        scene.load(getCubeAssetBinding2("wood cube",new float[]{0.0f, 0.0f, 0f}, new float[]{1, 1, 1}, new float[]{-1f, -1.5f, -5}, pointLight));
-        scene.load(getLightCubeAssetBinding("light cube",new float[]{0.0f, 0.0f, 0f}, new float[]{0.05f, 0.05f, 0.05f}, pointLight));
+        scene.load(getCubeAssetBinding2("wood cube",new float[]{0.0f, 0.0f, 0f}, new float[]{1, 1, 1}, new float[]{-1f, -1.5f, -5}, pointLight,distantLight));
+        scene.load(getLightCubeAssetBinding("light cube",new float[]{1.0f, 1.0f, -0.2f}, new float[]{0.05f, 0.05f, 0.05f}, pointLight));
 
         //需要注意：先画远物体，再画近的
-        scene.load(getCheckerBoardAssetBinding("checker board",new float[]{0,-3,0},new float[]{30,30,30},pointLight));
+        scene.load(getCheckerBoardAssetBinding("checker board",new float[]{0,-3,0},new float[]{30,30,30},pointLight,distantLight));
         //scene.load(getBillboardAssetBinding(1, 1, new float[]{-1f, 0f, -2.5f}));
         scene.load(getBillboardAssetBinding(1, 1, new float[]{0f, 0f, -2.5f},new float[]{0,0,0},jap_cumulo_5, pointLight,distantLight));
       //  scene.load(getBillboardAssetBinding(1, 1, new float[]{0.0f, 0.0f, 0f},new float[]{0,0,0},jap_cumulus_4_thin, pointLight));
@@ -208,7 +208,7 @@ public class GLRenderer implements GLSurfaceView.Renderer{
         updateFPSText();
         updateCameraText();
         scene.adjustObjects();
-        scene.clear(240/255f,1f,1f,1);
+        scene.clear(213/255.0f,240/255.0f,247/255.0f,1);
         scene.draw();
         count++;
     }

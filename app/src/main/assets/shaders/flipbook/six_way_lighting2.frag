@@ -72,11 +72,18 @@ void main()
 
     vec3 pointLighting = attenuation * getLighting(vTBNInversed,lightDir,lightMapRTF,lightMapLBB,uPointLight.intensity);
     vec3 distantLighting = getLighting(vTBNInversed,normalize(-uDistantLight.direction),lightMapRTF,lightMapLBB,uDistantLight.intensity);
+   // vec4 albedo = texture(uFlipBookAlbedo, vTexCoords);
     vec4 albedo = texture(uFlipBookAlbedo, vTexCoords);
-    //float alpha = texture(uFlipBookLightMap.mapRTB, vTexCoords).a;
-   // vec3 albedo = vec3(lightingLBB.b);
-
+    vec3 ambient = vec3(1,1,1);
    // fragmentColor = vec4( TBN[2]*0.5+0.5,albedo.a);
-    fragmentColor = vec4(albedo.rgb*distantLighting,albedo.a);
+    float alpha = albedo.a;
+/**    if(alpha>0.5){
+        alpha=1.0;
+    }*/
+
+    alpha = pow(alpha,5.0);
+    vec3 color = mix(vec3(1,1,1),distantLighting,alpha);
+
+    fragmentColor = vec4(clamp(color,0.0,0.95),alpha);
     //fragmentColor = vec4(debug_val,debug_val,debug_val,1);
 }
