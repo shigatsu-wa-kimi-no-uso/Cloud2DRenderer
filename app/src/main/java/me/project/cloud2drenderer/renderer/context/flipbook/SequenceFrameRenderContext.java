@@ -89,7 +89,7 @@ public class SequenceFrameRenderContext extends RenderContext {
     //每绘制一帧前都会调用一次
     @Override
     public void adjustContext() {
-        seqFrameParams.increaseCurrentFrameIndex();
+        seqFrameParams.increaseCurrentFrameIndex(1);
     }
 
     @Override

@@ -27,6 +27,8 @@ public class Rectangle extends MeshModel {
     private final float[] aBitangent;
 
 
+
+
     void copyToVertexData(){
         int totalSize = aPosition.length + aTexCoords.length + aNormal.length + aTangent.length + aBitangent.length;
         vertexData = new float[totalSize];
@@ -100,6 +102,11 @@ public class Rectangle extends MeshModel {
             MatUtils.arrayForEach((d,s)->s,aBitangent,tangents[vertIdx][1],vertIdx*3);
         }
 
+    }
+
+
+    public static float getLowerBoundY(){
+        return -0.5f;
     }
 
     public static float[] getCentroid(){

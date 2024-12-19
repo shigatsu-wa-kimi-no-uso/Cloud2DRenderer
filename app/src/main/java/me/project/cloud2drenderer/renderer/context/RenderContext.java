@@ -50,6 +50,9 @@ public abstract class RenderContext {
     }
 
     public abstract float[] getTransform();
+
+
+
     public abstract void setTransform(float[] transform);
 
     public void setDrawMethod(DrawMethod drawMethod) {
@@ -99,6 +102,8 @@ public abstract class RenderContext {
     public abstract Texture[] getTextures();
 
     public abstract void setMaterial(Material material);
+
+    public abstract Material getMaterial();
 
     public abstract void setMaterial(Material[] material);
 

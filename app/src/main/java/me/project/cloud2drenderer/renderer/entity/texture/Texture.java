@@ -7,9 +7,17 @@ public class Texture {
     public GLTexture texture;
     public int unit;
 
-    public int location;
+    private final float[] shape = new float[2];
 
 
+    public void setShape(float width,float height){
+        shape[0] = width;
+        shape[1] = height;
+    }
+
+    public float[] getShape(){
+        return shape;
+    }
 
     public static Texture nullTexture(){
         Texture texture = new Texture();

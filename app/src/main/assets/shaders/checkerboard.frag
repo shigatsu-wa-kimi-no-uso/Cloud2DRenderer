@@ -93,6 +93,7 @@ vec3 blinnPhong(vec3 viewVec, vec3 normal, BlinnPhongMaterial material, BlinnPho
                                        material,
                                        light);
     vec3 color = ambient + diffSpec;
+   // fragmentColor = vec4(material.ka,1.0);
     return color;
 }
 
@@ -106,7 +107,7 @@ void main()
     int index = abs(x + y + z) % 2;
 
     BlinnPhongMaterial material;
-    material.kd = colors[index]*uMaterial.kd;
+    material.kd = uMaterial.kd;
     material.ks = uMaterial.ks;
     material.ka = uMaterial.ka;
     material.shininess = uMaterial.shininess;
@@ -120,15 +121,16 @@ void main()
     vec3 color1 = blinnPhong(viewVec, normalize(vNormal), material, pointLight);
 
     BlinnPhongLight distantLight;
-    distantLight.ambientIntensity = vec3(0,0,0);
+    distantLight.ambientIntensity = uAmbientIntensity;
     distantLight.castIntensityArrived = uDistantLight.intensity;
     distantLight.direction = normalize(-uDistantLight.direction);
 
     vec3 color2 = blinnPhong(viewVec, normalize(vNormal), material, distantLight);
-
+    fragmentColor = vec4(colors[index]*(color1 + color2),1.0);
+    //fragmentColor = vec4(color2,1.0);
 
     // fragmentColor = vec4(vTexCoords*0.5+0.5,0.0,sampledKd.a);
-    fragmentColor = vec4(color1+color2,1.0);
+    //fragmentColor = vec4(color1+color2,1.0);
 
 
 }

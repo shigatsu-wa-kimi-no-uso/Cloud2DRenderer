@@ -43,6 +43,11 @@ public class TerrainMeshRenderContext extends RenderContext{
     }
 
     @Override
+    public Material getMaterial() {
+        return material;
+    }
+
+    @Override
     public void setMaterial(Material[] material) {
 
     }

@@ -119,6 +119,15 @@ public class Scene {
     public void clear(float r,float g,float b,float a){
         canvasController.clearCanvas(r,g,b,a);
     }
+
+    public void setClearColor(float r,float g,float b,float a){
+        canvasController.clearColor(r,g,b,a);
+    }
+
+    public void clear(){
+        canvasController.clearCanvas();
+    }
+
     public void setViewport(int width,int height){
         viewportWidth = width;
         viewportHeight = height;
@@ -141,7 +150,9 @@ public class Scene {
     }
 
     public void load(@NonNull AssetBinding assetBinding) {
-        loadMaterial(assetBinding.materialBinding);
+        if(assetBinding.materialBinding!=null){
+            loadMaterial(assetBinding.materialBinding);
+        }
         assetLoader.loadModel(assetBinding.modelName);
         assetBindings.add(assetBinding);
     }
@@ -152,10 +163,14 @@ public class Scene {
         if(mb.textureNames != null){
             for(String textureName : mb.textureNames){
                 Log.d(tag,"loading texture " + textureName + "...");
-                assetLoader.loadTexture(textureName);
-                Log.d(tag,"loaded texture " + textureName + " success.");
+                if(assetLoader.loadTexture(textureName)!=null) {
+                    Log.d(tag, "loaded texture " + textureName + " success.");
+                }else {
+                    Log.e(tag,"loaded texture " + textureName + " failed.");
+                }
             }
         }
+        mb.material = getMaterial(mb);
     }
 
 
@@ -189,22 +204,26 @@ public class Scene {
 
 
     private void initRenderContext(AssetBinding ab) {
-
         Log.i(tag,"initializing render context:"+ab.context.name);
         RenderContext.camera = camera;
         RenderContext context = ab.context;
         context.loadedModel = modelController.getLoadedModel(ab.modelName);
-        Material material = getMaterial(ab.materialBinding);
-        context.setMaterial(material);
+        Material material;
+        if(ab.materialBinding!=null){
+            material = getMaterial(ab.materialBinding);
+            context.setMaterial(material);
+        }else{
+            material = context.getMaterial();
+        }
 
         context.setGLResourceBinder(new CommonBinder());
         determineDrawMethod(context);
        // shaderController.bindShaderAttributePointers(material.getShader(), context.loadedModel);
-
-        context.setTransform(ab.transform);
+        if(ab.transform!=null){
+            context.setTransform(ab.transform);
+        }
         context.initContext();
         AttributeBindingProcessor.generateShaderAttributeSetters(context,context.loadedModel,material.getShader());
-
         UniformBindingProcessor.generateShaderUniformSetters(context, material.getShader());
         context.contextId = ++lastContextId;
         renderContexts.add(context);
@@ -229,25 +248,22 @@ public class Scene {
         }
     }
 
+
+    public void loadRenderContextsToPipeline(){
+        for(RenderBatch tasks: renderBatches.values()){
+            RenderPipeline pipeline = pipelines.get(tasks.pipelineId);
+            pipeline.setContexts(tasks.contexts.values());
+        }
+    }
+
     public void draw(){
         for(RenderBatch tasks: renderBatches.values()){
             RenderPipeline pipeline = pipelines.get(tasks.pipelineId);
             pipeline.beforeTask();
-            for (RenderContext context : tasks.contexts.values()){
-                pipeline.run(context);
-            }
+            pipeline.run();
             pipeline.afterTask();
         }
     }
 
 }
 
-//0.22  0  0.97  0
-//0     1     0  0
-//-0.97 0  0.22  0
-//0     0     0  1
-
-//1             0   -4.37*10^-8     0
-//0             1             0     0
-//4.37*10^-8    0             1     0
-//0             0             0     1

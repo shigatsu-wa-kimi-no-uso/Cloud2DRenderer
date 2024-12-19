@@ -35,7 +35,7 @@ in float debug_val;
 
 out vec4 fragmentColor;
 
-
+uniform vec3 uCloudAlbedo;
 uniform PointLight uPointLight;
 uniform DistantLight uDistantLight;
 uniform sampler2D uFlipBookAlbedo;
@@ -65,7 +65,7 @@ vec3 getLighting(mat3 inversedTBN,vec3 lightDir,vec3 lightMapRTF,vec3 lightMapLB
 
 vec4 texSampleAndMix(sampler2D tex,vec2 texCoords1,vec2 texCoords2,float factor){
     return mix(texture(tex,texCoords1),texture(tex,texCoords2),factor);
- //   return texture(tex,texCoords1);
+    //return texture(tex,texCoords1);
 }
 
 void main()
@@ -89,9 +89,10 @@ void main()
    // fragmentColor = vec4( TBN[2]*0.5+0.5,albedo.a);
     float alpha = albedo.a;
 
-   // alpha = pow(alpha,5.0);
-   // vec3 color = mix(vec3(1,1,1),distantLighting,alpha);
-    vec3 color = distantLighting;
-    fragmentColor = vec4(clamp(color,0.0,1.0),alpha);
-    //fragmentColor = vec4(debug_val,debug_val,debug_val,1);
+    alpha = pow(alpha,1.0);
+    vec3 color = mix(vec3(1,1,1),distantLighting*uCloudAlbedo,alpha);
+
+    fragmentColor = vec4(clamp(color,0.0,0.9),alpha);
+    //fragmentColor = vec4(uCloudAlbedo,0.5);
+
 }

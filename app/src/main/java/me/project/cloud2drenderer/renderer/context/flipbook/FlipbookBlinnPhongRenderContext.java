@@ -46,7 +46,7 @@ public class FlipbookBlinnPhongRenderContext extends BlinnPhongRenderContext {
 
     @Override
     public void adjustContext() {
-        seqFrameParams.increaseCurrentFrameIndex();
+        seqFrameParams.increaseCurrentFrameIndex(1);
         float[] eyePos = camera.getPosition();
         float[] eyePosOS = MatUtils.sub(eyePos,position);
         float[] transform = Rectangle.getBillboardTransform(eyePosOS,position);

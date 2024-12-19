@@ -7,6 +7,7 @@ import android.graphics.Bitmap;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import me.project.cloud2drenderer.opengl.glcomponent.buffer.GLVertexBuffer;
 import me.project.cloud2drenderer.renderer.entity.model.LoadedModel;
@@ -118,14 +119,12 @@ public class AssetLoader {
 
     public Texture loadTexture(String filename, String key) {
         //同名文件防止重复加载
-        Bitmap bitmap = textureBitmaps.compute(filename, (k, v) -> {
-            if (v == null) {
-                return AssetUtils.getBitmapFromAsset(context, filename);
-            } else {
-                return v;
-            }
-        });
+        Bitmap bitmap = textureBitmaps.compute(filename, (k, v) ->
+                Objects.requireNonNullElseGet(v, () -> AssetUtils.getBitmapFromAsset(context, filename)
+                )
+        );
         Texture texture = textureController.createTexture2D(key, bitmap);
+        texture.setShape(bitmap.getWidth(),bitmap.getHeight());
         bitmap.recycle();
         return texture;
     }

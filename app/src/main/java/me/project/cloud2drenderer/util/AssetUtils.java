@@ -20,10 +20,13 @@ public class AssetUtils {
     private final static String TAG = AssetUtils.class.getSimpleName();
 
 
-    public static boolean isAssetExist(Context ctx,String directory,String filename) {
+    public static boolean isAssetExist(Context ctx,String rootDirectory,String filepath) {
         String[] strings;
+        int separatorIdx = filepath.lastIndexOf('/');
+        String filename = filepath.substring(separatorIdx+1);
+        String subDirectory = filepath.substring(0,separatorIdx);
         try {
-            strings = ctx.getAssets().list(directory);
+            strings = ctx.getAssets().list( rootDirectory+"/"+subDirectory);
         }catch (Exception e){
             throw new RuntimeException(e);
         }

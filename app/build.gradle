@@ -34,6 +34,7 @@ android {
         }
         debug {
             signingConfig signingConfigs.global
+            profileable true
             debuggable true
         }
     }

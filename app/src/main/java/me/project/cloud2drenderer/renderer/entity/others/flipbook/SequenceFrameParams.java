@@ -4,50 +4,40 @@ import me.project.cloud2drenderer.renderer.procedure.binding.glcomponents.shader
 
 public class SequenceFrameParams {
 
-    private float frequency; //每多少帧序列帧切换到下一帧
-
-    private float delta;
-
-    private int currentMapIndex;
-
     private float currentFrameIndex;
 
-
     private float[] flipBookShape;
-
-    /*
-
-    @ShaderUniform(uniformName = "frequency")
-    public float getFrequency() {
-        return frequency;
-    }*/
-
-    public void setFrequency(float frequency) {
-        this.frequency = frequency;
-    }
 
 
 
     @ShaderUniform(uniformName = "currFrameIndex")
     public float getCurrentFrameIndex() {
-        return currentFrameIndex;
+        if(currentFrameIndex<0){
+            return 0;
+        }else {
+            return currentFrameIndex;
+        }
     }
 
     public void setCurrentFrameIndex(float currentFrameIndex) {
         this.currentFrameIndex = currentFrameIndex;
     }
 
-    public void resetCurrentFrameIndex(){
+    public void resetCurrentFrameIndex() {
         currentFrameIndex = 0;
     }
 
-    public void increaseCurrentFrameIndex() {
-        this.currentFrameIndex++;
+    public void setIdleTime(float fps,float timeInSeconds){
+        this.currentFrameIndex = - timeInSeconds*fps;
+    }
+
+    public void updateCurrentFrameIndex(float durationInSeconds,float fps) {
+        this.currentFrameIndex += durationInSeconds * fps;
     }
 
 
     public void increaseCurrentFrameIndex(float increment) {
-        this.currentFrameIndex+=increment;
+        this.currentFrameIndex += increment;
     }
 
     @ShaderUniform(uniformName = "flipBookShape")

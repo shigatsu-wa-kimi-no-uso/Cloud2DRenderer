@@ -76,6 +76,11 @@ public class LuminousRenderContext extends RenderContext{
     }
 
     @Override
+    public Material getMaterial() {
+        return material;
+    }
+
+    @Override
     public void setMaterial(Material[] material) {
 
     }

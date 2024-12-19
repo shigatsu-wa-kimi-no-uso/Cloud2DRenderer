@@ -23,6 +23,7 @@ out mat3 vTBN;
 
 out float debug_val;
 
+uniform vec3 uCloudAlbedo;
 uniform mat4 uModeling;
 uniform mat4 uModelIT;
 uniform mat4 uView;

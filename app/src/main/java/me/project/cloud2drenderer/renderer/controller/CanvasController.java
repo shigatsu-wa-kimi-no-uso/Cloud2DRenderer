@@ -33,6 +33,9 @@ public class CanvasController {
 
     public void enableBlend(){
         GLCanvasManager.enableGLFunction(GL_BLEND);
+       // GLCanvasManager.enableGLFunction(GL_BLEND);
+        GLCanvasManager.enableGLFunction(GL_CULL_FACE);
+        GLCanvasManager.setBlendFunction(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     }
 
     public void enableCullFace(){
