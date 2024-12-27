@@ -61,13 +61,12 @@ public class AssetUtils {
             }else {
                 bitmap = BitmapFactory.decodeStream(istr);
             }
+            istr.close();
         } catch (IOException e) {
             // handle exception
             throw new RuntimeException(e);
         }
         assert bitmap!=null;
-
-
         return flipBitmapVertically(bitmap);
     }
 

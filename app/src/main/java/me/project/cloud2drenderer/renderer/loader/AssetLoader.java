@@ -9,7 +9,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-import me.project.cloud2drenderer.opengl.glcomponent.buffer.GLVertexBuffer;
 import me.project.cloud2drenderer.renderer.entity.model.LoadedModel;
 import me.project.cloud2drenderer.renderer.entity.model.MeshModel;
 import me.project.cloud2drenderer.renderer.entity.model.TerrainMesh;
@@ -106,27 +105,56 @@ public class AssetLoader {
     }
 
 
-
+/*
     public Texture loadTexture(String key) {
+        return loadTexture(textureDirectory + "/" + key + suffix, key);
         String[] suffixes = {".jpg",".png",".jpeg",".bmp",".tga"};
         for(String suffix : suffixes){
             if(AssetUtils.isAssetExist(context,textureDirectory,key+suffix)){
-                return loadTexture(textureDirectory + "/" + key + suffix,key);
+                return loadTexture(textureDirectory + "/" + key + suffix, key);
+            }
+        }
+        return null;
+    }*/
+
+    public Bitmap loadTextureBitmap(String key){
+         return textureBitmaps.compute(key, (k, v) ->
+                    Objects.requireNonNullElseGet(v, () -> getBitmap(k))
+         );
+    }
+
+
+    private Bitmap getBitmap(String key) {
+        String[] suffixes = {".jpg",".png",".jpeg",".bmp",".tga"};
+        for(String suffix : suffixes){
+            if(AssetUtils.isAssetExist(context,textureDirectory,key+suffix)){
+                String filename = textureDirectory + "/" + key + suffix;
+                return AssetUtils.getBitmapFromAsset(context, filename);
             }
         }
         return null;
     }
 
-    public Texture loadTexture(String filename, String key) {
-        //同名文件防止重复加载
-        Bitmap bitmap = textureBitmaps.compute(filename, (k, v) ->
-                Objects.requireNonNullElseGet(v, () -> AssetUtils.getBitmapFromAsset(context, filename)
-                )
-        );
+    private Texture loadTexture(Bitmap bitmap,String key){
         Texture texture = textureController.createTexture2D(key, bitmap);
         texture.setShape(bitmap.getWidth(),bitmap.getHeight());
-        bitmap.recycle();
         return texture;
+    }
+
+    public Texture loadTexture(String key) {
+        //同名文件防止重复加载
+        Bitmap bitmap = loadTextureBitmap(key);
+        Texture texture = loadTexture(bitmap,key);
+        freeBitmap(key);
+        return texture;
+    }
+
+    public void freeBitmap(String key){
+        Bitmap bitmap = textureBitmaps.get(key);
+        if(bitmap!=null){
+            bitmap.recycle();
+            textureBitmaps.remove(key);
+        }
     }
 
     public void freeAllBitmaps(){
@@ -137,44 +165,12 @@ public class AssetLoader {
     }
 
 
-    public Map<String,MeshModel> getPresetModels(){
-        return presetModels;
-    }
-
-    public ModelController getModelController(){
-        return modelController;
-    }
-
-
 
     public LoadedModel loadModel(String key){
         MeshModel model = presetModels.get(key);
         assert model != null;
         return modelController.loadModel(model,key);
     }
-
-    @Deprecated
-    public GLVertexBuffer loadModel(String filename, String key){
-        return null;
-    }
-
-    public String getShaderDirectory() {
-        return shaderDirectory;
-    }
-
-    public void setShaderDirectory(String shaderDirectory) {
-        this.shaderDirectory = shaderDirectory;
-    }
-
-    public String getTextureDirectory() {
-        return textureDirectory;
-    }
-
-    public void setTextureDirectory(String textureDirectory) {
-        this.textureDirectory = textureDirectory;
-    }
-
-
 
 
 }

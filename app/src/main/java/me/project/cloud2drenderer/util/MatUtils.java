@@ -35,6 +35,12 @@ public class MatUtils {
     }
 
 
+    public static void setSimpleTransform(float[] transform,float[] position, float[] scale){
+        Matrix.setIdentityM(transform, 0);
+        Matrix.translateM(transform, 0, position[0], position[1], position[2]);
+        Matrix.scaleM(transform,0,scale[0],scale[1],scale[2]);
+    }
+
     public static void setTransform(float[] transform,float[] position, float[] scale, float[] rotation) {
         float[] scaleMat = newScaleMatrix(scale[0], scale[1], scale[2]);
         float[] rotMat = newRotationMatrix(rotation[0], rotation[1], rotation[2]);

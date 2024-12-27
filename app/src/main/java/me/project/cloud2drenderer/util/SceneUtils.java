@@ -15,7 +15,7 @@ import me.project.cloud2drenderer.renderer.entity.AssetBinding;
 import me.project.cloud2drenderer.renderer.entity.MaterialBinding;
 import me.project.cloud2drenderer.renderer.entity.material.CheckerBoard;
 import me.project.cloud2drenderer.renderer.entity.material.luminous.Luminous;
-import me.project.cloud2drenderer.renderer.entity.others.flipbook.FlipbookConfig;
+import me.project.cloud2drenderer.renderer.entity.others.flipbook.FlipBookConfig;
 import me.project.cloud2drenderer.renderer.entity.others.light.DistantLight;
 import me.project.cloud2drenderer.renderer.entity.others.light.PointLight;
 import me.project.cloud2drenderer.renderer.entity.material.BlinnPhong;
@@ -24,7 +24,7 @@ import me.project.cloud2drenderer.renderer.entity.material.MixedImgMaterial;
 import me.project.cloud2drenderer.renderer.entity.material.SixWayLighting;
 import me.project.cloud2drenderer.renderer.entity.material.TerrainMaterial;
 import me.project.cloud2drenderer.renderer.entity.others.flipbook.SequenceFrameParams;
-import me.project.cloud2drenderer.renderer.procedure.binding.glcomponents.material.TextureSetter;
+import me.project.cloud2drenderer.renderer.procedure.binding.glresource.material.TextureSetter;
 
 public class SceneUtils {
 
@@ -149,14 +149,14 @@ public class SceneUtils {
         return mb;
     }
 
-    public static AssetBinding getBillboardAssetBinding(String contextName,Vector<FlipbookConfig> flipbookConfigs,int takenOffset,int firstFlipbookOffset,int[] totalTakenCnt,float[] cloudAlbedo,float initialIdleTime,float depthLB,float depthUB, PointLight pointLight, DistantLight distantLight){
+    public static AssetBinding getBillboardAssetBinding(String contextName, Vector<FlipBookConfig> flipBookConfigs, int takenOffset, int firstFlipbookOffset, int[] totalTakenCnt, float[] cloudAlbedo, float initialIdleTime, float depthLB, float depthUB, PointLight pointLight, DistantLight distantLight){
         AssetBinding ab = new AssetBinding();
-        ab.pipelineName = "blend";
+        ab.pipelineName = "mono_object_blend";
         ab.modelName = "rectangle";
         SixWayLightingRenderContext context = new SixWayLightingRenderContext();
         context.setPointLight(pointLight);
         context.setDistantLight(distantLight);
-        context.setFlipbookConfigs(flipbookConfigs);
+        context.setFlipBookConfigs(flipBookConfigs);
         context.setCloudAlbedo(cloudAlbedo);
         context.setRangeOfDepth(depthLB,depthUB);
         context.setTakenUnitOffset(takenOffset);
@@ -168,10 +168,10 @@ public class SceneUtils {
         return ab;
     }
 
-    public static AssetBinding getBillboardAssetBinding(String contextName,Vector<FlipbookConfig> flipbookConfigs,int takenOffset,int[] totalTakenCnt,float[] cloudAlbedo,float initialIdleTime,float depthLB,float depthUB, PointLight pointLight, DistantLight distantLight){
+    public static AssetBinding getBillboardAssetBinding(String contextName, Vector<FlipBookConfig> flipBookConfigs, int takenOffset, int[] totalTakenCnt, float[] cloudAlbedo, float initialIdleTime, float depthLB, float depthUB, PointLight pointLight, DistantLight distantLight){
         Random random = new Random();
-        int rand = random.nextInt(flipbookConfigs.size());
-        return getBillboardAssetBinding(contextName,flipbookConfigs,takenOffset,rand,totalTakenCnt,cloudAlbedo,initialIdleTime,depthLB,depthUB,pointLight,distantLight);
+        int rand = random.nextInt(flipBookConfigs.size());
+        return getBillboardAssetBinding(contextName, flipBookConfigs,takenOffset,rand,totalTakenCnt,cloudAlbedo,initialIdleTime,depthLB,depthUB,pointLight,distantLight);
     }
 
 

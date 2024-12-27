@@ -1,7 +1,7 @@
 package me.project.cloud2drenderer.renderer.entity.model;
 
 import java.util.Map;
-import me.project.cloud2drenderer.renderer.procedure.binding.glcomponents.shader.VertexAttributeMeta;
+import me.project.cloud2drenderer.renderer.procedure.binding.glresource.shader.VertexAttributeMeta;
 
 public class ModelMeta {
 

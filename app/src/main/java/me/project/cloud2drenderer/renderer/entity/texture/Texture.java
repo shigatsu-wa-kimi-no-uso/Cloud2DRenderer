@@ -1,10 +1,11 @@
 package me.project.cloud2drenderer.renderer.entity.texture;
 
-import me.project.cloud2drenderer.opengl.glcomponent.texture.GLTexture;
+import me.project.cloud2drenderer.opengl.glresource.texture.GLTexture;
 
 public class Texture {
 
     public GLTexture texture;
+
     public int unit;
 
     private final float[] shape = new float[2];

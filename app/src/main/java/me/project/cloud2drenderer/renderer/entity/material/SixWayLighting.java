@@ -5,8 +5,12 @@ import me.project.cloud2drenderer.renderer.entity.texture.Texture;
 public class SixWayLighting extends DiffuseTextureMaterial{
 
 
+
     public SixWayLighting(){
         textures = new Texture[3];
+        textures[0] = Texture.nullTexture();
+        textures[1] = Texture.nullTexture();
+        textures[2] = Texture.nullTexture();
     }
 
     public void setLightMapA(Texture texture){

@@ -34,7 +34,6 @@ import static android.opengl.GLES32.GL_UNSIGNED_INT_SAMPLER_2D_MULTISAMPLE_ARRAY
 import static android.opengl.GLES32.GL_UNSIGNED_INT_SAMPLER_BUFFER;
 import static android.opengl.GLES32.GL_UNSIGNED_INT_SAMPLER_CUBE_MAP_ARRAY;
 
-import android.opengl.GLUtils;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -46,8 +45,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 import me.project.cloud2drenderer.opengl.GLErrorUtils;
-import me.project.cloud2drenderer.opengl.glcomponent.shader.ShaderCode;
-import me.project.cloud2drenderer.opengl.glcomponent.shader.GLShaderProgram;
+import me.project.cloud2drenderer.opengl.glresource.shader.ShaderCode;
+import me.project.cloud2drenderer.opengl.glresource.shader.GLShaderProgram;
 
 public class GLShaderManager {
 

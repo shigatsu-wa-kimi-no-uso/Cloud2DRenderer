@@ -9,7 +9,7 @@ import java.util.Map;
 import java.util.Objects;
 
 import me.project.cloud2drenderer.opengl.statemanager.GLTextureManager;
-import me.project.cloud2drenderer.opengl.glcomponent.texture.GLTexture;
+import me.project.cloud2drenderer.opengl.glresource.texture.GLTexture;
 import me.project.cloud2drenderer.renderer.entity.texture.Texture;
 
 public class TextureController {
@@ -36,6 +36,8 @@ public class TextureController {
         );
 
     }
+
+
 
     public Texture getTexture(String name){
         if(name == null || name.isEmpty()){

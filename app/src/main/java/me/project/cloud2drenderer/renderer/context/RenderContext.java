@@ -4,13 +4,16 @@ import androidx.annotation.NonNull;
 
 import java.util.Vector;
 
+import me.project.cloud2drenderer.GLRenderer;
 import me.project.cloud2drenderer.renderer.entity.material.Material;
 import me.project.cloud2drenderer.renderer.entity.model.LoadedModel;
 import me.project.cloud2drenderer.renderer.entity.shader.Shader;
 import me.project.cloud2drenderer.renderer.entity.texture.Texture;
-import me.project.cloud2drenderer.renderer.procedure.binding.glcomponents.shader.ShaderVariableSetterWrapper;
-import me.project.cloud2drenderer.renderer.procedure.binding.glcomponents.ResBindingMethod;
-import me.project.cloud2drenderer.renderer.procedure.binding.glcomponents.shader.UniformVar;
+import me.project.cloud2drenderer.renderer.procedure.binding.glresource.buffer.VertexBufferBinder;
+import me.project.cloud2drenderer.renderer.procedure.binding.glresource.shader.ShaderBinder;
+import me.project.cloud2drenderer.renderer.procedure.binding.glresource.shader.ShaderVariableSetterWrapper;
+import me.project.cloud2drenderer.renderer.procedure.binding.glresource.GLResourceBinder;
+import me.project.cloud2drenderer.renderer.procedure.binding.glresource.shader.UniformVar;
 import me.project.cloud2drenderer.renderer.procedure.drawing.DrawMethod;
 import me.project.cloud2drenderer.renderer.scene.Camera;
 
@@ -29,7 +32,13 @@ public abstract class RenderContext {
 
     private DrawMethod drawMethod;
 
-    private ResBindingMethod resourseBinder;
+    private GLResourceBinder resourceBinder;
+
+    private GLResourceBinder vertexBufferBinder;
+
+    private GLResourceBinder textureBinder;
+
+    private GLResourceBinder shaderBinder;
 
     private final Vector<ShaderVariableSetterWrapper> autoAssignedUniforms;
 
@@ -52,6 +61,21 @@ public abstract class RenderContext {
     public abstract float[] getTransform();
 
 
+    public GLResourceBinder getVertexBufferBinder() {
+        return vertexBufferBinder;
+    }
+
+    public GLResourceBinder getShaderBinder() {
+        return shaderBinder;
+    }
+
+    public void setShaderBinder(ShaderBinder shaderBinder) {
+        this.shaderBinder = shaderBinder;
+    }
+
+    public void setVertexBufferBinder(VertexBufferBinder vertexBufferBinder) {
+        this.vertexBufferBinder = vertexBufferBinder;
+    }
 
     public abstract void setTransform(float[] transform);
 
@@ -59,8 +83,8 @@ public abstract class RenderContext {
        this.drawMethod=drawMethod;
     }
 
-    public void setGLResourceBinder(ResBindingMethod bindingMethod){
-        this.resourseBinder = bindingMethod;
+    public void setGLResourceBinder(GLResourceBinder bindingMethod){
+        this.resourceBinder = bindingMethod;
     }
 
     public <T> void commitUniformAssignment(@NonNull UniformVar<T> uniformVar){
@@ -71,6 +95,13 @@ public abstract class RenderContext {
         autoAssignedUniforms.add(setterWrapper);
     }
 
+    public GLResourceBinder getTextureBinder() {
+        return textureBinder;
+    }
+
+    public void setTextureBinder(GLResourceBinder textureBinder) {
+        this.textureBinder = textureBinder;
+    }
 
     public void bindShaderAttributePointers(){
         for(ShaderVariableSetterWrapper wrapper: attributeSetters){
@@ -93,8 +124,21 @@ public abstract class RenderContext {
     }
 
     public void bindGLResources(){
-       resourseBinder.bind(this);
+       resourceBinder.bind(this);
     }
+
+    public void bindShader(){
+        shaderBinder.bind(this);
+    }
+
+    public void bindTexture(){
+        textureBinder.bind(this);
+    }
+
+    public void bindVertexBuffer(){
+        vertexBufferBinder.bind(this);
+    }
+
 
     public abstract Shader getShader();
 

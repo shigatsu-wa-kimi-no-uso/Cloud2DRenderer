@@ -16,8 +16,8 @@ import me.project.cloud2drenderer.opengl.statemanager.GLShaderManager;
 import me.project.cloud2drenderer.opengl.statemanager.GLVertexBufferManager;
 import me.project.cloud2drenderer.renderer.entity.model.LoadedModel;
 import me.project.cloud2drenderer.renderer.entity.shader.Shader;
-import me.project.cloud2drenderer.renderer.procedure.binding.glcomponents.shader.ShaderVariableMeta;
-import me.project.cloud2drenderer.renderer.procedure.binding.glcomponents.shader.VertexAttributeMeta;
+import me.project.cloud2drenderer.renderer.procedure.binding.glresource.shader.ShaderVariableMeta;
+import me.project.cloud2drenderer.renderer.procedure.binding.glresource.shader.VertexAttributeMeta;
 import me.project.cloud2drenderer.util.DebugUtils;
 
 public class ShaderController {

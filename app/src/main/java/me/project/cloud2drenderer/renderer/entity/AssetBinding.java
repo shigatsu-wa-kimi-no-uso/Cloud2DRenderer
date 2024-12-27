@@ -8,9 +8,6 @@ public class AssetBinding {
 
     public MaterialBinding materialBinding;
 
-
-
-
     public RenderContext context;
 
     public String pipelineName;

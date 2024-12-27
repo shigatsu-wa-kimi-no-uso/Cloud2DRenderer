@@ -5,7 +5,7 @@ import android.graphics.Bitmap;
 import android.opengl.GLUtils;
 import androidx.annotation.NonNull;
 import me.project.cloud2drenderer.opengl.GLErrorUtils;
-import me.project.cloud2drenderer.opengl.glcomponent.texture.GLTexture;
+import me.project.cloud2drenderer.opengl.glresource.texture.GLTexture;
 
 public class GLTextureManager {
 
@@ -32,6 +32,7 @@ public class GLTextureManager {
     public static void active(int unit){
         glActiveTexture(GL_TEXTURE0 + unit);
     }
+
     public static void unbind(){
         assertBound();
         glBindTexture(currentTexture.type, GL_NONE);

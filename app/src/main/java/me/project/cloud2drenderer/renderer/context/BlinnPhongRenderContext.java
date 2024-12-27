@@ -8,8 +8,8 @@ import me.project.cloud2drenderer.renderer.entity.material.BlinnPhong;
 import me.project.cloud2drenderer.renderer.entity.material.Material;
 import me.project.cloud2drenderer.renderer.entity.shader.Shader;
 import me.project.cloud2drenderer.renderer.entity.texture.Texture;
-import me.project.cloud2drenderer.renderer.procedure.binding.glcomponents.shader.UniformFlag;
-import me.project.cloud2drenderer.renderer.procedure.binding.glcomponents.shader.annotation.ShaderUniform;
+import me.project.cloud2drenderer.renderer.procedure.binding.glresource.shader.UniformFlag;
+import me.project.cloud2drenderer.renderer.procedure.binding.glresource.shader.annotation.ShaderUniform;
 
 public class BlinnPhongRenderContext extends RenderContext{
 

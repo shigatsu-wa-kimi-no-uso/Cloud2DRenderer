@@ -4,11 +4,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-import me.project.cloud2drenderer.opengl.glcomponent.buffer.GLVertexBuffer;
+import me.project.cloud2drenderer.opengl.glresource.buffer.GLVertexBuffer;
 import me.project.cloud2drenderer.opengl.statemanager.GLVertexBufferManager;
 import me.project.cloud2drenderer.renderer.entity.model.LoadedModel;
 import me.project.cloud2drenderer.renderer.entity.model.MeshModel;
-import me.project.cloud2drenderer.renderer.entity.model.ModelMeta;
 import me.project.cloud2drenderer.util.DebugUtils;
 
 public class ModelController {

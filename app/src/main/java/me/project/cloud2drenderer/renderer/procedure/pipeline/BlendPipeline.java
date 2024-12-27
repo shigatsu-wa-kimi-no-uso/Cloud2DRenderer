@@ -11,7 +11,7 @@ import me.project.cloud2drenderer.renderer.context.RenderContext;
 
 public class BlendPipeline extends RenderPipeline{
 
-    private final Vector<RenderContext> sortedContexts = new Vector<>();
+    protected final Vector<RenderContext> sortedContexts = new Vector<>();
 
     @Override
     public void setContexts(Collection<RenderContext> contexts) {

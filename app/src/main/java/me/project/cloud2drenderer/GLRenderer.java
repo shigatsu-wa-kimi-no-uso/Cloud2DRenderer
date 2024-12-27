@@ -1,7 +1,6 @@
 package me.project.cloud2drenderer;
 
 
-import static android.opengl.GLES20.GL_MAX_TEXTURE_SIZE;
 import static android.opengl.GLES20.GL_SHADING_LANGUAGE_VERSION;
 import static android.opengl.GLES20.glGetIntegerv;
 import static android.opengl.GLES20.glGetString;
@@ -15,19 +14,15 @@ import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
-import java.util.Collection;
-import java.util.HashMap;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Vector;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
 import me.project.cloud2drenderer.renderer.entity.MaterialBinding;
-import me.project.cloud2drenderer.renderer.entity.material.Material;
 import me.project.cloud2drenderer.renderer.entity.material.SixWayLighting;
-import me.project.cloud2drenderer.renderer.entity.others.flipbook.FlipbookConfig;
+import me.project.cloud2drenderer.renderer.entity.others.flipbook.FlipBookConfig;
 import me.project.cloud2drenderer.renderer.entity.others.light.DistantLight;
 import me.project.cloud2drenderer.renderer.entity.others.light.PointLight;
 import me.project.cloud2drenderer.renderer.scene.Scene;
@@ -41,7 +36,7 @@ public class GLRenderer implements GLSurfaceView.Renderer {
     private Scene scene;
 
 
-    private Activity activity;
+    private final Activity activity;
 
     private final TextView fpsTextView;
 
@@ -51,9 +46,8 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 
     private final InputController inputController;
 
-    private final Map<String, MaterialBinding> materialBindings;
 
-    private final Vector<FlipbookConfig> flipbookConfigs;
+    private final Vector<FlipBookConfig> flipBookConfigs;
 
     private CameraInputHandler cameraInputHandler;
 
@@ -62,13 +56,14 @@ public class GLRenderer implements GLSurfaceView.Renderer {
         this.activity = activity;
         this.inputController = inputController;
         this.cameraTextView = cameraTextView;
-        flipbookConfigs = new Vector<>();
-        materialBindings = new HashMap<>();
+        flipBookConfigs = new Vector<>();
+
     }
 
     void init() {
         cameraTextView.setVisibility(View.INVISIBLE);
         fpsTextView.setVisibility(View.INVISIBLE);
+
         Log.d(GLRenderer.class.getSimpleName(), "GLES Version: " + glGetString(GLES20.GL_VERSION));
         Log.d(GLRenderer.class.getSimpleName(), "GLSL Version: " + glGetString(GL_SHADING_LANGUAGE_VERSION));
         scene = new Scene(activity);
@@ -119,11 +114,8 @@ public class GLRenderer implements GLSurfaceView.Renderer {
         });
     }
 
-    public void loadMaterials(Collection<MaterialBinding> materialBindings) {
-        for (MaterialBinding mb : materialBindings) {
-            scene.loadMaterial(mb);
-        }
-    }
+
+
 
 
     void initializeAssetConfigs() {
@@ -133,14 +125,18 @@ public class GLRenderer implements GLSurfaceView.Renderer {
                 "jap_cumulo_preset5_1_my_B",
                 "flipbook/six_way_lighting2");
         Vector<MaterialBinding> cumulos = new Vector<>();
+        Thread[] threads = new Thread[8];
+        MaterialBinding[] bindings = new MaterialBinding[8];
 
-        MaterialBinding binding = getSixWayLightingMaterialBinding(
+        bindings[0] = getSixWayLightingMaterialBinding(
                 "cloud/jap_cumulo_preset6_512x256_1_Albedo",
                 "cloud/jap_cumulo_preset6_512x256_1_A",
                 "cloud/jap_cumulo_preset6_512x256_1_B",
                 "flipbook/six_way_lighting2");
-        FlipbookConfig config = new FlipbookConfig(0,
-                (SixWayLighting) binding.material,
+
+        FlipBookConfig config = new FlipBookConfig(0,
+                bindings[0],
+                (SixWayLighting) bindings[0].material,
                 new float[]{16, 32},
                 new float[]{-1f, 1.5f, -2f},
                 new float[]{2, 1, 1});
@@ -151,19 +147,20 @@ public class GLRenderer implements GLSurfaceView.Renderer {
         config.setScaleUB(2);
         config.setScaleLB(1);
         config.setVelocityLB(0);
-        config.setVelocityUB(1/32f);
+        config.setVelocityUB(0);
         config.setMoveDirection(new float[]{1,0,0});
-        flipbookConfigs.add(config);
-        cumulos.add(binding);
+        flipBookConfigs.add(config);
+        cumulos.add(bindings[0]);
+      //  threads[0] = new Thread(() -> scene.loadMaterial(bindings[0]));
 
-
-        binding = getSixWayLightingMaterialBinding(
+        bindings[1] = getSixWayLightingMaterialBinding(
                 "cloud/jap_cumulo_preset6_512x256_2_Albedo",
                 "cloud/jap_cumulo_preset6_512x256_2_A",
                 "cloud/jap_cumulo_preset6_512x256_2_B",
                 "flipbook/six_way_lighting2");
-        config = new FlipbookConfig(1,
-                (SixWayLighting) binding.material,
+        config = new FlipBookConfig(1,
+                bindings[1],
+                (SixWayLighting) bindings[1].material,
                 new float[]{15, 21},
                 new float[]{0f, 1.5f, -2.5f},
                 new float[]{2, 1f, 1});
@@ -176,16 +173,19 @@ public class GLRenderer implements GLSurfaceView.Renderer {
         config.setVelocityLB(0);
         config.setVelocityUB(0);
         config.setMoveDirection(new float[]{1,0,0});
-        flipbookConfigs.add(config);
-        cumulos.add(binding);
+        flipBookConfigs.add(config);
+        cumulos.add(bindings[1]);
+      //  threads[1] = new Thread(() -> scene.loadMaterial(bindings[1]));
+     //   threads[1].start();
 
-        binding = getSixWayLightingMaterialBinding(
+        bindings[2] = getSixWayLightingMaterialBinding(
                 "cloud/jap_cumulo_preset6_512x256_3_Albedo",
                 "cloud/jap_cumulo_preset6_512x256_3_A",
                 "cloud/jap_cumulo_preset6_512x256_3_B",
                 "flipbook/six_way_lighting2");
-        config = new FlipbookConfig(2,
-                (SixWayLighting) binding.material,
+        config = new FlipBookConfig(2,
+                bindings[2],
+                (SixWayLighting) bindings[2].material,
                 new float[]{12, 10},
                 new float[]{0f, 1.5f, -4f},
                 new float[]{2, 1, 1});
@@ -198,16 +198,19 @@ public class GLRenderer implements GLSurfaceView.Renderer {
         config.setVelocityLB(0);
         config.setVelocityUB(1/32f);
         config.setMoveDirection(new float[]{1,0,0});
-        flipbookConfigs.add(config);
-        cumulos.add(binding);
+        flipBookConfigs.add(config);
+        cumulos.add(bindings[2]);
+      //  threads[2] = new Thread(() -> scene.loadMaterial(bindings[2]));
+       // threads[2].start();
 
-        binding = getSixWayLightingMaterialBinding(
+        bindings[3] = getSixWayLightingMaterialBinding(
                 "cloud/jap_cumulo_preset7_512x256_1_Albedo",
                 "cloud/jap_cumulo_preset7_512x256_1_A",
                 "cloud/jap_cumulo_preset7_512x256_1_B",
                 "flipbook/six_way_lighting2");
-        config = new FlipbookConfig(3,
-                (SixWayLighting) binding.material,
+        config = new FlipBookConfig(3,
+                bindings[3],
+                (SixWayLighting) bindings[3].material,
                 new float[]{16, 31},
                 new float[]{0f, 1.5f, -3f},
                 new float[]{2, 1, 1});
@@ -220,16 +223,19 @@ public class GLRenderer implements GLSurfaceView.Renderer {
         config.setVelocityLB(0);
         config.setVelocityUB(1/32f);
         config.setMoveDirection(new float[]{1,0,0});
-        flipbookConfigs.add(config);
-        cumulos.add(binding);
+        flipBookConfigs.add(config);
+        cumulos.add(bindings[3]);
+      //  threads[3] = new Thread(() -> scene.loadMaterial(bindings[3]));
+     //   threads[3].start();
 
-        binding = getSixWayLightingMaterialBinding(
+        bindings[4] = getSixWayLightingMaterialBinding(
                 "cloud/jap_cumulo_preset7_512x256_2_Albedo",
                 "cloud/jap_cumulo_preset7_512x256_2_A",
                 "cloud/jap_cumulo_preset7_512x256_2_B",
                 "flipbook/six_way_lighting2");
-        config = new FlipbookConfig(4,
-                (SixWayLighting) binding.material,
+        config = new FlipBookConfig(4,
+                bindings[4],
+                (SixWayLighting) bindings[4].material,
                 new float[]{12, 28},
                 new float[]{0f, 1.5f, -2f},
                 new float[]{2, 1, 1});
@@ -242,17 +248,19 @@ public class GLRenderer implements GLSurfaceView.Renderer {
         config.setVelocityLB(0);
         config.setVelocityUB(1/32f);
         config.setMoveDirection(new float[]{1,0,0});
-        flipbookConfigs.add(config);
-        cumulos.add(binding);
+        flipBookConfigs.add(config);
+        cumulos.add(bindings[4]);
+     //   threads[4] = new Thread(() -> scene.loadMaterial(bindings[4]));
+     //   threads[4].start();
 
-
-        binding = getSixWayLightingMaterialBinding(
+        bindings[5] = getSixWayLightingMaterialBinding(
                 "cloud/jap_cumulo_preset8_336x168_1_Albedo",
                 "cloud/jap_cumulo_preset8_336x168_1_A",
                 "cloud/jap_cumulo_preset8_336x168_1_B",
                 "flipbook/six_way_lighting2");
-        config = new FlipbookConfig(5,
-                (SixWayLighting) binding.material,
+        config = new FlipBookConfig(5,
+                bindings[5],
+                (SixWayLighting) bindings[5].material,
                 new float[]{24, 27},
                 new float[]{0f, 1.5f, -2f},
                 new float[]{2, 1, 1});
@@ -265,16 +273,19 @@ public class GLRenderer implements GLSurfaceView.Renderer {
         config.setVelocityLB(0);
         config.setVelocityUB(1/32f);
         config.setMoveDirection(new float[]{1,0,0});
-        flipbookConfigs.add(config);
-        cumulos.add(binding);
+        flipBookConfigs.add(config);
+        cumulos.add(bindings[5]);
+    //    threads[5] = new Thread(() -> scene.loadMaterial(bindings[5]));
+    //    threads[5].start();
 
-        binding = getSixWayLightingMaterialBinding(
+        bindings[6] = getSixWayLightingMaterialBinding(
                 "cloud/jap_cumulo_preset9_464x232_1_Albedo",
                 "cloud/jap_cumulo_preset9_464x232_1_A",
                 "cloud/jap_cumulo_preset9_464x232_1_B",
                 "flipbook/six_way_lighting2");
-        config = new FlipbookConfig(6,
-                (SixWayLighting) binding.material,
+        config = new FlipBookConfig(6,
+                bindings[6],
+                (SixWayLighting) bindings[6].material,
                 new float[]{16, 35},
                 new float[]{0f, 1.5f, -2f},
                 new float[]{2, 1, 1});
@@ -287,16 +298,19 @@ public class GLRenderer implements GLSurfaceView.Renderer {
         config.setVelocityLB(0);
         config.setVelocityUB(1/32f);
         config.setMoveDirection(new float[]{1,0,0});
-        flipbookConfigs.add(config);
-        cumulos.add(binding);
+        flipBookConfigs.add(config);
+        cumulos.add(bindings[6]);
+      //  threads[6] = new Thread(() -> scene.loadMaterial(bindings[6]));
+   //     threads[6].start();
 
-        binding = getSixWayLightingMaterialBinding(
+        bindings[7] = getSixWayLightingMaterialBinding(
                 "cloud/jap_cumulo_preset9_512x256_2_Albedo",
                 "cloud/jap_cumulo_preset9_512x256_2_A",
                 "cloud/jap_cumulo_preset9_512x256_2_B",
                 "flipbook/six_way_lighting2");
-        config = new FlipbookConfig(7,
-                (SixWayLighting) binding.material,
+        config = new FlipBookConfig(7,
+                bindings[7],
+                (SixWayLighting) bindings[7].material,
                 new float[]{16, 22},
                 new float[]{0f, 1.5f, -2f},
                 new float[]{2, 1, 1});
@@ -309,11 +323,25 @@ public class GLRenderer implements GLSurfaceView.Renderer {
         config.setVelocityLB(0);
         config.setVelocityUB(1/32f);
         config.setMoveDirection(new float[]{1,0,0});
-        flipbookConfigs.add(config);
-        cumulos.add(binding);
-
-        loadMaterials(cumulos);
+        flipBookConfigs.add(config);
+        cumulos.add(bindings[7]);
+       // threads[7] = new Thread(() -> scene.loadMaterial(bindings[7]));
+     //   threads[7].start();
+/*
+        for(Thread thread:threads){
+            try {
+                thread.join();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        }*/
+        for(MaterialBinding mb : cumulos){
+            mb.deferredTextureLoading = true;
+            scene.loadMaterial(mb);
+        }
     }
+
+
 
 
     @Override
@@ -327,23 +355,22 @@ public class GLRenderer implements GLSurfaceView.Renderer {
         pointLight.setPosition(new float[]{-1.0f, -1.0f, 0f});
 
         DistantLight distantLight = new DistantLight();
-        distantLight.setIntensity(ColorUtils.getIntensity(255, 255, 255, 1.35f));
-        distantLight.setDirection(new float[]{-1, 0f, 0f});
+        distantLight.setIntensity(ColorUtils.getIntensity(255, 255, 255, 1.15f));
+        distantLight.setDirection(new float[]{-1, 0.2f, 0.1f});
 
         float[] color1 = ColorUtils.normalizeColor(255,255,255);
         float[] color2 = ColorUtils.normalizeColor(255,255,255);
         float[] color3 = ColorUtils.normalizeColor(255,255,255);
+        float[] color4 = ColorUtils.normalizeColor(255,255,255);
         scene.load(getCheckerBoardAssetBinding("checkerboard",new float[]{30,30,0},new float[]{0,-1,0},pointLight,distantLight));
         int[] totalTakenCnt = new int[1];
-        scene.load(getBillboardAssetBinding("billboard1", flipbookConfigs,0, 0,totalTakenCnt,color1,0,-2.2f,-2f, pointLight, distantLight));
-        scene.load(getBillboardAssetBinding("billboard2", flipbookConfigs,1, 1,totalTakenCnt,color2,3,-2.5f,-2.21f, pointLight, distantLight));
-        scene.load(getBillboardAssetBinding("billboard3", flipbookConfigs, 2,2,totalTakenCnt,color3, 6,-2.75f,-2.51f,pointLight, distantLight));
-        scene.load(getBillboardAssetBinding("billboard3", flipbookConfigs, 3,3,totalTakenCnt,color3,9 ,-3f,-2.76f,pointLight, distantLight));
+        scene.load(getBillboardAssetBinding("billboard1", flipBookConfigs,0, 0,totalTakenCnt,color1,0,-2.2f,-2f, pointLight, distantLight));
+        scene.load(getBillboardAssetBinding("billboard2", flipBookConfigs,1, 1,totalTakenCnt,color2,9,-2.55f,-2.35f, pointLight, distantLight));
+        scene.load(getBillboardAssetBinding("billboard3", flipBookConfigs, 2,2,totalTakenCnt,color3, 18,-2.9f,-2.7f,pointLight, distantLight));
+        scene.load(getBillboardAssetBinding("billboard4", flipBookConfigs, 3,3,totalTakenCnt,color4,27 ,-3.25f,-3.05f,pointLight, distantLight));
         //  scene.load(getBillboardAssetBinding("billboard2",flipbookConfigs, pointLight,distantLight));
         //   scene.load(getBillboardAssetBinding("billboard3",flipbookConfigs, pointLight,distantLight));
-        totalTakenCnt[0] = 4;
-
-        scene.freeAllTextureImages();
+        totalTakenCnt[0] = 3;
         scene.initRenderContexts();
         scene.loadRenderContextsToPipeline();
     }

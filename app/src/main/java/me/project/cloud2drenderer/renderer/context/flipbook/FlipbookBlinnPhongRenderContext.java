@@ -5,8 +5,8 @@ import android.opengl.Matrix;
 import me.project.cloud2drenderer.renderer.context.BlinnPhongRenderContext;
 import me.project.cloud2drenderer.renderer.entity.model.shape.Rectangle;
 import me.project.cloud2drenderer.renderer.entity.others.flipbook.SequenceFrameParams;
-import me.project.cloud2drenderer.renderer.procedure.binding.glcomponents.shader.UniformFlag;
-import me.project.cloud2drenderer.renderer.procedure.binding.glcomponents.shader.annotation.ShaderUniform;
+import me.project.cloud2drenderer.renderer.procedure.binding.glresource.shader.UniformFlag;
+import me.project.cloud2drenderer.renderer.procedure.binding.glresource.shader.annotation.ShaderUniform;
 import me.project.cloud2drenderer.util.MatUtils;
 
 

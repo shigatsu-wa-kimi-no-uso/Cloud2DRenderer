@@ -36,7 +36,7 @@ in float debug_val;
 out vec4 fragmentColor;
 
 uniform vec3 uCloudAlbedo;
-uniform PointLight uPointLight;
+//uniform PointLight uPointLight;
 uniform DistantLight uDistantLight;
 uniform sampler2D uFlipBookAlbedo;
 uniform SixWayLightingMap uFlipBookLightMap;
@@ -76,10 +76,10 @@ void main()
     //vec3 lightMapLBF = texture(uFlipBookLightMap.mapLBF, vTexCoords).rgb;
     vec3 lightMapRTF = vec3(lightMapRTB.rg, lightMapLBF.b); //right top front
     vec3 lightMapLBB = vec3(lightMapLBF.rg, lightMapRTB.b); //left bottom back
-    float attenuation = getIntensityAttenuation(uPointLight.position, vPosition);
-    vec3 lightDir = normalize(uPointLight.position - vPosition);
+   // float attenuation = getIntensityAttenuation(uPointLight.position, vPosition);
+  //  vec3 lightDir = normalize(uPointLight.position - vPosition);
 
-    vec3 pointLighting = attenuation * getLighting(vTBNInversed,lightDir,lightMapRTF,lightMapLBB,uPointLight.intensity);
+    //vec3 pointLighting = attenuation * getLighting(vTBNInversed,lightDir,lightMapRTF,lightMapLBB,uPointLight.intensity);
     vec3 distantLighting = getLighting(vTBNInversed,normalize(-uDistantLight.direction),lightMapRTF,lightMapLBB,uDistantLight.intensity);
    // vec4 albedo = texture(uFlipBookAlbedo, vTexCoords);
 

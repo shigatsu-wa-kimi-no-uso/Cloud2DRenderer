@@ -3,6 +3,7 @@ package me.project.cloud2drenderer.renderer.context.flipbook;
 import android.opengl.Matrix;
 import android.util.Log;
 
+import java.util.Arrays;
 import java.util.Locale;
 import java.util.Random;
 import java.util.Set;
@@ -10,10 +11,9 @@ import java.util.Vector;
 
 import me.project.cloud2drenderer.renderer.context.RenderContext;
 import me.project.cloud2drenderer.renderer.entity.model.shape.Rectangle;
-import me.project.cloud2drenderer.renderer.entity.others.timer.MillisTimer;
 import me.project.cloud2drenderer.renderer.entity.others.timer.NanoTimer;
 import me.project.cloud2drenderer.renderer.entity.others.timer.Timer;
-import me.project.cloud2drenderer.renderer.entity.others.flipbook.FlipbookConfig;
+import me.project.cloud2drenderer.renderer.entity.others.flipbook.FlipBookConfig;
 import me.project.cloud2drenderer.renderer.entity.others.light.DistantLight;
 import me.project.cloud2drenderer.renderer.entity.others.light.PointLight;
 import me.project.cloud2drenderer.renderer.entity.material.Material;
@@ -21,8 +21,11 @@ import me.project.cloud2drenderer.renderer.entity.material.SixWayLighting;
 import me.project.cloud2drenderer.renderer.entity.others.flipbook.SequenceFrameParams;
 import me.project.cloud2drenderer.renderer.entity.shader.Shader;
 import me.project.cloud2drenderer.renderer.entity.texture.Texture;
-import me.project.cloud2drenderer.renderer.procedure.binding.glcomponents.shader.UniformFlag;
-import me.project.cloud2drenderer.renderer.procedure.binding.glcomponents.shader.annotation.ShaderUniform;
+import me.project.cloud2drenderer.renderer.loader.AssetLoader;
+import me.project.cloud2drenderer.renderer.procedure.binding.glresource.material.TextureLoader;
+import me.project.cloud2drenderer.renderer.procedure.binding.glresource.shader.UniformFlag;
+import me.project.cloud2drenderer.renderer.procedure.binding.glresource.shader.UniformVar;
+import me.project.cloud2drenderer.renderer.procedure.binding.glresource.shader.annotation.ShaderUniform;
 import me.project.cloud2drenderer.util.MatUtils;
 
 public class SixWayLightingRenderContext extends RenderContext {
@@ -33,9 +36,13 @@ public class SixWayLightingRenderContext extends RenderContext {
 
    // private SixWayLighting sixWayLighting;
 
-    private final FlipbookConfig currentFlipbookConfig = new FlipbookConfig();
+    private final FlipBookConfig currentFlipBookConfig = new FlipBookConfig();
 
-    private Vector<FlipbookConfig> flipbookConfigs;
+    private Vector<FlipBookConfig> flipBookConfigs;
+
+    private AssetLoader assetLoader;
+
+    private int nextFlipbookId;
 
     private int takenUnitOffset;
 
@@ -46,6 +53,7 @@ public class SixWayLightingRenderContext extends RenderContext {
     private final float[] rotation = new float[3];
 
     private float initialIdleTime;
+
 
     private final float[] transform = new float[16];
 
@@ -64,6 +72,36 @@ public class SixWayLightingRenderContext extends RenderContext {
     private PointLight pointLight;
 
     private Set<Integer> availableFlipbookIds;
+
+    public static class ManualCommitUniforms{
+        @ShaderUniform(uniformName = "uModelIT",flags = {})
+        public final UniformVar<float[]> uModelITWrapper = new UniformVar<>();
+
+        @ShaderUniform(uniformName = "uView",flags = {})
+        public final UniformVar<float[]> uViewWrapper = new UniformVar<>();
+
+        @ShaderUniform(uniformName = "uProjection",flags = {})
+        public final UniformVar<float[]> uProjectionWrapper = new UniformVar<>();
+
+        @ShaderUniform(uniformName = "uModeling",flags = {})
+        public final UniformVar<float[]> uTransformWrapper = new UniformVar<>();
+
+        @ShaderUniform(uniformName = "uFlipBookLightMap.mapLBF",flags = {})
+        public final UniformVar<Integer>  uFlipBookLightMapLBFWrapper = new UniformVar<>();
+
+        @ShaderUniform(uniformName = "uFlipBookLightMap.mapRTB",flags = {})
+        public final UniformVar<Integer>  uFlipBookLightMapRTBWrapper = new UniformVar<>();
+
+        @ShaderUniform(uniformName = "uCloudAlbedo",flags = {})
+        public final UniformVar<float[]> uCloudAlbedoWrapper = new UniformVar<>();
+
+        @ShaderUniform(uniformName = "uFlipBookAlbedo",flags = {})
+        public final UniformVar<Integer> uFlipBookAlbedoWrapper = new UniformVar<>();
+
+    }
+
+    @ShaderUniform(flags = UniformFlag.IS_STRUCT)
+    public final ManualCommitUniforms manualCommits = new ManualCommitUniforms();
 
     private final Random random = new Random();
 
@@ -84,23 +122,31 @@ public class SixWayLightingRenderContext extends RenderContext {
     }
 
     public float[] getPosition() {
-        return currentFlipbookConfig.getPosition();
+        return currentFlipBookConfig.getPosition();
     }
 
     public void setPosition(float[] position) {
-        currentFlipbookConfig.setPosition(position);
+        currentFlipBookConfig.setPosition(position);
     }
 
     public float[] getScale() {
-        return currentFlipbookConfig.getScale();
+        return currentFlipBookConfig.getScale();
     }
 
     public void setScale(float[] scale) {
-        currentFlipbookConfig.setScale(scale);
+        currentFlipBookConfig.setScale(scale);
     }
 
     public float getInitialIdleTime() {
         return initialIdleTime;
+    }
+
+    public AssetLoader getAssetLoader() {
+        return assetLoader;
+    }
+
+    public void setAssetLoader(AssetLoader assetLoader) {
+        this.assetLoader = assetLoader;
     }
 
     public void setInitialIdleTime(float initialIdleTime) {
@@ -116,6 +162,7 @@ public class SixWayLightingRenderContext extends RenderContext {
     }
 
     public SixWayLightingRenderContext(){
+
     }
 
     public float[] getRangeOfDepth() {
@@ -127,7 +174,7 @@ public class SixWayLightingRenderContext extends RenderContext {
         this.rangeOfDepth[1] = upperBound;
     }
 
-    @ShaderUniform(uniformName = "uModelIT")
+   // @ShaderUniform(uniformName = "uModelIT")
     public float[] getModelIT(){
         return modelIT;
     }
@@ -145,7 +192,7 @@ public class SixWayLightingRenderContext extends RenderContext {
     }
 
     @Override
-    @ShaderUniform(uniformName = "uModeling")
+   // @ShaderUniform(uniformName = "uModeling")
     public float[] getTransform(){
         return transform;
     }
@@ -156,12 +203,12 @@ public class SixWayLightingRenderContext extends RenderContext {
     }
 
 
-    @ShaderUniform(uniformName = "uView")
+   // @ShaderUniform(uniformName = "uView")
     public float[] getView(){
         return camera.getView();
     }
 
-    @ShaderUniform(uniformName = "uProjection")
+  //  @ShaderUniform(uniformName = "uProjection")
     public float[] getProjection(){
         return camera.getProjection();
     }
@@ -169,6 +216,7 @@ public class SixWayLightingRenderContext extends RenderContext {
     public void setPointLight(PointLight pointLight) {
         this.pointLight = pointLight;
     }
+
     @ShaderUniform(uniformName = "uSeqFrameParams",flags = {UniformFlag.IS_STRUCT})
     public SequenceFrameParams getSeqFrameParams() {
         return seqFrameParams;
@@ -176,7 +224,7 @@ public class SixWayLightingRenderContext extends RenderContext {
 
 
     public void setSixWayLighting(SixWayLighting sixWayLighting) {
-        currentFlipbookConfig.setMaterial(sixWayLighting);
+        currentFlipBookConfig.setMaterial(sixWayLighting);
         //this.sixWayLighting = sixWayLighting;
     }
 
@@ -189,32 +237,36 @@ public class SixWayLightingRenderContext extends RenderContext {
         this.distantLight = distantLight;
     }
 
-    @ShaderUniform(uniformName = "uFlipBookAlbedo")
+
+
+
+
+  //  @ShaderUniform(uniformName = "uFlipBookAlbedo")
     public int getFlipBookAlbedoUnit(){
         return getMaterial().getDiffuseTexture().unit;
     }
 
-    @ShaderUniform(uniformName = "uFlipBookLightMap.mapRLT")
+   // @ShaderUniform(uniformName = "uFlipBookLightMap.mapRLT")
     public int getFlipBookLightingRLTUnit(){
         return  getMaterial().getLightMapA().unit;
     }
 
-    @ShaderUniform(uniformName = "uFlipBookLightMap.mapBBF")
+  //  @ShaderUniform(uniformName = "uFlipBookLightMap.mapBBF")
     public int getFlipBookLightingBBFUnit(){
         return getMaterial().getLightMapB().unit;
     }
 
-    @ShaderUniform(uniformName = "uFlipBookLightMap.mapRTB")
+  //  @ShaderUniform(uniformName = "uFlipBookLightMap.mapRTB")
     public int getFlipBookLightingRTBUnit(){
         return getMaterial().getLightMapA().unit;
     }
 
-    @ShaderUniform(uniformName = "uFlipBookLightMap.mapLBF")
+  //  @ShaderUniform(uniformName = "uFlipBookLightMap.mapLBF")
     public int getFlipBookLightingLBFUnit(){
         return getMaterial().getLightMapB().unit;
     }
 
-    @ShaderUniform(uniformName = "uCloudAlbedo")
+  //  @ShaderUniform(uniformName = "uCloudAlbedo")
     public float[] getCloudAlbedo() {
         return cloudAlbedo;
     }
@@ -232,16 +284,16 @@ public class SixWayLightingRenderContext extends RenderContext {
 
     @Override
     public Texture[] getTextures() {
-        return currentFlipbookConfig.getMaterial().getTextures();
+        return currentFlipBookConfig.getMaterial().getTextures();
     }
 
     @Override
     public void setMaterial(Material material) {
-        currentFlipbookConfig.setMaterial((SixWayLighting) material);
+        currentFlipBookConfig.setMaterial((SixWayLighting) material);
     }
 
     public SixWayLighting getMaterial(){
-        return currentFlipbookConfig.getMaterial();
+        return currentFlipBookConfig.getMaterial();
     }
 
     @Override
@@ -249,58 +301,80 @@ public class SixWayLightingRenderContext extends RenderContext {
 
     }
 
+    private void commitFlipBookTextureUpdates(){
+        manualCommits.uFlipBookAlbedoWrapper.setValue(getFlipBookAlbedoUnit());
+        manualCommits.uFlipBookLightMapLBFWrapper.setValue(getFlipBookLightingLBFUnit());
+        manualCommits.uFlipBookLightMapRTBWrapper.setValue(getFlipBookLightingRTBUnit());
+        commitUniformAssignment(manualCommits.uFlipBookAlbedoWrapper);
+        commitUniformAssignment(manualCommits.uFlipBookLightMapLBFWrapper);
+        commitUniformAssignment(manualCommits.uFlipBookLightMapRTBWrapper);
+    }
 
-
-    public FlipbookConfig getCurrentFlipbookConfig() {
-        return currentFlipbookConfig;
+    public FlipBookConfig getCurrentFlipbookConfig() {
+        return currentFlipBookConfig;
     }
 
     public void setCurrentFlipbookConfig(int newFlipbookConfigOffset) {
-        FlipbookConfig lastConfig = flipbookConfigs.get(takenUnitOffset);
-        FlipbookConfig nextConfig = flipbookConfigs.get(newFlipbookConfigOffset);
-        flipbookConfigs.set(newFlipbookConfigOffset,lastConfig);
-        flipbookConfigs.set(takenUnitOffset,nextConfig);
-        sampleFlipbookConfig(currentFlipbookConfig,flipbookConfigs.get(takenUnitOffset));
-        seqFrameParams.setFlipBookShape(currentFlipbookConfig.getShape());
-        Log.d(tag,name + " current flipbook id : "+ currentFlipbookConfig.getId());
+        FlipBookConfig lastConfig = flipBookConfigs.get(takenUnitOffset);
+        FlipBookConfig nextConfig = flipBookConfigs.get(newFlipbookConfigOffset);
+        flipBookConfigs.set(newFlipbookConfigOffset,lastConfig);
+        flipBookConfigs.set(takenUnitOffset,nextConfig);
+        sampleFlipbookConfig(currentFlipBookConfig, flipBookConfigs.get(takenUnitOffset));
+        seqFrameParams.setFlipBookShape(currentFlipBookConfig.getShape());
+        Log.d(tag,name + " current flipbook id : "+ currentFlipBookConfig.getId());
         //printCurrentStatus();
     }
 
-    public Vector<FlipbookConfig> getFlipbookConfigs() {
-        return flipbookConfigs;
+    public Vector<FlipBookConfig> getFlipBookConfigs() {
+        return flipBookConfigs;
     }
 
-    public void setFlipbookConfigs(Vector<FlipbookConfig> flipbookConfigs) {
-        this.flipbookConfigs = flipbookConfigs;
+    public void setFlipBookConfigs(Vector<FlipBookConfig> flipBookConfigs) {
+        this.flipBookConfigs = flipBookConfigs;
+    }
+
+
+    void updateFrameIndex(float durationInSeconds,float fps){
+        seqFrameParams.updateCurrentFrameIndex(durationInSeconds, fps);
     }
 
 
 
-    void updateShaderContext() {
-        float fps = currentFlipbookConfig.getFramesPerSecond();
-        float duration = timer.getDurationInSecondsAndReset();
-        seqFrameParams.updateCurrentFrameIndex(duration, fps);
-        float[] moveDir = currentFlipbookConfig.getMoveDirection();
-        currentFlipbookConfig.getPosition()[0] += duration * moveDir[0] * currentFlipbookConfig.getVelocity();
+    void updateTransform(float durationInSeconds) {
+
+        //float[] moveDir = currentFlipbookConfig.getMoveDirection();
+       // currentFlipbookConfig.getPosition()[0] += durationInSeconds * moveDir[0] * currentFlipbookConfig.getVelocity();
         // float[] eyePos = camera.getPosition();
         // float[] eyePosOS = MatUtils.sub(eyePos, currentFlipbookConfig.getPosition());
         //float[] transform = Rectangle.getBillboardTransform(eyePosOS, currentFlipbookConfig.getPosition());
-        MatUtils.setTransform(getTransform(),currentFlipbookConfig.getPosition(), currentFlipbookConfig.getScale(),rotation);
+        MatUtils.setSimpleTransform(getTransform(), currentFlipBookConfig.getPosition(), currentFlipBookConfig.getScale());
         //    float[] scale = currentFlipbookConfig.getScale();
         //  Matrix.scaleM(transform, 0, scale[0], scale[1], scale[2]);
         updateModelIT();
+        commitUniformAssignment(manualCommits.uTransformWrapper);
+        commitUniformAssignment(manualCommits.uModelITWrapper);
    //     setTransform(transform);
     }
 
 
-    boolean isCurrentFlipbookOver(FlipbookConfig config,SequenceFrameParams seqFrameParams){
+    boolean isCurrentFlipbookOver(FlipBookConfig config, SequenceFrameParams seqFrameParams){
         return config.getFrameCnt() <= seqFrameParams.getCurrentFrameIndex();
     }
 
+    boolean isCurrentFlipbookIdle(FlipBookConfig config, SequenceFrameParams seqFrameParams){
+        return seqFrameParams.getCurrentFrameIndex() < 0;
+    }
 
+    public int getNextFlipbookId() {
+        return nextFlipbookId;
+    }
 
-    int getNewFlipbookConfigId() {
-        return getRandomInt(getTotalTakenCnt(),flipbookConfigs.size());
+    public void setNextFlipbookId(int nextFlipbookId) {
+        this.nextFlipbookId = nextFlipbookId;
+    }
+
+    void refreshNextFlipbookConfigId() {
+        setNextFlipbookId(getRandomInt(getTotalTakenCnt(), flipBookConfigs.size()));
     }
 
 
@@ -312,7 +386,7 @@ public class SixWayLightingRenderContext extends RenderContext {
         return lowerBound + random.nextInt(upperBound - lowerBound);
     }
 
-    void sampleFlipbookConfig(FlipbookConfig sampledConfig,FlipbookConfig config){
+    void sampleFlipbookConfig(FlipBookConfig sampledConfig, FlipBookConfig config){
         config.copy(sampledConfig);
         sampledConfig.getPosition()[2] = getRandomFloat(rangeOfDepth[0],rangeOfDepth[1]);
         float[] posLB = config.getRefreshPositionLB();
@@ -336,11 +410,12 @@ public class SixWayLightingRenderContext extends RenderContext {
     void resetSeqFrame(float idleTime){
         seqFrameParams.resetCurrentFrameIndex();
         Log.d(tag, name + " idle for " + idleTime + " seconds");
-        seqFrameParams.setIdleTime(currentFlipbookConfig.getFramesPerSecond(), idleTime);
+        seqFrameParams.setIdleTime(currentFlipBookConfig.getFramesPerSecond(), idleTime);
     }
 
     void updateFlipbookConfig() {
-        setCurrentFlipbookConfig(getNewFlipbookConfigId());
+        setCurrentFlipbookConfig(nextFlipbookId);
+        refreshNextFlipbookConfigId();
     }
 
 
@@ -350,20 +425,59 @@ public class SixWayLightingRenderContext extends RenderContext {
         float[] scale = getScale();
         String text = String.format(Locale.getDefault(),
                 "%s current flipbook id: %d, current position: (%.2f,%.2f,%.2f), scale: (%.2f,%.2f,%.2f), color: (%.2f,%.2f,%.2f),velocity: %.5f, fps: %.2f",
-                name,currentFlipbookConfig.getId(),pos[0],pos[1],pos[2],
+                name, currentFlipBookConfig.getId(),pos[0],pos[1],pos[2],
                 scale[0],scale[1],scale[2],cloudAlbedo[0],cloudAlbedo[1],cloudAlbedo[2],
-                currentFlipbookConfig.getVelocity(),currentFlipbookConfig.getFramesPerSecond());
+                currentFlipBookConfig.getVelocity(), currentFlipBookConfig.getFramesPerSecond());
         Log.w(tag, text);
     }
 
+    void loadMaterial(Material material){
+        TextureLoader loader = material.getTextureLoader();
+        switch (loader.getStatus()){
+            case NOT_LOADED:
+                loader.load();
+                zeroTransform();
+                break;
+            case LOADING:
+                break;
+            case LOADED:
+                loader.create();
+                material.setFullyLoaded(true);
+                updateTransform(0);
+                commitFlipBookTextureUpdates();
+                timer.reset();
+                break;
+        }
+    }
+
+    void zeroTransform(){
+        Arrays.fill(transform, 0);
+        commitUniformAssignment(manualCommits.uTransformWrapper);
+    }
+
+
     @Override
     public void adjustContext() {
-        if(isCurrentFlipbookOver(currentFlipbookConfig,seqFrameParams)) {
-            updateFlipbookConfig();
-            resetSeqFrame();
+        Material material = getMaterial();
+        float fps = currentFlipBookConfig.getFramesPerSecond();
+        float duration = timer.getDurationInSecondsAndReset();
+        if(isCurrentFlipbookIdle(currentFlipBookConfig,seqFrameParams)){
+            updateFrameIndex(duration,fps);
+        }else if(material.isFullyLoaded()){
+            if(isCurrentFlipbookOver(currentFlipBookConfig,seqFrameParams)) {
+                updateFlipbookConfig();
+                resetSeqFrame();
+                updateTransform(duration);
+                commitFlipBookTextureUpdates();
+            }else {
+                updateFrameIndex(duration,fps);
+            }
+        }else {
+            loadMaterial(material);
+            timer.reset();
         }
-        updateShaderContext();
-        /*if(frameCount % 180 == 0){
+
+  /*      if(frameCount % 180 == 0){
             printCurrentStatus();
         }
         frameCount++;*/
@@ -374,6 +488,18 @@ public class SixWayLightingRenderContext extends RenderContext {
     @Override
     public void initContext() {
         resetSeqFrame(initialIdleTime);
+        refreshNextFlipbookConfigId();
         timer.startTick();
+        zeroTransform();
+        manualCommits.uProjectionWrapper.setValue(camera.getProjection());
+        manualCommits.uViewWrapper.setValue(camera.getView());
+        manualCommits.uTransformWrapper.setValue(transform);
+        manualCommits.uModelITWrapper.setValue(modelIT);
+        manualCommits.uCloudAlbedoWrapper.setValue(cloudAlbedo);
+        commitUniformAssignment(manualCommits.uProjectionWrapper);
+        commitUniformAssignment(manualCommits.uViewWrapper);
+        commitUniformAssignment(distantLight.manualCommits.directionWrapper);
+        commitUniformAssignment(distantLight.manualCommits.intensityWrapper);
+        commitUniformAssignment(manualCommits.uCloudAlbedoWrapper);
     }
 }

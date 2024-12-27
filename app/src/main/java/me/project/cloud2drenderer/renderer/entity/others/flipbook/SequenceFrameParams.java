@@ -1,6 +1,6 @@
 package me.project.cloud2drenderer.renderer.entity.others.flipbook;
 
-import me.project.cloud2drenderer.renderer.procedure.binding.glcomponents.shader.annotation.ShaderUniform;
+import me.project.cloud2drenderer.renderer.procedure.binding.glresource.shader.annotation.ShaderUniform;
 
 public class SequenceFrameParams {
 

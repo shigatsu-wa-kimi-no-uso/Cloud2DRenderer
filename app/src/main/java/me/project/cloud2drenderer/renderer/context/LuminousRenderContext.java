@@ -1,15 +1,11 @@
 package me.project.cloud2drenderer.renderer.context;
 
-import android.opengl.Matrix;
-
 import me.project.cloud2drenderer.renderer.entity.material.Material;
 import me.project.cloud2drenderer.renderer.entity.material.luminous.Luminous;
-import me.project.cloud2drenderer.renderer.entity.others.light.DistantLight;
 import me.project.cloud2drenderer.renderer.entity.others.light.PointLight;
 import me.project.cloud2drenderer.renderer.entity.shader.Shader;
 import me.project.cloud2drenderer.renderer.entity.texture.Texture;
-import me.project.cloud2drenderer.renderer.procedure.binding.glcomponents.shader.annotation.ShaderUniform;
-import me.project.cloud2drenderer.util.MatUtils;
+import me.project.cloud2drenderer.renderer.procedure.binding.glresource.shader.annotation.ShaderUniform;
 
 public class LuminousRenderContext extends RenderContext{
     private float[] transform;

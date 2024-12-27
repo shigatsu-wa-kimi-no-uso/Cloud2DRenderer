@@ -28,6 +28,10 @@ public abstract class Timer {
         return tickCnt;
     }
 
+    public void reset(){
+        refreshTick(getTick());
+    }
+
 
     public float getDurationInSeconds() {
         return toSeconds(getDuration());
