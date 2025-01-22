@@ -8,15 +8,27 @@ public class SequenceFrameParams {
 
     private float[] flipBookShape;
 
+    private SequenceFrameStatus status = SequenceFrameStatus.IDLE;
 
+    public SequenceFrameStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(SequenceFrameStatus status) {
+        this.status = status;
+    }
 
     @ShaderUniform(uniformName = "currFrameIndex")
     public float getCurrentFrameIndex() {
-        if(currentFrameIndex<0){
+        if(currentFrameIndex < 0){
             return 0;
         }else {
             return currentFrameIndex;
         }
+    }
+
+    public boolean isCurrentFrameIndexBelowZero() {
+        return currentFrameIndex < 0;
     }
 
     public void setCurrentFrameIndex(float currentFrameIndex) {

@@ -8,16 +8,28 @@ public abstract class Material {
     //一个材质只能绑定一个shader
     public String name;
 
-    protected boolean fullyLoaded;
+    protected boolean fullyLoaded = true;
+
+    protected int loadedTextureCount;
 
     protected Shader shader;
 
     protected Texture[] textures;
 
-    protected TextureLoader textureLoader;
+    protected TextureLoader[] textureLoaders;
 
 
-    protected Material(){}
+    protected Material(){
+        loadedTextureCount = 0;
+    }
+
+    public int getLoadedTextureCount() {
+        return loadedTextureCount;
+    }
+
+    public void increaseLoadedTextureCount() {
+        this.loadedTextureCount++;
+    }
 
     public boolean isFullyLoaded() {
         return fullyLoaded;
@@ -27,12 +39,12 @@ public abstract class Material {
         this.fullyLoaded = fullyLoaded;
     }
 
-    public TextureLoader getTextureLoader() {
-        return textureLoader;
+    public TextureLoader[] getTextureLoaders() {
+        return textureLoaders;
     }
 
-    public void setTextureLoader(TextureLoader bitmapLoader) {
-        this.textureLoader = bitmapLoader;
+    public void setTextureLoaders(TextureLoader[] loaders) {
+        this.textureLoaders = loaders;
     }
 
 

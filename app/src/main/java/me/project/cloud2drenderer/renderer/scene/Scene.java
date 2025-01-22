@@ -63,19 +63,24 @@ public class Scene {
     static class RenderBatch {
         public int taskId;
         public int pipelineId;
+
+        private int priority;
         public Map<Integer,RenderContext> contexts; //contextId in this batch
     }
+
+    private Vector<RenderBatch> sortedRenderBatches;
 
     private final SceneObjectLoader objectLoader;
 
 
-    public void initPipeline(String name,RenderPipeline pipeline){
+    public void initPipeline(String name,RenderPipeline pipeline,int priority){
         int pipelineId = ++lastPipelineId;
         pipelines.add(pipeline);
         pipelineMap.put(name,pipelineId);
         RenderBatch task = new RenderBatch();
         task.taskId = pipelineId;
         task.pipelineId = pipelineId;
+        task.priority = priority;
         task.contexts = new HashMap<>();
         renderBatches.put(pipelineId,task);
     }
@@ -92,10 +97,11 @@ public class Scene {
         pipelines = new Vector<>();
         pipelineMap = new HashMap<>();
         canvasController.enableDepthTest();
-        initPipeline("common",new CommonPipeline());
-        initPipeline("non_blend",new NonBlendPipeline());
-        initPipeline("blend",new BlendPipeline());
-        initPipeline("mono_object_blend",new MonoObjectBlendPipeline());
+        sortedRenderBatches = new Vector<>();
+        initPipeline("common",new CommonPipeline(),0);
+        initPipeline("non_blend",new NonBlendPipeline(),1);
+        initPipeline("blend",new BlendPipeline(),2);
+        initPipeline("mono_object_blend",new MonoObjectBlendPipeline(),3);
     }
 
 
@@ -174,11 +180,22 @@ public class Scene {
         for(RenderBatch tasks: renderBatches.values()){
             RenderPipeline pipeline = pipelines.get(tasks.pipelineId);
             pipeline.setContexts(tasks.contexts.values());
+            sortedRenderBatches.add(tasks);
         }
+        sortedRenderBatches.sort((o1, o2) -> {
+            float delta = o1.priority - o2.priority;
+            if (delta < 0) {
+                return -1;
+            } else if (delta == 0) {
+                return 0;
+            } else {
+                return 1;
+            }
+        });
     }
 
     public void draw(){
-        for(RenderBatch tasks: renderBatches.values()){
+        for(RenderBatch tasks: sortedRenderBatches){
             RenderPipeline pipeline = pipelines.get(tasks.pipelineId);
             pipeline.beforeTask();
             pipeline.run();

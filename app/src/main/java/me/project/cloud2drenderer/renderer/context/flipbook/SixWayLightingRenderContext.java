@@ -1,5 +1,7 @@
 package me.project.cloud2drenderer.renderer.context.flipbook;
 
+import me.project.cloud2drenderer.renderer.entity.others.flipbook.SequenceFrameStatus;
+
 import android.opengl.Matrix;
 import android.util.Log;
 
@@ -266,7 +268,7 @@ public class SixWayLightingRenderContext extends RenderContext {
         return getMaterial().getLightMapB().unit;
     }
 
-  //  @ShaderUniform(uniformName = "uCloudAlbedo")
+    @ShaderUniform(uniformName = "uCloudAlbedo")
     public float[] getCloudAlbedo() {
         return cloudAlbedo;
     }
@@ -357,12 +359,12 @@ public class SixWayLightingRenderContext extends RenderContext {
     }
 
 
-    boolean isCurrentFlipbookOver(FlipBookConfig config, SequenceFrameParams seqFrameParams){
+    boolean isFlipbookOver(FlipBookConfig config, SequenceFrameParams seqFrameParams){
         return config.getFrameCnt() <= seqFrameParams.getCurrentFrameIndex();
     }
 
-    boolean isCurrentFlipbookIdle(FlipBookConfig config, SequenceFrameParams seqFrameParams){
-        return seqFrameParams.getCurrentFrameIndex() < 0;
+    boolean isFlipbookIdle(SequenceFrameParams seqFrameParams){
+        return seqFrameParams.isCurrentFrameIndexBelowZero();
     }
 
     public int getNextFlipbookId() {
@@ -403,7 +405,7 @@ public class SixWayLightingRenderContext extends RenderContext {
     }
 
     void resetSeqFrame(){
-        float idleTime = getRandomFloat(0.0f, 16.0f);
+        float idleTime = getRandomFloat(0.0f, 8.0f);
         resetSeqFrame(idleTime);
     }
 
@@ -424,15 +426,25 @@ public class SixWayLightingRenderContext extends RenderContext {
         float[] pos = getPosition();
         float[] scale = getScale();
         String text = String.format(Locale.getDefault(),
-                "%s current flipbook id: %d, current position: (%.2f,%.2f,%.2f), scale: (%.2f,%.2f,%.2f), color: (%.2f,%.2f,%.2f),velocity: %.5f, fps: %.2f",
+                "%s current flipbook id: %d, current position: (%.2f,%.2f,%.2f), scale: (%.2f,%.2f,%.2f), color: (%.2f,%.2f,%.2f),velocity: %.5f, fps: %.2f, frame id: %.2f",
                 name, currentFlipBookConfig.getId(),pos[0],pos[1],pos[2],
                 scale[0],scale[1],scale[2],cloudAlbedo[0],cloudAlbedo[1],cloudAlbedo[2],
-                currentFlipBookConfig.getVelocity(), currentFlipBookConfig.getFramesPerSecond());
+                currentFlipBookConfig.getVelocity(), currentFlipBookConfig.getFramesPerSecond(),
+                seqFrameParams.getCurrentFrameIndex());
         Log.w(tag, text);
     }
 
     void loadMaterial(Material material){
-        TextureLoader loader = material.getTextureLoader();
+        TextureLoader[] loaders = material.getTextureLoaders();
+        int current = material.getLoadedTextureCount();
+        if(current == loaders.length){
+            material.setFullyLoaded(true);
+            updateTransform(0);
+            commitFlipBookTextureUpdates();
+            timer.reset();
+            return;
+        }
+        TextureLoader loader = loaders[current];
         switch (loader.getStatus()){
             case NOT_LOADED:
                 loader.load();
@@ -442,10 +454,7 @@ public class SixWayLightingRenderContext extends RenderContext {
                 break;
             case LOADED:
                 loader.create();
-                material.setFullyLoaded(true);
-                updateTransform(0);
-                commitFlipBookTextureUpdates();
-                timer.reset();
+                material.increaseLoadedTextureCount();
                 break;
         }
     }
@@ -455,16 +464,91 @@ public class SixWayLightingRenderContext extends RenderContext {
         commitUniformAssignment(manualCommits.uTransformWrapper);
     }
 
+    void switchSequenceFrameStatus(SequenceFrameParams seqFrameParams,SequenceFrameStatus newStatus) {
+        SequenceFrameStatus oldStatus = seqFrameParams.getStatus();
+        if(oldStatus == newStatus){
+            return;
+        }
+        seqFrameParams.setStatus(newStatus);
+        String text = String.format(Locale.getDefault(),
+                "%s flipbook id: %d, switched status form %s to %s",
+                name, currentFlipBookConfig.getId(),oldStatus.name(),newStatus.name());
+        Log.i(tag, text);
+    }
+
+
+
+    SequenceFrameStatus updateSequenceFrameStatus() {
+        Material material = getMaterial();
+        SequenceFrameStatus oldStatus = seqFrameParams.getStatus();
+        switch (oldStatus) {
+            case PLAYING:
+                if (isFlipbookOver(currentFlipBookConfig, seqFrameParams)) {
+                    switchSequenceFrameStatus(seqFrameParams, SequenceFrameStatus.ENDING);
+                }
+                break;
+            case LOADING:
+                if (material.isFullyLoaded()) {
+                    switchSequenceFrameStatus(seqFrameParams, SequenceFrameStatus.PREPARING);
+                }
+                break;
+            case IDLE:
+                if (!isFlipbookIdle(seqFrameParams)) {
+                    switchSequenceFrameStatus(seqFrameParams, SequenceFrameStatus.LOADING);
+                }
+                break;
+            case PREPARING:
+                switchSequenceFrameStatus(seqFrameParams, SequenceFrameStatus.PLAYING);
+                break;
+            case ENDING:
+                switchSequenceFrameStatus(seqFrameParams, SequenceFrameStatus.IDLE);
+                break;
+        }
+
+        return oldStatus;
+    }
 
     @Override
     public void adjustContext() {
+        updateSequenceFrameStatus();
+        SequenceFrameStatus currentStatus = seqFrameParams.getStatus();
         Material material = getMaterial();
         float fps = currentFlipBookConfig.getFramesPerSecond();
         float duration = timer.getDurationInSecondsAndReset();
-        if(isCurrentFlipbookIdle(currentFlipBookConfig,seqFrameParams)){
+        switch (currentStatus){
+            case IDLE:
+                updateFrameIndex(duration,fps);
+                break;
+            case PREPARING:
+                updateTransform(duration);
+                commitFlipBookTextureUpdates();
+                break;
+            case PLAYING:
+                updateTransform(duration); //需要更新transform, 因为每个context对应的transform均不同
+                updateFrameIndex(duration,fps);
+                break;
+            case ENDING:
+                zeroTransform();
+                resetSeqFrame();
+                updateFlipbookConfig();
+                break;
+            case LOADING:
+                zeroTransform();
+                loadMaterial(material);
+                //context切换时，不需要更新，因为材质相同，shader相同，对应的texture的unit号相同
+                //只要bind texture的目标不同，即可切换
+                //当shader不同，或material不同时，才需要更新shader对应的texture unit！！
+
+                timer.reset();
+                break;
+        }
+        /*
+        if(isFlipbookIdle(seqFrameParams)){
+            switchSequenceFrameStatus(seqFrameParams,SequenceFrameStatus.IDLE);
             updateFrameIndex(duration,fps);
         }else if(material.isFullyLoaded()){
-            if(isCurrentFlipbookOver(currentFlipBookConfig,seqFrameParams)) {
+            switchSequenceFrameStatus(seqFrameParams,SequenceFrameStatus.PLAYING);
+            if(isFlipbookOver(currentFlipBookConfig,seqFrameParams)) {
                 updateFlipbookConfig();
                 resetSeqFrame();
                 updateTransform(duration);
@@ -473,14 +557,15 @@ public class SixWayLightingRenderContext extends RenderContext {
                 updateFrameIndex(duration,fps);
             }
         }else {
+            switchSequenceFrameStatus(SequenceFrameStatus.LOADING);
             loadMaterial(material);
             timer.reset();
-        }
+        }*/
 
-  /*      if(frameCount % 180 == 0){
+        if(frameCount % 180 == 0){
             printCurrentStatus();
         }
-        frameCount++;*/
+        frameCount++;
     }
 
 
@@ -491,9 +576,11 @@ public class SixWayLightingRenderContext extends RenderContext {
         refreshNextFlipbookConfigId();
         timer.startTick();
         zeroTransform();
+
         manualCommits.uProjectionWrapper.setValue(camera.getProjection());
         manualCommits.uViewWrapper.setValue(camera.getView());
         manualCommits.uTransformWrapper.setValue(transform);
+
         manualCommits.uModelITWrapper.setValue(modelIT);
         manualCommits.uCloudAlbedoWrapper.setValue(cloudAlbedo);
         commitUniformAssignment(manualCommits.uProjectionWrapper);
@@ -501,5 +588,6 @@ public class SixWayLightingRenderContext extends RenderContext {
         commitUniformAssignment(distantLight.manualCommits.directionWrapper);
         commitUniformAssignment(distantLight.manualCommits.intensityWrapper);
         commitUniformAssignment(manualCommits.uCloudAlbedoWrapper);
+
     }
 }

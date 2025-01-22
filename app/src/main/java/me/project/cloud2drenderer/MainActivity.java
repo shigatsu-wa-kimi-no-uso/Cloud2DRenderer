@@ -40,10 +40,10 @@ public class MainActivity extends AppCompatActivity {
         surfaceView = binding.glSurfaceView;
         view = binding.getRoot();
         setContentView(view);
-        binding.moveImageButton.setVisibility(View.INVISIBLE);
-        binding.rotateImageButton.setVisibility(View.INVISIBLE);
-        binding.upDownImageButton.setVisibility(View.INVISIBLE);
-        binding.resetImageButton.setVisibility(View.INVISIBLE);
+      //  binding.moveImageButton.setVisibility(View.INVISIBLE);
+       // binding.rotateImageButton.setVisibility(View.INVISIBLE);
+       // binding.upDownImageButton.setVisibility(View.INVISIBLE);
+       // binding.resetImageButton.setVisibility(View.INVISIBLE);
 
         inputController = new InputController(this,
                 binding.moveImageButton,
@@ -56,7 +56,7 @@ public class MainActivity extends AppCompatActivity {
     //    surfaceView.setEGLConfigChooser(new MultisampleConfigChooser());
         surfaceView.setEGLContextClientVersion(3);
         surfaceView.setRenderer(renderer);
-     //   surfaceView.setOnTouchListener(inputController);
+        surfaceView.setOnTouchListener(inputController);
 
         return true;
     }

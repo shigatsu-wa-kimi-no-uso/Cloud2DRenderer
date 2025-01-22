@@ -117,14 +117,14 @@ public class AssetLoader {
         return null;
     }*/
 
-    public Bitmap loadTextureBitmap(String key){
+    synchronized public Bitmap loadTextureBitmap(String key){
          return textureBitmaps.compute(key, (k, v) ->
                     Objects.requireNonNullElseGet(v, () -> getBitmap(k))
          );
     }
 
 
-    private Bitmap getBitmap(String key) {
+    synchronized private Bitmap getBitmap(String key) {
         String[] suffixes = {".jpg",".png",".jpeg",".bmp",".tga"};
         for(String suffix : suffixes){
             if(AssetUtils.isAssetExist(context,textureDirectory,key+suffix)){
@@ -141,7 +141,7 @@ public class AssetLoader {
         return texture;
     }
 
-    public Texture loadTexture(String key) {
+    synchronized public Texture loadTexture(String key) {
         //同名文件防止重复加载
         Bitmap bitmap = loadTextureBitmap(key);
         Texture texture = loadTexture(bitmap,key);

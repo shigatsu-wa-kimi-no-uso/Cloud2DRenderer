@@ -7,7 +7,13 @@ package me.project.cloud2drenderer.renderer.procedure.binding.glresource.materia
 
      protected LoadStatus status;
 
-     public TextureLoader(){
+     protected String textureName;
+
+     protected int unit;
+
+     public TextureLoader(String textureName,int unit){
+         this.textureName = textureName;
+         this.unit = unit;
          status = LoadStatus.NOT_LOADED;
      }
 

@@ -88,7 +88,9 @@ public abstract class RenderContext {
     }
 
     public <T> void commitUniformAssignment(@NonNull UniformVar<T> uniformVar){
-        uniformAssignments.add(uniformVar.getUniformSetterWrapper());
+        if(uniformVar.getUniformSetterWrapper()!=null){
+            uniformAssignments.add(uniformVar.getUniformSetterWrapper());
+        }
     }
 
     public void addAutoAssignedUniforms(ShaderVariableSetterWrapper setterWrapper){

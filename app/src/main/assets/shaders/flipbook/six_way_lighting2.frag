@@ -54,7 +54,8 @@ vec3 computeSixWayLighting(vec3 sampledRTF, vec3 sampledLBB, vec3 lightDir, vec3
     vec3 factor = sampledRTF * clampedDir + sampledLBB * clampedNegDir;
     return lightColor*(factor.x+factor.y+factor.z);
 }
-
+//R = FX+FY+FZ
+//F = (SXLX,SYLY,SZLZ)
 
 vec3 getLighting(mat3 inversedTBN,vec3 lightDir,vec3 lightMapRTF,vec3 lightMapLBB,vec3 intensity){
     vec3 lightDirTS = normalize(inversedTBN * lightDir);
@@ -90,9 +91,9 @@ void main()
     float alpha = albedo.a;
 
     alpha = pow(alpha,1.0);
-    vec3 color = mix(vec3(1,1,1),distantLighting*uCloudAlbedo,alpha);
+    vec3 color = mix(vec3(1,1,1),distantLighting,alpha);
 
-    fragmentColor = vec4(clamp(color,0.0,0.9),alpha);
+    fragmentColor = vec4(clamp(color,0.0,0.85),alpha);
     //fragmentColor = vec4(uCloudAlbedo,0.5);
 
 }

@@ -3,6 +3,7 @@ package me.project.cloud2drenderer.util;
 import java.util.Random;
 import java.util.Vector;
 
+import me.project.cloud2drenderer.renderer.context.BackgroundRenderContext;
 import me.project.cloud2drenderer.renderer.context.BlinnPhongRenderContext;
 import me.project.cloud2drenderer.renderer.context.CheckerBoardRenderContext;
 import me.project.cloud2drenderer.renderer.context.LuminousRenderContext;
@@ -68,6 +69,7 @@ public class SceneUtils {
         context.setDistantLight(distantLight);
         ab.transform = MatUtils.newTransform(position,scale,rotate);
         ab.context = context;
+
         return ab;
     }
 
@@ -77,6 +79,8 @@ public class SceneUtils {
         MaterialBinding mb = new MaterialBinding();
         Luminous material = new Luminous();
         material.setLightIntensity(pointLight.getIntensity());
+        String t;
+
         ab.pipelineName = "non_blend";
         mb.shaderName = "light_cube";
         mb.material = material;
@@ -86,6 +90,25 @@ public class SceneUtils {
         context.setPointLight(pointLight);
         context.name = name;
         ab.transform = MatUtils.newTransform(pointLight.getPosition(),scale,rotate);
+        ab.context = context;
+        return ab;
+    }
+
+
+    public static AssetBinding getBackgroundAssetBinding(String name, float[] scale, float[] position){
+        AssetBinding ab = new AssetBinding();
+        MaterialBinding mb = new MaterialBinding();
+        ab.pipelineName = "non_blend";
+        DiffuseTextureMaterial material = new DiffuseTextureMaterial();
+        mb.material = material;
+        mb.textureNames = new String[]{"bg/sky"};
+        mb.textureSetters = new TextureSetter[]{material::setDiffuseTexture};
+        mb.shaderName = "straight";
+        ab.modelName = "rectangle";
+        ab.materialBinding = mb;
+        BackgroundRenderContext context = new BackgroundRenderContext();
+        context.name = name;
+        ab.transform = MatUtils.newTransform(position,scale,new float[]{-20,0,0});
         ab.context = context;
         return ab;
     }

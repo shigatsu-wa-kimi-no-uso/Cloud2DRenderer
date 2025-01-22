@@ -5,13 +5,15 @@ precision highp int;
 in vec3 aPosition;
 in vec2 aTexCoords;
 
+
 out vec2 vTexCoords;
 
-uniform vec2 uColorVec;
+uniform mat4 uModeling;
+uniform mat4 uView;
+uniform mat4 uProjection;
 
 void main()
 {
-
-  //  vTexCoords = aTexCoords;
-    gl_Position = vec4(aPosition, 1.0);
+    vTexCoords = aTexCoords;
+    gl_Position = vec4(uProjection*uView*uModeling*vec4(aPosition, 1.0));
 }

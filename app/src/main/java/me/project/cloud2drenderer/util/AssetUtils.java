@@ -45,7 +45,7 @@ public class AssetUtils {
     }
 
 
-    public static Bitmap getBitmapFromAsset(Context context, String filePath) {
+    synchronized public static Bitmap getBitmapFromAsset(Context context, String filePath) {
         AssetManager assetManager = context.getAssets();
         InputStream istr;
         Bitmap bitmap;

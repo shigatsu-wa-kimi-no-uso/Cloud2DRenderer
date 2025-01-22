@@ -61,8 +61,8 @@ public class GLRenderer implements GLSurfaceView.Renderer {
     }
 
     void init() {
-        cameraTextView.setVisibility(View.INVISIBLE);
-        fpsTextView.setVisibility(View.INVISIBLE);
+        //cameraTextView.setVisibility(View.INVISIBLE);
+        //fpsTextView.setVisibility(View.INVISIBLE);
 
         Log.d(GLRenderer.class.getSimpleName(), "GLES Version: " + glGetString(GLES20.GL_VERSION));
         Log.d(GLRenderer.class.getSimpleName(), "GLSL Version: " + glGetString(GL_SHADING_LANGUAGE_VERSION));
@@ -351,26 +351,27 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 
         PointLight pointLight = new PointLight();
         //255,235,205
-        pointLight.setIntensity(ColorUtils.getIntensity(255, 235, 205, 0));
+        pointLight.setIntensity(ColorUtils.getIntensity(255, 235, 225, 0));
         pointLight.setPosition(new float[]{-1.0f, -1.0f, 0f});
 
         DistantLight distantLight = new DistantLight();
-        distantLight.setIntensity(ColorUtils.getIntensity(255, 255, 255, 1.15f));
-        distantLight.setDirection(new float[]{-1, 0.2f, 0.1f});
+        distantLight.setIntensity(ColorUtils.getIntensity(255, 245, 235, 1.15f));
+      //  distantLight.setDirection(new float[]{-1, 0.4f, 0.1f});
+        distantLight.setDirection(new float[]{-1, -0.4f, -0.2f});
 
         float[] color1 = ColorUtils.normalizeColor(255,255,255);
         float[] color2 = ColorUtils.normalizeColor(255,255,255);
         float[] color3 = ColorUtils.normalizeColor(255,255,255);
         float[] color4 = ColorUtils.normalizeColor(255,255,255);
-        scene.load(getCheckerBoardAssetBinding("checkerboard",new float[]{30,30,0},new float[]{0,-1,0},pointLight,distantLight));
+        scene.load(getBackgroundAssetBinding("sky",new float[]{3.5f,6.5f,1},new float[]{0,1.8f,-5.0f}));
         int[] totalTakenCnt = new int[1];
         scene.load(getBillboardAssetBinding("billboard1", flipBookConfigs,0, 0,totalTakenCnt,color1,0,-2.2f,-2f, pointLight, distantLight));
-        scene.load(getBillboardAssetBinding("billboard2", flipBookConfigs,1, 1,totalTakenCnt,color2,9,-2.55f,-2.35f, pointLight, distantLight));
-        scene.load(getBillboardAssetBinding("billboard3", flipBookConfigs, 2,2,totalTakenCnt,color3, 18,-2.9f,-2.7f,pointLight, distantLight));
-        scene.load(getBillboardAssetBinding("billboard4", flipBookConfigs, 3,3,totalTakenCnt,color4,27 ,-3.25f,-3.05f,pointLight, distantLight));
-        //  scene.load(getBillboardAssetBinding("billboard2",flipbookConfigs, pointLight,distantLight));
+        scene.load(getBillboardAssetBinding("billboard2", flipBookConfigs,1, 1,totalTakenCnt,color2,8,-2.55f,-2.35f, pointLight, distantLight));
+        scene.load(getBillboardAssetBinding("billboard3", flipBookConfigs, 2,2,totalTakenCnt,color3, 12,-2.9f,-2.7f,pointLight, distantLight));
+        scene.load(getBillboardAssetBinding("billboard4", flipBookConfigs, 3,3,totalTakenCnt,color4,16 ,-3.25f,-3.05f,pointLight, distantLight));
+        //scene.load(getBillboardAssetBinding("billboard2",flipbookConfigs, pointLight,distantLight));
         //   scene.load(getBillboardAssetBinding("billboard3",flipbookConfigs, pointLight,distantLight));
-        totalTakenCnt[0] = 3;
+        totalTakenCnt[0] = 4;
         scene.initRenderContexts();
         scene.loadRenderContextsToPipeline();
     }
@@ -391,8 +392,8 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 
     @Override
     public void onDrawFrame(GL10 gl) {
-        //updateFPSText();
-      //  updateCameraText();
+        updateFPSText();
+        updateCameraText();
         scene.adjustObjects();
         //scene.clear(0 / 255.0f, 0 / 255.0f, 0 / 255.0f, 1);
         scene.clear();

@@ -1,16 +1,14 @@
 #version 300 es
 precision mediump float;
 precision highp int;
-in vec2 vTexCoords;
 
+in vec2 vTexCoords;
 out vec4 fragmentColor;
 
-uniform sampler2D texture1;
-uniform vec2 uColorVec;
-uniform int uColor;
+uniform sampler2D uTexture;
 
 void main()
 {
-   // vec4 texColor = texture(texture1, vTexCoords);
-    fragmentColor = vec4(uColorVec,uColor,1);
+    vec4 texColor = texture(uTexture, vTexCoords);
+    fragmentColor = texColor;// vec4(1.0,0.0,0.0,1.0);
 }
