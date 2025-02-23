@@ -7,6 +7,7 @@ import android.content.pm.ConfigurationInfo;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
+import android.os.Debug;
 import android.util.Log;
 import android.view.View;
 
@@ -40,33 +41,35 @@ public class MainActivity extends AppCompatActivity {
         surfaceView = binding.glSurfaceView;
         view = binding.getRoot();
         setContentView(view);
-      //  binding.moveImageButton.setVisibility(View.INVISIBLE);
-       // binding.rotateImageButton.setVisibility(View.INVISIBLE);
-       // binding.upDownImageButton.setVisibility(View.INVISIBLE);
-       // binding.resetImageButton.setVisibility(View.INVISIBLE);
+        binding.moveImageButton.setVisibility(View.INVISIBLE);
+        binding.rotateImageButton.setVisibility(View.INVISIBLE);
+        binding.upDownImageButton.setVisibility(View.INVISIBLE);
+        binding.resetImageButton.setVisibility(View.INVISIBLE);
 
-        inputController = new InputController(this,
+        /*inputController = new InputController(this,
                 binding.moveImageButton,
                 binding.rotateImageButton,
                 binding.upDownImageButton,
-                binding.resetImageButton);
-        renderer = new GLRenderer(this,binding.fpsTextView,binding.cameraTextView,inputController);
+                binding.resetImageButton);*/
+        renderer = new GLRenderer(this,binding.fpsTextView,binding.cameraTextView);
 
 
     //    surfaceView.setEGLConfigChooser(new MultisampleConfigChooser());
         surfaceView.setEGLContextClientVersion(3);
         surfaceView.setRenderer(renderer);
-        surfaceView.setOnTouchListener(inputController);
+      //  surfaceView.setOnTouchListener(inputController);
 
         return true;
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        Debug.startMethodTracing("sample");
         super.onCreate(savedInstanceState);
         if(!initialize()){
             System.exit(-1);
         }
+        Debug.stopMethodTracing();
    //     EdgeToEdge.enable(this);
 
 

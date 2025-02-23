@@ -114,7 +114,7 @@ public class UniformBindingProcessor {
         }
     }
 
-    @NonNull
+
     private static void setUniformVar(@NonNull UniformVar uniformVar, @NonNull ShaderVariableMeta meta){
         uniformVar.meta = meta;
         uniformVar.setCount(meta.elemCnt);

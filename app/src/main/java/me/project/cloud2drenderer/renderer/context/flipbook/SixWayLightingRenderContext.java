@@ -447,7 +447,7 @@ public class SixWayLightingRenderContext extends RenderContext {
         TextureLoader loader = loaders[current];
         switch (loader.getStatus()){
             case NOT_LOADED:
-                loader.load();
+                loader.asyncLoad();
                 zeroTransform();
                 break;
             case LOADING:
@@ -470,10 +470,10 @@ public class SixWayLightingRenderContext extends RenderContext {
             return;
         }
         seqFrameParams.setStatus(newStatus);
-        String text = String.format(Locale.getDefault(),
+       /* String text = String.format(Locale.getDefault(),
                 "%s flipbook id: %d, switched status form %s to %s",
-                name, currentFlipBookConfig.getId(),oldStatus.name(),newStatus.name());
-        Log.i(tag, text);
+                name, currentFlipBookConfig.getId(),oldStatus.name(),newStatus.name());*/
+    //    Log.i(tag, text);
     }
 
 
@@ -562,10 +562,10 @@ public class SixWayLightingRenderContext extends RenderContext {
             timer.reset();
         }*/
 
-        if(frameCount % 180 == 0){
+      /*  if(frameCount % 180 == 0){
             printCurrentStatus();
         }
-        frameCount++;
+        frameCount++;*/
     }
 
 
@@ -580,7 +580,6 @@ public class SixWayLightingRenderContext extends RenderContext {
         manualCommits.uProjectionWrapper.setValue(camera.getProjection());
         manualCommits.uViewWrapper.setValue(camera.getView());
         manualCommits.uTransformWrapper.setValue(transform);
-
         manualCommits.uModelITWrapper.setValue(modelIT);
         manualCommits.uCloudAlbedoWrapper.setValue(cloudAlbedo);
         commitUniformAssignment(manualCommits.uProjectionWrapper);

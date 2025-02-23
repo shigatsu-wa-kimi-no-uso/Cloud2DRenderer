@@ -18,12 +18,13 @@ public class GLTextureManager {
         assert currentTexture!=null;
     }
 
-    public static void bind(@NonNull GLTexture texture,int unit){
+    public static void bind(@NonNull GLTexture texture, int unit){
         currentTexture = texture;
         active(unit);
         glBindTexture(texture.type, texture.textureId);
         GLErrorUtils.assertNoError();
     }
+
 
     public static void bind(@NonNull GLTexture texture) {
         bind(texture, 0);

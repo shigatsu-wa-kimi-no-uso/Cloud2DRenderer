@@ -10,6 +10,7 @@ import static me.project.cloud2drenderer.util.SceneUtils.*;
 import android.app.Activity;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
+import android.os.Debug;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
@@ -44,25 +45,32 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 
     private long lastDrawTimeNanos;
 
-    private final InputController inputController;
+    private InputController inputController;
 
 
     private final Vector<FlipBookConfig> flipBookConfigs;
 
     private CameraInputHandler cameraInputHandler;
 
+    public GLRenderer(Activity activity, TextView fpsTextView, TextView cameraTextView) {
+        this.fpsTextView = fpsTextView;
+        this.activity = activity;
+        //  this.inputController = inputController;
+        this.cameraTextView = cameraTextView;
+        flipBookConfigs = new Vector<>();
+
+    }
     public GLRenderer(Activity activity, TextView fpsTextView, TextView cameraTextView, InputController inputController) {
         this.fpsTextView = fpsTextView;
         this.activity = activity;
         this.inputController = inputController;
         this.cameraTextView = cameraTextView;
         flipBookConfigs = new Vector<>();
-
     }
 
     void init() {
-        //cameraTextView.setVisibility(View.INVISIBLE);
-        //fpsTextView.setVisibility(View.INVISIBLE);
+        cameraTextView.setVisibility(View.INVISIBLE);
+        fpsTextView.setVisibility(View.INVISIBLE);
 
         Log.d(GLRenderer.class.getSimpleName(), "GLES Version: " + glGetString(GLES20.GL_VERSION));
         Log.d(GLRenderer.class.getSimpleName(), "GLSL Version: " + glGetString(GL_SHADING_LANGUAGE_VERSION));
@@ -81,10 +89,10 @@ public class GLRenderer implements GLSurfaceView.Renderer {
         scene.enableBlend();
         scene.setClearColor(213 / 255.0f, 240 / 255.0f, 247 / 255.0f, 1);
         //  scene.enableCullFace();
-        cameraInputHandler = new CameraInputHandler();
-        inputController.setCameraInputHandler(cameraInputHandler);
-        cameraInputHandler.setCamera(scene.camera);
-        updateCameraMotionSensitivity();
+    //    cameraInputHandler = new CameraInputHandler();
+  //      inputController.setCameraInputHandler(cameraInputHandler);
+   //     cameraInputHandler.setCamera(scene.camera);
+  //      updateCameraMotionSensitivity();
 
     }
 
@@ -137,7 +145,7 @@ public class GLRenderer implements GLSurfaceView.Renderer {
         FlipBookConfig config = new FlipBookConfig(0,
                 bindings[0],
                 (SixWayLighting) bindings[0].material,
-                new float[]{16, 32},
+                new int[]{16, 32},
                 new float[]{-1f, 1.5f, -2f},
                 new float[]{2, 1, 1});
         config.setFramesPerSecondLB(2);
@@ -161,7 +169,7 @@ public class GLRenderer implements GLSurfaceView.Renderer {
         config = new FlipBookConfig(1,
                 bindings[1],
                 (SixWayLighting) bindings[1].material,
-                new float[]{15, 21},
+                new int[]{15, 21},
                 new float[]{0f, 1.5f, -2.5f},
                 new float[]{2, 1f, 1});
         config.setFramesPerSecondLB(2);
@@ -186,7 +194,7 @@ public class GLRenderer implements GLSurfaceView.Renderer {
         config = new FlipBookConfig(2,
                 bindings[2],
                 (SixWayLighting) bindings[2].material,
-                new float[]{12, 10},
+                new int[]{12, 10},
                 new float[]{0f, 1.5f, -4f},
                 new float[]{2, 1, 1});
         config.setFramesPerSecondLB(2);
@@ -211,7 +219,7 @@ public class GLRenderer implements GLSurfaceView.Renderer {
         config = new FlipBookConfig(3,
                 bindings[3],
                 (SixWayLighting) bindings[3].material,
-                new float[]{16, 31},
+                new int[]{16, 31},
                 new float[]{0f, 1.5f, -3f},
                 new float[]{2, 1, 1});
         config.setFramesPerSecondLB(2);
@@ -236,7 +244,7 @@ public class GLRenderer implements GLSurfaceView.Renderer {
         config = new FlipBookConfig(4,
                 bindings[4],
                 (SixWayLighting) bindings[4].material,
-                new float[]{12, 28},
+                new int[]{12, 28},
                 new float[]{0f, 1.5f, -2f},
                 new float[]{2, 1, 1});
         config.setFramesPerSecondLB(2);
@@ -261,7 +269,7 @@ public class GLRenderer implements GLSurfaceView.Renderer {
         config = new FlipBookConfig(5,
                 bindings[5],
                 (SixWayLighting) bindings[5].material,
-                new float[]{24, 27},
+                new int[]{24, 27},
                 new float[]{0f, 1.5f, -2f},
                 new float[]{2, 1, 1});
         config.setFramesPerSecondLB(2);
@@ -286,7 +294,7 @@ public class GLRenderer implements GLSurfaceView.Renderer {
         config = new FlipBookConfig(6,
                 bindings[6],
                 (SixWayLighting) bindings[6].material,
-                new float[]{16, 35},
+                new int[]{16, 35},
                 new float[]{0f, 1.5f, -2f},
                 new float[]{2, 1, 1});
         config.setFramesPerSecondLB(2);
@@ -311,7 +319,7 @@ public class GLRenderer implements GLSurfaceView.Renderer {
         config = new FlipBookConfig(7,
                 bindings[7],
                 (SixWayLighting) bindings[7].material,
-                new float[]{16, 22},
+                new int[]{16, 22},
                 new float[]{0f, 1.5f, -2f},
                 new float[]{2, 1, 1});
         config.setFramesPerSecondLB(2);
@@ -355,7 +363,7 @@ public class GLRenderer implements GLSurfaceView.Renderer {
         pointLight.setPosition(new float[]{-1.0f, -1.0f, 0f});
 
         DistantLight distantLight = new DistantLight();
-        distantLight.setIntensity(ColorUtils.getIntensity(255, 245, 235, 1.15f));
+        distantLight.setIntensity(ColorUtils.getIntensity(255, 255, 255, 1.0f));
       //  distantLight.setDirection(new float[]{-1, 0.4f, 0.1f});
         distantLight.setDirection(new float[]{-1, -0.4f, -0.2f});
 
@@ -384,7 +392,7 @@ public class GLRenderer implements GLSurfaceView.Renderer {
         scene.updateViewport();
         scene.camera.setFrustumAspect(aspect);
         scene.camera.update();
-        updateCameraMotionSensitivity();
+    //    updateCameraMotionSensitivity();
     }
 
 
@@ -392,8 +400,9 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 
     @Override
     public void onDrawFrame(GL10 gl) {
-        updateFPSText();
-        updateCameraText();
+      //  updateFPSText();
+       // updateCameraText();
+
         scene.adjustObjects();
         //scene.clear(0 / 255.0f, 0 / 255.0f, 0 / 255.0f, 1);
         scene.clear();

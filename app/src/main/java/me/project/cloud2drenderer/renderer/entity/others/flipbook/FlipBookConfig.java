@@ -13,7 +13,7 @@ public class FlipBookConfig {
 
     private SixWayLighting material;
 
-    private float[] shape = new float[2];
+    private int[] shape = new int[2];
 
     private float framesPerSecondUB;
 
@@ -93,7 +93,7 @@ public class FlipBookConfig {
         this.framesPerSecond = framesPerSecond;
     }
 
-    public FlipBookConfig(int id, MaterialBinding materialBinding, SixWayLighting material, float[] shape, float[] position, float[] scale) {
+    public FlipBookConfig(int id, MaterialBinding materialBinding, SixWayLighting material, int[] shape, float[] position, float[] scale) {
         this.id = id;
         setMaterialBinding(materialBinding);
         setMaterial(material);
@@ -200,12 +200,12 @@ public class FlipBookConfig {
         this.material = material;
     }
 
-    public float[] getShape() {
-        frameCnt = shape[0] * shape[1];
+    public int[] getShape() {
         return shape;
     }
 
-    public void setShape(float[] shape) {
+    public void setShape(int[] shape) {
+        frameCnt = shape[0]*shape[1];
         this.shape = shape;
     }
 

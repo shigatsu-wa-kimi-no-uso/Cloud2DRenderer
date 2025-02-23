@@ -87,6 +87,7 @@ public class GLVertexBufferManager {
         // FloatBuffer verticesData = verticesDataBytes.asFloatBuffer();
         // verticesData.put(data).position(0);
         assertBound();
+       // glBindVertexArray(0);
         bindVertexBuffer();
         glBufferData(GL_ARRAY_BUFFER, size, data, drawMethod);
         GLErrorUtils.assertNoError();
@@ -94,7 +95,8 @@ public class GLVertexBufferManager {
 
     public static void loadElementIndices(@NonNull ByteBuffer data,int drawMethod,int size){
         assertBound();
-        bindVertexBuffer();
+     //   bindVertexBuffer();
+       // glBindVertexArray(0);
         bindElementBuffer();
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, size, data, drawMethod);
         GLErrorUtils.assertNoError();
@@ -111,6 +113,7 @@ public class GLVertexBufferManager {
         assertBound();
         bindElementBuffer();
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, data.capacity()*Integer.BYTES, data, drawMethod);
+       // glBindVertexArray(currentVertexBuffer.vao);
         GLErrorUtils.assertNoError();
     }
 
@@ -143,6 +146,7 @@ public class GLVertexBufferManager {
 
     public static void loadVertexAttributeData(@NonNull FloatBuffer data,int drawMethod){
         assertBound();
+   //     glBindVertexArray(0);
         bindVertexBuffer();
         glBufferData(GL_ARRAY_BUFFER,
                 data.capacity() * Float.BYTES,

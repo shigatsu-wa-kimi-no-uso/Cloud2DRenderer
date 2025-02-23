@@ -155,7 +155,7 @@ public class SceneUtils {
         SequenceFrameRenderContext context = new SequenceFrameRenderContext();
         SequenceFrameParams seqFrameParams = new SequenceFrameParams();
         seqFrameParams.setCurrentFrameIndex(0);
-        seqFrameParams.setFlipBookShape(new float[]{8.0f,8.0f});
+        seqFrameParams.setFlipBookShape(new int[]{8,8});
         context.setSeqFrameParams(seqFrameParams);
         ab.transform = MatUtils.newTransform(position,new float[]{width,height,1});
         ab.context = context;
@@ -222,7 +222,7 @@ public class SceneUtils {
         context.setAmbientIntensity(new float[]{0.2f,0.2f,0.2f});
         SequenceFrameParams seqFrameParams = new SequenceFrameParams();
         seqFrameParams.setCurrentFrameIndex(0);
-        seqFrameParams.setFlipBookShape(new float[]{8.0f,8.0f});
+        seqFrameParams.setFlipBookShape(new int[]{8,8});
         context.setPosition(position);
         context.setScale(new float[]{width,height,1});
         context.setSeqFrameParams(seqFrameParams);

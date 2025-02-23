@@ -145,7 +145,6 @@ public class AssetLoader {
         //同名文件防止重复加载
         Bitmap bitmap = loadTextureBitmap(key);
         Texture texture = loadTexture(bitmap,key);
-        freeBitmap(key);
         return texture;
     }
 

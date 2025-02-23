@@ -21,6 +21,8 @@ package me.project.cloud2drenderer.renderer.procedure.binding.glresource.materia
          return status;
      }
 
+     abstract public void asyncLoad();
+
      abstract public void load();
 
      abstract public void create();

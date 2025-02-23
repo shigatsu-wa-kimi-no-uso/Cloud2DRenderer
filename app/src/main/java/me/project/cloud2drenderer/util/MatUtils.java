@@ -11,6 +11,10 @@ public class MatUtils {
     }
 
 
+    public static void arrayCopy(int[] dest,int[] src){
+        System.arraycopy(src, 0, dest, 0, src.length);
+    }
+
     public static void arrayCopy(float[] dest,float[] src){
         System.arraycopy(src, 0, dest, 0, src.length);
     }

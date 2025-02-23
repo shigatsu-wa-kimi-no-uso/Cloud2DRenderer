@@ -1,10 +1,15 @@
 #version 300 es
 precision mediump float;
-precision highp int;
+precision mediump int;
 
 struct PointLight {
     vec3 intensity;
     vec3 position;
+};
+
+struct SeqFrameParams {
+    float currFrameIndex; // 从0开始
+    ivec2 flipBookShape;
 };
 
 struct DistantLight{
@@ -17,10 +22,6 @@ struct SixWayLightingMap{
     sampler2D mapLBF; //left bottom front
 };
 
-struct SeqFrameParams {
-    float currFrameIndex; // 从0开始
-    vec2 flipBookShape;
-};
 
 
 in float vRatio;
@@ -30,8 +31,8 @@ in vec2 vTexCoords;
 in vec3 vPosition;
 in mat3 vTBNInversed;
 in mat3 vTBN;
-in float debug_val;
-
+in float debug_val1;
+in float debug_val2;
 
 out vec4 fragmentColor;
 
@@ -40,7 +41,7 @@ uniform vec3 uCloudAlbedo;
 uniform DistantLight uDistantLight;
 uniform sampler2D uFlipBookAlbedo;
 uniform SixWayLightingMap uFlipBookLightMap;
-
+uniform SeqFrameParams uSeqFrameParams;
 
 float getIntensityAttenuation(vec3 lightPos,vec3 litPoint){
     float dis = distance(lightPos,litPoint);
@@ -90,10 +91,17 @@ void main()
    // fragmentColor = vec4( TBN[2]*0.5+0.5,albedo.a);
     float alpha = albedo.a;
 
-    alpha = pow(alpha,1.0);
-    vec3 color = mix(vec3(1,1,1),distantLighting,alpha);
+   // alpha = pow(alpha,1.0/2.2);
 
-    fragmentColor = vec4(clamp(color,0.0,0.85),alpha);
-    //fragmentColor = vec4(uCloudAlbedo,0.5);
+    float d1 = floor(uSeqFrameParams.currFrameIndex*0.1);
+    float d2 = floor(uSeqFrameParams.currFrameIndex - d1*10.0);
+
+    vec3 color = mix(vec3(uCloudAlbedo),distantLighting,alpha);
+    color.r = pow(color.r,1.0/2.2);
+    color.g = pow(color.g,1.0/2.2);
+    color.b = pow(color.b,1.0/2.2);
+
+    fragmentColor = vec4(clamp(color,0.2,1.0),alpha);
+   // fragmentColor = vec4(vTexCoords,0,1);
 
 }

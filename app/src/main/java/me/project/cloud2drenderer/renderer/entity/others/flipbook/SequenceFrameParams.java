@@ -6,7 +6,7 @@ public class SequenceFrameParams {
 
     private float currentFrameIndex;
 
-    private float[] flipBookShape;
+    private int[] flipBookShape;
 
     private SequenceFrameStatus status = SequenceFrameStatus.IDLE;
 
@@ -53,11 +53,11 @@ public class SequenceFrameParams {
     }
 
     @ShaderUniform(uniformName = "flipBookShape")
-    public float[] getFlipBookShape() {
+    public int[] getFlipBookShape() {
         return flipBookShape;
     }
 
-    public void setFlipBookShape(float[] flipBookShape) {
+    public void setFlipBookShape(int[] flipBookShape) {
         this.flipBookShape = flipBookShape;
     }
 }

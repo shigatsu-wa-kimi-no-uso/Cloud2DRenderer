@@ -1,10 +1,10 @@
 #version 300 es
 precision mediump float;
-precision highp int;
+precision mediump int;
 
 struct SeqFrameParams {
     float currFrameIndex; // 从0开始
-    vec2 flipBookShape;
+    ivec2 flipBookShape;
 };
 
 
@@ -21,8 +21,8 @@ out vec3 vPosition;
 out mat3 vTBNInversed;
 out mat3 vTBN;
 
-out float debug_val;
-
+out float debug_val1;
+out float debug_val2;
 uniform vec3 uCloudAlbedo;
 uniform mat4 uModeling;
 uniform mat4 uModelIT;
@@ -31,24 +31,41 @@ uniform mat4 uProjection;
 uniform SeqFrameParams uSeqFrameParams;
 
 
-vec2 getTexCoords(vec2 originalTexCoords,vec2 flipBookShape,float currIndex){
+vec2 getTexCoords_old(vec2 originalTexCoords,vec2 flipBookShape,float currIndex){
     vec2 stridePerTile = vec2(1.0,1.0)/flipBookShape;
     vec2 relativeCoords = originalTexCoords*stridePerTile;
     float tileIndex = mod(currIndex, (flipBookShape.x*flipBookShape.y));
     float currTileV = flipBookShape.y - floor(tileIndex / flipBookShape.x) - 1.0;
     float currTileH = mod(tileIndex, flipBookShape.x);
+
     vec2 currTilePos = vec2(currTileH,currTileV);
-    vec2 currTileCoordTopLeft = currTilePos*stridePerTile;
-    vec2 texCoord = currTileCoordTopLeft  + relativeCoords;
+    vec2 currTileCoordBottomLeft = currTilePos*stridePerTile;
+    debug_val1 = currTileCoordBottomLeft.x;
+    debug_val2 =  currTileCoordBottomLeft.y;
+    vec2 texCoord = currTileCoordBottomLeft + relativeCoords;
     //  texCoord = relativeCoords + stridePerTile*vec2(7.0,0.0);
     return texCoord;
 }
 
+vec2 getTexCoords(vec2 originalTexCoords,ivec2 flipBookShape,int currIndex){
+    vec2 stridePerTile = vec2(1.0,1.0)/vec2(flipBookShape);
+    vec2 relativeCoords = originalTexCoords*stridePerTile;
+    int tileIndex = currIndex % (flipBookShape.x*flipBookShape.y);
+    int currTileV = flipBookShape.y - tileIndex / flipBookShape.x - 1;
+    int currTileH = tileIndex%flipBookShape.x;
+    vec2 currTilePos = vec2(currTileH,currTileV);
+    vec2 currTileCoordBottomLeft = currTilePos*stridePerTile;
+    //debug_val1 = currTileCoordBottomLeft.x;
+    //debug_val2 =  currTileCoordBottomLeft.y;
+    vec2 texCoord = currTileCoordBottomLeft + relativeCoords;
+    //  texCoord = relativeCoords + stridePerTile*vec2(7.0,0.0);
+    return texCoord;
+}
 
 void main()
 {
-    float currIndex = floor(uSeqFrameParams.currFrameIndex);
-    float nextIndex = ceil(uSeqFrameParams.currFrameIndex);
+    int currIndex = int(floor(uSeqFrameParams.currFrameIndex));
+    int nextIndex = int(ceil(uSeqFrameParams.currFrameIndex));
     vRatio = fract(uSeqFrameParams.currFrameIndex);
     vTexCoords = getTexCoords(aTexCoords, uSeqFrameParams.flipBookShape, currIndex);
     vNextTexCoords = getTexCoords(aTexCoords, uSeqFrameParams.flipBookShape, nextIndex);

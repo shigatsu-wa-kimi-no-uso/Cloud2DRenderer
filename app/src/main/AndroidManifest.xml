@@ -5,6 +5,7 @@
 
     <uses-feature android:name="android.hardware.opengles.aep" android:required="true"  />
     <application
+        android:debuggable="true"
         android:name=".Cloud2DRendererApplication"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"

@@ -22,6 +22,7 @@ import me.project.cloud2drenderer.renderer.procedure.binding.glresource.buffer.V
 import me.project.cloud2drenderer.renderer.procedure.binding.glresource.material.LoadStatus;
 import me.project.cloud2drenderer.renderer.procedure.binding.glresource.material.TextureBinder;
 import me.project.cloud2drenderer.renderer.procedure.binding.glresource.material.TextureLoader;
+import me.project.cloud2drenderer.renderer.procedure.binding.glresource.material.TextureSetter;
 import me.project.cloud2drenderer.renderer.procedure.binding.glresource.shader.AttributeBindingProcessor;
 import me.project.cloud2drenderer.renderer.procedure.binding.glresource.shader.ShaderBinder;
 import me.project.cloud2drenderer.renderer.procedure.binding.glresource.shader.UniformBindingProcessor;
@@ -94,8 +95,56 @@ public class SceneObjectLoader {
 
 
 
+    TextureLoader getTextureLoader(TextureSetter setter, String textureName, int unit){
+        return new TextureLoader(textureName,unit) {
+            @Override
+            public void asyncLoad(){
+                status = LoadStatus.LOADING;
+                Thread thread = new Thread( () -> {
+                    try {
+                        Thread.sleep(1000);
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
+                    load();
+                });
+                thread.start();
+            }
+            @Override
+            public void load() {
+                Log.d(tag, "loading texture bitmap " + textureName + "...");
+                if (assetLoader.loadTextureBitmap(textureName) != null) {
+                    Log.d(tag, "load texture bitmap " + textureName + " success.");
+                } else {
+                    Log.e(tag, "load texture bitmap " + textureName + " failed.");
+                }
+                status = LoadStatus.LOADED;
+            }
+
+            @Override
+            public void create() {
+                Texture texture = loadTexture(textureName);
+                Thread thread = new Thread( () -> {
+                    assetLoader.freeBitmap(textureName);
+                });
+                thread.start();
+                texture.unit = unit;
+                setter.setTexture(texture);
+             //   injectTexture(mb,texture);
+            }
+        };
+    }
+
+
     public void loadMaterial(@NonNull MaterialBinding mb) {
         assetLoader.loadShaderScript(mb.shaderName);
+
+        TextureLoader[] loaders = new TextureLoader[mb.textureNames.length];
+        for (int unit =0;unit<mb.textureNames.length;unit++) {
+            loaders[unit] = getTextureLoader(mb.textureSetters[unit],mb.textureNames[unit],unit+1);
+        }
+        mb.material.setTextureLoaders(loaders);
+/*
         if(!mb.deferredTextureLoading) {
             if (mb.textureNames != null) {
                 loadTextures(mb);
@@ -104,7 +153,7 @@ public class SceneObjectLoader {
             for (String textureName : mb.textureNames) {
                 Log.i(tag, "texture '" + textureName + "' loading deferred.");
             }
-        }
+        }*/
         mb.material = createMaterial(mb);
     }
 
@@ -123,12 +172,21 @@ public class SceneObjectLoader {
         material.setShader(shaderController.getShaderProgram(mb.shaderName));
         if(!mb.deferredTextureLoading) {
             if (mb.textureNames != null) {
-                injectTextures(mb);
+                TextureLoader[] loaders = mb.material.getTextureLoaders();
+                for(TextureLoader loader : loaders){
+                    loader.load();
+                    loader.create();
+                    mb.material.increaseLoadedTextureCount();
+                }
+               // injectTextures(mb);
             }
             material.setFullyLoaded(true);
         }else {
+            for (String textureName : mb.textureNames) {
+                Log.i(tag, "texture '" + textureName + "' loading deferred.");
+            }
             material.setFullyLoaded(false);
-            int unit = 0;
+          /*  int unit = 0;
             TextureLoader[] loaders = new TextureLoader[mb.textureNames.length];
             for (String textureName : mb.textureNames) {
                 unit++;
@@ -157,12 +215,13 @@ public class SceneObjectLoader {
                     @Override
                     public void create() {
                         Texture texture = loadTexture(textureName);
+                        assetLoader.freeBitmap(textureName);
                         texture.unit = unit;
                         injectTexture(mb,texture);
                     }
                 };
             }
-            material.setTextureLoaders(loaders);
+            material.setTextureLoaders(loaders);*/
         }
         return material;
     }
