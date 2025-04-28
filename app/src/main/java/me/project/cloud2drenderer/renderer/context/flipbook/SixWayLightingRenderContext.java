@@ -2,6 +2,7 @@ package me.project.cloud2drenderer.renderer.context.flipbook;
 
 import me.project.cloud2drenderer.renderer.entity.others.flipbook.SequenceFrameStatus;
 
+import android.opengl.GLUtils;
 import android.opengl.Matrix;
 import android.util.Log;
 
@@ -28,6 +29,7 @@ import me.project.cloud2drenderer.renderer.procedure.binding.glresource.material
 import me.project.cloud2drenderer.renderer.procedure.binding.glresource.shader.UniformFlag;
 import me.project.cloud2drenderer.renderer.procedure.binding.glresource.shader.UniformVar;
 import me.project.cloud2drenderer.renderer.procedure.binding.glresource.shader.annotation.ShaderUniform;
+import me.project.cloud2drenderer.util.ColorUtils;
 import me.project.cloud2drenderer.util.MatUtils;
 
 public class SixWayLightingRenderContext extends RenderContext {
@@ -340,6 +342,10 @@ public class SixWayLightingRenderContext extends RenderContext {
         seqFrameParams.updateCurrentFrameIndex(durationInSeconds, fps);
     }
 
+    void setFrameIndex(float frameIndex){
+        seqFrameParams.setCurrentFrameIndex(frameIndex);
+    }
+
 
 
     void updateTransform(float durationInSeconds) {
@@ -508,6 +514,24 @@ public class SixWayLightingRenderContext extends RenderContext {
         return oldStatus;
     }
 
+
+
+
+    float[] getDirection(float time){
+        float[] point = {0,0,0};
+        float scalar = 0.00000005f;
+     //   float[] point2 = {(float)Math.sin(scalar * time),-1,(float)Math.cos(scalar * time)};
+    //    float[] d = point2;
+      //  String t = String.format(Locale.getDefault(),"dir:(%.2f,%.2f,%.2f)",d[0],d[1],d[2]);
+       // Log.w(tag,t);
+        float[] rotation = MatUtils.newRotationMatrix(50,20,55);
+        float[] dir = {0,0,-1,0};
+        dir = MatUtils.matVecMultiply(rotation,dir,4);
+        double theta = Math.toRadians(time*scalar);
+        float[] point2 ={(float)Math.sin(theta),0,(float)Math.cos(theta)};
+        return MatUtils.normalized(dir);
+    }
+
     @Override
     public void adjustContext() {
         updateSequenceFrameStatus();
@@ -515,6 +539,10 @@ public class SixWayLightingRenderContext extends RenderContext {
         Material material = getMaterial();
         float fps = currentFlipBookConfig.getFramesPerSecond();
         float duration = timer.getDurationInSecondsAndReset();
+        float[] d = getDirection(timer.getTick());
+        distantLight.setDirection(d);
+
+        commitUniformAssignment(distantLight.manualCommits.directionWrapper);
         switch (currentStatus){
             case IDLE:
                 updateFrameIndex(duration,fps);
@@ -526,6 +554,7 @@ public class SixWayLightingRenderContext extends RenderContext {
             case PLAYING:
                 updateTransform(duration); //需要更新transform, 因为每个context对应的transform均不同
                 updateFrameIndex(duration,fps);
+                setFrameIndex(0);
                 break;
             case ENDING:
                 zeroTransform();

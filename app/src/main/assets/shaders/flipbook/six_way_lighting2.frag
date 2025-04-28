@@ -50,9 +50,13 @@ float getIntensityAttenuation(vec3 lightPos,vec3 litPoint){
 }
 
 vec3 computeSixWayLighting(vec3 sampledRTF, vec3 sampledLBB, vec3 lightDir, vec3 lightColor) {
+
+    vec3 l = abs(lightDir);
+    lightDir/=l.x+l.y+l.z;
     vec3 clampedDir = clamp(lightDir, vec3(0.0,0.0,0.0), vec3(1.0,1.0,1.0));
     vec3 clampedNegDir = clamp(-lightDir, vec3(0.0,0.0,0.0), vec3(1.0,1.0,1.0));
     vec3 factor = sampledRTF * clampedDir + sampledLBB * clampedNegDir;
+
     return lightColor*(factor.x+factor.y+factor.z);
 }
 //R = FX+FY+FZ
@@ -95,13 +99,19 @@ void main()
 
     float d1 = floor(uSeqFrameParams.currFrameIndex*0.1);
     float d2 = floor(uSeqFrameParams.currFrameIndex - d1*10.0);
-
     vec3 color = mix(vec3(uCloudAlbedo),distantLighting,alpha);
-    color.r = pow(color.r,1.0/2.2);
-    color.g = pow(color.g,1.0/2.2);
-    color.b = pow(color.b,1.0/2.2);
+ //   color.r = pow(color.r,1.0/2.2);
+  //  color.g = pow(color.g,1.0/2.2);
+   // color.b = pow(color.b,1.0/2.2);
+   // albedo =  pow(albedo,1.0/2.2);
 
-    fragmentColor = vec4(clamp(color,0.2,1.0),alpha);
-   // fragmentColor = vec4(vTexCoords,0,1);
+//    vec3 color = mix(vec3(uCloudAlbedo),distantLighting,alpha);
+  //  color.r = pow(color.r,1.0/2.2);
+   // color.g = pow(color.g,1.0/2.2);
+   // color.b = pow(color.b,1.0/2.2);
+
+    fragmentColor = vec4(distantLighting.rgb,alpha);
+  //  fragmentColor = vec4(clamp(color,0.2,1.0),alpha);
+  //  fragmentColor = vec4(vTexCoords,0,1);
 
 }

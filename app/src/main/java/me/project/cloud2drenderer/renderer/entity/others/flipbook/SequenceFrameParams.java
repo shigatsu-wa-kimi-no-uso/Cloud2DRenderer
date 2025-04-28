@@ -48,6 +48,9 @@ public class SequenceFrameParams {
     }
 
 
+
+
+
     public void increaseCurrentFrameIndex(float increment) {
         this.currentFrameIndex += increment;
     }

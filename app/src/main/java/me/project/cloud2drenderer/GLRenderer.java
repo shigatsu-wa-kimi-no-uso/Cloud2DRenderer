@@ -146,14 +146,48 @@ public class GLRenderer implements GLSurfaceView.Renderer {
                 bindings[0],
                 (SixWayLighting) bindings[0].material,
                 new int[]{16, 32},
-                new float[]{-1f, 1.5f, -2f},
+                new float[]{2f, 1.5f, -2f},
+               // new float[]{-1f, 1.5f, -2f},
                 new float[]{2, 1, 1});
         config.setFramesPerSecondLB(2);
         config.setFramesPerSecondUB(6);
-        config.setRefreshPositionLB(new float[]{-1, 1.5f, 0});
-        config.setRefreshPositionUB(new float[]{0f, 1.5f, 0});
-        config.setScaleUB(2);
-        config.setScaleLB(1);
+        config.setRefreshPositionLB(new float[]{0.5f, 1.5f, 0});
+        config.setRefreshPositionUB(new float[]{0.5f, 1.5f, 0});
+      //  config.setRefreshPositionLB(new float[]{-1, 1.5f, 0});
+       // config.setRefreshPositionUB(new float[]{0f, 1.5f, 0});
+        config.setScaleUB(1.5f);
+        config.setScaleLB(1.5f);
+      //  config.setScaleUB(2);
+     //  config.setScaleLB(1f);
+        config.setVelocityLB(0);
+        config.setVelocityUB(0);
+        config.setMoveDirection(new float[]{1,0,0});
+   //     flipBookConfigs.add(config);
+       // cumulos.add(bindings[0]);
+
+        bindings[0] = getSixWayLightingMaterialBinding(
+                "cloud/presentation_Albedo",
+                "cloud/presentation_A",
+                "cloud/presentation_B",
+                "flipbook/six_way_lighting2");
+
+        config = new FlipBookConfig(0,
+                bindings[0],
+                (SixWayLighting) bindings[0].material,
+                new int[]{1, 1},
+                new float[]{0f, 1.5f, -2f},
+                // new float[]{-1f, 1.5f, -2f},
+                new float[]{2, 1, 1});
+        config.setFramesPerSecondLB(2);
+        config.setFramesPerSecondUB(6);
+        config.setRefreshPositionLB(new float[]{0.25f, 1.5f, 0});
+        config.setRefreshPositionUB(new float[]{0.25f, 1.5f, 0});
+        //  config.setRefreshPositionLB(new float[]{-1, 1.5f, 0});
+        // config.setRefreshPositionUB(new float[]{0f, 1.5f, 0});
+        config.setScaleUB(1f);
+        config.setScaleLB(1f);
+        //  config.setScaleUB(2);
+        //  config.setScaleLB(1f);
         config.setVelocityLB(0);
         config.setVelocityUB(0);
         config.setMoveDirection(new float[]{1,0,0});
@@ -174,8 +208,12 @@ public class GLRenderer implements GLSurfaceView.Renderer {
                 new float[]{2, 1f, 1});
         config.setFramesPerSecondLB(2);
         config.setFramesPerSecondUB(6);
+       // config.setRefreshPositionLB(new float[]{0.25f, 3.5f, 0f});
+        //config.setRefreshPositionUB(new float[]{0.25f, 3.5f, 0f});
         config.setRefreshPositionLB(new float[]{-1, 1.5f, 0});
         config.setRefreshPositionUB(new float[]{0f, 1.5f, 0});
+      //  config.setScaleLB(1.2f);
+       // config.setScaleUB(1.2f);
         config.setScaleUB(2);
         config.setScaleLB(1);
         config.setVelocityLB(0);
@@ -224,10 +262,14 @@ public class GLRenderer implements GLSurfaceView.Renderer {
                 new float[]{2, 1, 1});
         config.setFramesPerSecondLB(2);
         config.setFramesPerSecondUB(6);
-        config.setRefreshPositionLB(new float[]{-0.5f, 1.5f, 0});
+        config.setRefreshPositionLB(new float[]{0f, 1.5f, 0});
         config.setRefreshPositionUB(new float[]{0f, 1.5f, 0});
-        config.setScaleUB(2);
-        config.setScaleLB(0.85f);
+       // config.setRefreshPositionLB(new float[]{-0.5f, 1.5f, 0});
+        //config.setRefreshPositionUB(new float[]{0f, 1.5f, 0});
+         config.setScaleUB(1f);
+         config.setScaleLB(1f);
+       // config.setScaleUB(2);
+     //   config.setScaleLB(0.85f);
         config.setVelocityLB(0);
         config.setVelocityUB(1/32f);
         config.setMoveDirection(new float[]{1,0,0});
@@ -363,20 +405,23 @@ public class GLRenderer implements GLSurfaceView.Renderer {
         pointLight.setPosition(new float[]{-1.0f, -1.0f, 0f});
 
         DistantLight distantLight = new DistantLight();
-        distantLight.setIntensity(ColorUtils.getIntensity(255, 255, 255, 1.0f));
+        distantLight.setIntensity(ColorUtils.getIntensity(255, 255, 255, 1.5f));
       //  distantLight.setDirection(new float[]{-1, 0.4f, 0.1f});
-        distantLight.setDirection(new float[]{-1, -0.4f, -0.2f});
-
+     //   distantLight.setDirection(new float[]{-1, -0.4f, -0.2f});
+        distantLight.setDirection(new float[]{0, 0f, 0f});
         float[] color1 = ColorUtils.normalizeColor(255,255,255);
         float[] color2 = ColorUtils.normalizeColor(255,255,255);
         float[] color3 = ColorUtils.normalizeColor(255,255,255);
         float[] color4 = ColorUtils.normalizeColor(255,255,255);
-        scene.load(getBackgroundAssetBinding("sky",new float[]{3.5f,6.5f,1},new float[]{0,1.8f,-5.0f}));
+      //  scene.load(getBackgroundAssetBinding("sky",new float[]{3.5f,6.5f,1},new float[]{0,1.8f,-5.0f}));
         int[] totalTakenCnt = new int[1];
+
+       // scene.load(getCubeAssetBinding(2,new float[]{2,2,2},new float[]{0,0,0}));
         scene.load(getBillboardAssetBinding("billboard1", flipBookConfigs,0, 0,totalTakenCnt,color1,0,-2.2f,-2f, pointLight, distantLight));
-        scene.load(getBillboardAssetBinding("billboard2", flipBookConfigs,1, 1,totalTakenCnt,color2,8,-2.55f,-2.35f, pointLight, distantLight));
-        scene.load(getBillboardAssetBinding("billboard3", flipBookConfigs, 2,2,totalTakenCnt,color3, 12,-2.9f,-2.7f,pointLight, distantLight));
-        scene.load(getBillboardAssetBinding("billboard4", flipBookConfigs, 3,3,totalTakenCnt,color4,16 ,-3.25f,-3.05f,pointLight, distantLight));
+
+   //     scene.load(getBillboardAssetBinding("billboard2", flipBookConfigs,1, 3,totalTakenCnt,color2,8,-2.55f,-2.35f, pointLight, distantLight));
+      //  scene.load(getBillboardAssetBinding("billboard3", flipBookConfigs, 2,2,totalTakenCnt,color3, 12,-2.9f,-2.7f,pointLight, distantLight));
+      //  scene.load(getBillboardAssetBinding("billboard4", flipBookConfigs, 3,3,totalTakenCnt,color4,16 ,-3.25f,-3.05f,pointLight, distantLight));
         //scene.load(getBillboardAssetBinding("billboard2",flipbookConfigs, pointLight,distantLight));
         //   scene.load(getBillboardAssetBinding("billboard3",flipbookConfigs, pointLight,distantLight));
         totalTakenCnt[0] = 4;
@@ -404,7 +449,7 @@ public class GLRenderer implements GLSurfaceView.Renderer {
        // updateCameraText();
 
         scene.adjustObjects();
-        //scene.clear(0 / 255.0f, 0 / 255.0f, 0 / 255.0f, 1);
+        scene.clear(0 / 255.0f, 0 / 255.0f, 0 / 255.0f, 1);
         scene.clear();
         scene.draw();
         count++;
