@@ -7,11 +7,14 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
+
     <android.opengl.GLSurfaceView
         android:id="@+id/glSurfaceView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:visibility="visible"></android.opengl.GLSurfaceView>
+        android:visibility="visible"
+        tools:layout_editor_absoluteX="0dp"
+        tools:layout_editor_absoluteY="0dp"></android.opengl.GLSurfaceView>
 
     <TextView
         android:id="@+id/fpsTextView"
@@ -21,7 +24,7 @@
         android:text="FPS:%.2f"
         android:textColor="@color/gray"
         android:textSize="20sp"
-        android:visibility="visible"
+        android:visibility="invisible"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -35,7 +38,7 @@
         android:text="CameraPos:%s\nOrient:%s"
         android:textColor="@color/gray"
         android:textSize="20sp"
-        android:visibility="visible"
+        android:visibility="invisible"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -44,7 +47,7 @@
         android:layout_width="50dp"
         android:layout_height="50dp"
         android:scaleType="fitCenter"
-        android:visibility="visible"
+        android:visibility="invisible"
         app:layout_constraintBottom_toBottomOf="@+id/glSurfaceView"
         app:layout_constraintStart_toStartOf="parent"
         app:srcCompat="@drawable/move" />
@@ -54,7 +57,7 @@
         android:layout_width="50dp"
         android:layout_height="50dp"
         android:scaleType="fitCenter"
-        android:visibility="visible"
+        android:visibility="invisible"
         app:layout_constraintBottom_toBottomOf="@+id/glSurfaceView"
         app:layout_constraintStart_toEndOf="@id/moveImageButton"
         app:srcCompat="@drawable/rotate" />
@@ -64,7 +67,7 @@
         android:layout_width="50dp"
         android:layout_height="50dp"
         android:scaleType="fitCenter"
-        android:visibility="visible"
+        android:visibility="invisible"
         app:layout_constraintBottom_toBottomOf="@+id/glSurfaceView"
         app:layout_constraintStart_toEndOf="@id/rotateImageButton"
         app:srcCompat="@drawable/up_down" />
@@ -74,10 +77,217 @@
         android:layout_width="50dp"
         android:layout_height="50dp"
         android:scaleType="fitCenter"
-        android:visibility="visible"
+        android:visibility="invisible"
         app:layout_constraintBottom_toBottomOf="@+id/glSurfaceView"
         app:layout_constraintStart_toEndOf="@id/upDownImageButton"
         app:srcCompat="@drawable/camera_back" />
+
+    <SeekBar
+        android:id="@+id/seekBar_LightRotateX"
+        android:layout_width="210dp"
+        android:layout_height="24dp"
+        android:max="180"
+        android:min="-180"
+        app:layout_constraintBottom_toTopOf="@+id/seekBar_LightRotateY"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.333"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView2"
+        app:layout_constraintVertical_bias="0.25" />
+
+    <SeekBar
+        android:id="@+id/seekBar_LightRotateY"
+        android:layout_width="210dp"
+        android:layout_height="24dp"
+        android:max="180"
+        android:min="0"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/seekBar_LightRotateX"
+        app:layout_constraintTop_toBottomOf="@+id/textView2"
+        app:layout_constraintVertical_bias="0.154" />
+
+    <SeekBar
+        android:id="@+id/seekBar_LightIntensity"
+        android:layout_width="210dp"
+        android:layout_height="28dp"
+        android:max="100"
+        android:min="0"
+        app:layout_constraintBottom_toTopOf="@+id/seekBar_PlaySpeed"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/seekBar_LightRotateY"
+        app:layout_constraintTop_toBottomOf="@+id/seekBar_LightRotateY"
+        app:layout_constraintVertical_bias="0.23" />
+
+    <SeekBar
+        android:id="@+id/seekBar_PlaySpeed"
+        android:layout_width="210dp"
+        android:layout_height="28dp"
+        android:max="100"
+        android:min="0"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="@+id/seekBar_LightIntensity"
+        app:layout_constraintTop_toBottomOf="@+id/textView6"
+        app:layout_constraintVertical_bias="0.026" />
+
+    <TextView
+        android:id="@+id/textView_LightRotateX"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="%d"
+        android:textColor="@color/gray"
+        android:textSize="16sp"
+        app:layout_constraintBottom_toBottomOf="@+id/seekBar_LightRotateX"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.086"
+        app:layout_constraintStart_toEndOf="@+id/seekBar_LightRotateX"
+        app:layout_constraintTop_toTopOf="@+id/seekBar_LightRotateX"
+        app:layout_constraintVertical_bias="0.0" />
+
+    <TextView
+        android:id="@+id/textView_LightRotateY"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="%d"
+        android:textColor="@color/gray"
+        android:textSize="16sp"
+        app:layout_constraintBottom_toBottomOf="@+id/seekBar_LightRotateY"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.086"
+        app:layout_constraintStart_toEndOf="@+id/seekBar_LightRotateY"
+        app:layout_constraintTop_toTopOf="@+id/seekBar_LightRotateY"
+        app:layout_constraintVertical_bias="0.0" />
+
+    <TextView
+        android:id="@+id/textView_LightIntensity"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="%.2f"
+        android:textColor="@color/gray"
+        android:textSize="20sp"
+        app:layout_constraintBottom_toBottomOf="@+id/seekBar_LightIntensity"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.086"
+        app:layout_constraintStart_toEndOf="@+id/seekBar_LightIntensity"
+        app:layout_constraintTop_toTopOf="@+id/seekBar_LightIntensity"
+        app:layout_constraintVertical_bias="0.0" />
+
+    <TextView
+        android:id="@+id/textView2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="方向"
+        android:textColor="@color/gray"
+        android:textSize="20sp"
+        app:layout_constraintBottom_toTopOf="@+id/textView6"
+        app:layout_constraintEnd_toEndOf="@+id/textView1"
+        app:layout_constraintHorizontal_bias="0.125"
+        app:layout_constraintStart_toStartOf="@+id/textView1"
+        app:layout_constraintTop_toBottomOf="@+id/textView1"
+        app:layout_constraintVertical_bias="0.0" />
+
+    <TextView
+        android:id="@+id/textView1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="光照控制"
+        android:textColor="@color/black"
+        android:textSize="24sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.012"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/glSurfaceView"
+        app:layout_constraintVertical_bias="0.672" />
+
+    <TextView
+        android:id="@+id/textView3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="方位角"
+        android:textColor="@color/gray"
+        android:textSize="16sp"
+        app:layout_constraintBottom_toBottomOf="@+id/seekBar_LightRotateX"
+        app:layout_constraintEnd_toStartOf="@+id/seekBar_LightRotateX"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="@+id/textView2"
+        app:layout_constraintTop_toTopOf="@+id/seekBar_LightRotateX"
+        app:layout_constraintVertical_bias="1.0" />
+
+    <TextView
+        android:id="@+id/textView4"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="天顶角"
+        android:textColor="@color/gray"
+        android:textSize="16sp"
+        app:layout_constraintBottom_toBottomOf="@+id/seekBar_LightRotateY"
+        app:layout_constraintEnd_toEndOf="@+id/textView3"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/textView3"
+        app:layout_constraintTop_toTopOf="@+id/seekBar_LightRotateY"
+        app:layout_constraintVertical_bias="1.0" />
+
+    <TextView
+        android:id="@+id/textView5"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="强度"
+        android:textColor="@color/gray"
+        android:textSize="20sp"
+        app:layout_constraintBottom_toBottomOf="@+id/seekBar_LightIntensity"
+        app:layout_constraintEnd_toEndOf="@+id/textView2"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/textView2"
+        app:layout_constraintTop_toTopOf="@+id/seekBar_LightIntensity"
+        app:layout_constraintVertical_bias="0.0" />
+
+    <TextView
+        android:id="@+id/textView6"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="播放控制"
+        android:textColor="@color/black"
+        android:textSize="24sp"
+        app:layout_constraintBottom_toBottomOf="@+id/glSurfaceView"
+        app:layout_constraintEnd_toEndOf="@+id/textView1"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/textView1"
+        app:layout_constraintTop_toBottomOf="@+id/textView1"
+        app:layout_constraintVertical_bias="0.605" />
+
+    <TextView
+        android:id="@+id/textView7"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="倍速"
+        android:textColor="@color/gray"
+        android:textSize="20sp"
+        app:layout_constraintBottom_toBottomOf="@+id/seekBar_PlaySpeed"
+        app:layout_constraintEnd_toEndOf="@+id/textView6"
+        app:layout_constraintHorizontal_bias="0.125"
+        app:layout_constraintStart_toStartOf="@+id/textView6"
+        app:layout_constraintTop_toTopOf="@+id/seekBar_PlaySpeed"
+        app:layout_constraintVertical_bias="0.0" />
+
+    <TextView
+        android:id="@+id/textView_PlaySpeed"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="%.f"
+        android:textColor="@color/gray"
+        android:textSize="20sp"
+        app:layout_constraintBottom_toBottomOf="@+id/seekBar_PlaySpeed"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.086"
+        app:layout_constraintStart_toEndOf="@+id/seekBar_PlaySpeed"
+        app:layout_constraintTop_toTopOf="@+id/seekBar_PlaySpeed"
+        app:layout_constraintVertical_bias="1.0" />
+
+
+
 
     <!-- <TextView
          android:id="@+id/text"

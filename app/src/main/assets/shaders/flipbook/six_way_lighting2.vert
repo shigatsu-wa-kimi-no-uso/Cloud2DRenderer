@@ -71,8 +71,9 @@ void main()
     vNextTexCoords = getTexCoords(aTexCoords, uSeqFrameParams.flipBookShape, nextIndex);
     vPosition = vec3(uModeling * vec4(aPosition,1.0));
     mat3 modelIT = mat3(uModelIT);
-    vec3 T = normalize(aTangent);
-    vec3 B = normalize(aBitangent);
+    mat3 modeling = mat3(uModeling);
+    vec3 T = normalize(modeling * aTangent);
+    vec3 B = normalize(modeling * aBitangent);
     vec3 N = normalize(modelIT * aNormal);
     vTBN = mat3(T, B, N);
     vTBNInversed = transpose(mat3(T, B, N));

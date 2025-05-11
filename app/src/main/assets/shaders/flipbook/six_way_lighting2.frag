@@ -37,7 +37,7 @@ in float debug_val2;
 out vec4 fragmentColor;
 
 uniform vec3 uCloudAlbedo;
-//uniform PointLight uPointLight;
+// uniform PointLight uPointLight;
 uniform DistantLight uDistantLight;
 uniform sampler2D uFlipBookAlbedo;
 uniform SixWayLightingMap uFlipBookLightMap;
@@ -97,12 +97,21 @@ void main()
 
    // alpha = pow(alpha,1.0/2.2);
 
+
     float d1 = floor(uSeqFrameParams.currFrameIndex*0.1);
     float d2 = floor(uSeqFrameParams.currFrameIndex - d1*10.0);
-    vec3 color = mix(vec3(uCloudAlbedo),distantLighting,alpha);
- //   color.r = pow(color.r,1.0/2.2);
-  //  color.g = pow(color.g,1.0/2.2);
-   // color.b = pow(color.b,1.0/2.2);
+    //alpha = 1.0;
+
+    distantLighting.r = pow(distantLighting.r,1.0/2.2);
+    distantLighting.g = pow(distantLighting.g,1.0/2.2);
+    distantLighting.b = pow(distantLighting.b,1.0/2.2);
+   // alpha =  pow(alpha,1.0/2.2);
+  //  albedo.r = pow(albedo.r,1.0/2.2);
+   // albedo.g = pow(albedo.g,1.0/2.2);
+   // albedo.b = pow(albedo.b,1.0/2.2);
+    vec3 color = distantLighting.rgb;
+
+ // vec3 color = mix(uCloudAlbedo.rgb,distantLighting.rgb,alpha);
    // albedo =  pow(albedo,1.0/2.2);
 
 //    vec3 color = mix(vec3(uCloudAlbedo),distantLighting,alpha);
@@ -110,8 +119,8 @@ void main()
    // color.g = pow(color.g,1.0/2.2);
    // color.b = pow(color.b,1.0/2.2);
 
-    fragmentColor = vec4(distantLighting.rgb,alpha);
-  //  fragmentColor = vec4(clamp(color,0.2,1.0),alpha);
-  //  fragmentColor = vec4(vTexCoords,0,1);
+  //  fragmentColor = vec4(distantLighting.rgb,alpha);
+    //fragmentColor = vec4(distantLighting.rgb,alpha);
+    fragmentColor = vec4(color,alpha);
 
 }

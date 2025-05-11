@@ -7,7 +7,10 @@ import me.project.cloud2drenderer.util.MatUtils;
 
 public class FlipBookConfig {
 
+    private static float playSpeedMultiplier = 1.0f;
     private int id;
+
+
 
     private MaterialBinding materialBinding;
 
@@ -56,6 +59,21 @@ public class FlipBookConfig {
         this.id = id;
     }
 
+    public static float getPlaySpeedMultiplier() {
+        return playSpeedMultiplier;
+    }
+
+    public static void setPlaySpeedMultiplier(float playSpeedMultiplier) {
+        FlipBookConfig.playSpeedMultiplier = playSpeedMultiplier;
+    }
+
+    public static float getMaxPlaySpeedMultiplier() {
+        return 10.0f;
+    }
+
+    public static float getMinPlaySpeedMultiplier() {
+        return 0.0f;
+    }
 
     public void copy(FlipBookConfig dest) {
         dest.materialBinding = materialBinding;
@@ -86,7 +104,7 @@ public class FlipBookConfig {
     }
 
     public float getFramesPerSecond() {
-        return framesPerSecond;
+        return framesPerSecond*playSpeedMultiplier;
     }
 
     public void setFramesPerSecond(float framesPerSecond) {

@@ -6,11 +6,13 @@ import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageButton;
+import android.widget.SeekBar;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-public class InputController implements View.OnTouchListener, GestureDetector.OnGestureListener{
+public class InputController implements View.OnTouchListener, GestureDetector.OnGestureListener {
 
     private ImageButton moveImageButton;
     private ImageButton rotateImageButton;
@@ -19,12 +21,16 @@ public class InputController implements View.OnTouchListener, GestureDetector.On
 
     private GestureDetector gestureDetector;
 
+
+
     private CameraInputHandler cameraInputHandler;
 
     private InputMode currInputMode = InputMode.MOVE;
 
     private int[][] buttonColorTable;
     private ImageButton[] buttons;
+
+
 
     void initButtonColorTable(){
         int selectedColor = Color.argb(255, 255, 200, 0);
@@ -66,6 +72,8 @@ public class InputController implements View.OnTouchListener, GestureDetector.On
         gestureDetector = new GestureDetector(ctx, this);
         setCurrentInputMode(currInputMode);
     }
+
+
 
     public void setCameraInputHandler(CameraInputHandler cameraInputHandler){
         this.cameraInputHandler = cameraInputHandler;
@@ -112,7 +120,11 @@ public class InputController implements View.OnTouchListener, GestureDetector.On
 
     @Override
     public boolean onTouch(View v, MotionEvent event) {
+
         gestureDetector.onTouchEvent(event);
         return true;
     }
+
+
+
 }

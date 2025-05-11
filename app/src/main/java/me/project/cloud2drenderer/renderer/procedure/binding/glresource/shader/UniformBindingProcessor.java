@@ -279,7 +279,8 @@ public class UniformBindingProcessor {
                 } catch (IllegalAccessException e) {
                     String msg = String.format("Binding shader uniform variable \"%s\" failed!",uniformName);
                     Log.e(tag, msg);
-                    throw new RuntimeException(e);
+                    e.printStackTrace();
+                    continue;
                 }
             }else {
                 if (meta == null) {
@@ -312,7 +313,7 @@ public class UniformBindingProcessor {
                 assignmentMode = "manual assignment";
             }
             String msg = String.format(Locale.getDefault(),
-                    "Shader uniform variable \"%s\" has registered %s in %s@%d binding with \"%s\" %s.",
+                    "Shader uniform variable \"%s\" has been registered %s in %s@%d binding with \"%s\" %s.",
                     uniformName,
                     assignmentMode,
                     context.getClass().getSimpleName(),
@@ -330,6 +331,7 @@ public class UniformBindingProcessor {
             DebugUtils.assertNotNull(anno);
             String uniformName = uniformNamePrefix + anno.uniformName();
             ShaderVariableMeta meta = uniformMetas.get(uniformName);
+
             String methodName = fieldNamePrefix + method.getName();
 
             UniformFlag[] flags = anno.flags();
@@ -338,6 +340,7 @@ public class UniformBindingProcessor {
             for(UniformFlag flag : flags){
                 mask |= flag.mask;
             }
+
             //对于shader中的结构体，没有对应的metadata，只有结构体成员展开后的metadata
             if((mask&UniformFlag.IS_STRUCT.mask)!=0){
                 try {
@@ -346,9 +349,10 @@ public class UniformBindingProcessor {
                 } catch (Exception e) {
                     String msg = String.format("Binding shader uniform variable \"%s\" failed!",uniformName);
                     Log.e(tag, msg);
-                    throw new RuntimeException(e);
+                    e.printStackTrace();
+                    continue;
                 }
-            } else {
+            }else{
                 if (meta == null) {
                     String msg = String.format("Shader uniform variable \"%s\" has no metadata!",uniformName);
                     Log.e(tag, msg);
@@ -401,7 +405,7 @@ public class UniformBindingProcessor {
             }
             context.addAutoAssignedUniforms(setterWrapper);
             String msg = String.format(Locale.getDefault(),
-                    "Shader uniform variable \"%s\" has registered auto assignment in %s@%d binding with method \"%s\"",
+                    "Shader uniform variable \"%s\" has been registered auto assignment in %s@%d binding with method \"%s\"",
                     uniformName,context.getClass().getSimpleName(),
                     context.hashCode(),
                     methodName);

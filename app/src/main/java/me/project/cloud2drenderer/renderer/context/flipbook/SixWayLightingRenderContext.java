@@ -2,7 +2,6 @@ package me.project.cloud2drenderer.renderer.context.flipbook;
 
 import me.project.cloud2drenderer.renderer.entity.others.flipbook.SequenceFrameStatus;
 
-import android.opengl.GLUtils;
 import android.opengl.Matrix;
 import android.util.Log;
 
@@ -26,10 +25,10 @@ import me.project.cloud2drenderer.renderer.entity.shader.Shader;
 import me.project.cloud2drenderer.renderer.entity.texture.Texture;
 import me.project.cloud2drenderer.renderer.loader.AssetLoader;
 import me.project.cloud2drenderer.renderer.procedure.binding.glresource.material.TextureLoader;
+import me.project.cloud2drenderer.renderer.procedure.binding.glresource.shader.ShaderVariableSetterWrapper;
 import me.project.cloud2drenderer.renderer.procedure.binding.glresource.shader.UniformFlag;
 import me.project.cloud2drenderer.renderer.procedure.binding.glresource.shader.UniformVar;
 import me.project.cloud2drenderer.renderer.procedure.binding.glresource.shader.annotation.ShaderUniform;
-import me.project.cloud2drenderer.util.ColorUtils;
 import me.project.cloud2drenderer.util.MatUtils;
 
 public class SixWayLightingRenderContext extends RenderContext {
@@ -43,6 +42,7 @@ public class SixWayLightingRenderContext extends RenderContext {
     private final FlipBookConfig currentFlipBookConfig = new FlipBookConfig();
 
     private Vector<FlipBookConfig> flipBookConfigs;
+
 
     private AssetLoader assetLoader;
 
@@ -71,7 +71,11 @@ public class SixWayLightingRenderContext extends RenderContext {
 
     private float[] cloudAlbedo;
 
-    private DistantLight distantLight;
+    private static DistantLight distantLight;
+
+    private static final Vector<ShaderVariableSetterWrapper> staticUniformAssignments = new Vector<>(0);
+
+    private static boolean distantLightUpdated = false;
 
     private PointLight pointLight;
 
@@ -103,6 +107,18 @@ public class SixWayLightingRenderContext extends RenderContext {
         public final UniformVar<Integer> uFlipBookAlbedoWrapper = new UniformVar<>();
 
     }
+
+    @Override
+    public void applyUniformAssignments(){
+        super.applyUniformAssignments();
+        if(distantLightUpdated){
+            for(ShaderVariableSetterWrapper wrapper: staticUniformAssignments){
+                wrapper.apply();
+            }
+            distantLightUpdated = false;
+        }
+    }
+
 
     @ShaderUniform(flags = UniformFlag.IS_STRUCT)
     public final ManualCommitUniforms manualCommits = new ManualCommitUniforms();
@@ -144,6 +160,7 @@ public class SixWayLightingRenderContext extends RenderContext {
     public float getInitialIdleTime() {
         return initialIdleTime;
     }
+
 
     public AssetLoader getAssetLoader() {
         return assetLoader;
@@ -237,11 +254,14 @@ public class SixWayLightingRenderContext extends RenderContext {
         return distantLight;
     }
 
-    public void setDistantLight(DistantLight distantLight) {
-        this.distantLight = distantLight;
+    public static void setDistantLight(DistantLight light) {
+        distantLight = light;
     }
 
 
+    public static void updateDistinctLightToShader(){
+        distantLightUpdated = true;
+    }
 
 
 
@@ -490,12 +510,12 @@ public class SixWayLightingRenderContext extends RenderContext {
         switch (oldStatus) {
             case PLAYING:
                 if (isFlipbookOver(currentFlipBookConfig, seqFrameParams)) {
-                    switchSequenceFrameStatus(seqFrameParams, SequenceFrameStatus.ENDING);
+                    switchSequenceFrameStatus(seqFrameParams, SequenceFrameStatus.FINISHED);
                 }
                 break;
             case LOADING:
                 if (material.isFullyLoaded()) {
-                    switchSequenceFrameStatus(seqFrameParams, SequenceFrameStatus.PREPARING);
+                    switchSequenceFrameStatus(seqFrameParams, SequenceFrameStatus.PREPARED);
                 }
                 break;
             case IDLE:
@@ -503,10 +523,10 @@ public class SixWayLightingRenderContext extends RenderContext {
                     switchSequenceFrameStatus(seqFrameParams, SequenceFrameStatus.LOADING);
                 }
                 break;
-            case PREPARING:
+            case PREPARED:
                 switchSequenceFrameStatus(seqFrameParams, SequenceFrameStatus.PLAYING);
                 break;
-            case ENDING:
+            case FINISHED:
                 switchSequenceFrameStatus(seqFrameParams, SequenceFrameStatus.IDLE);
                 break;
         }
@@ -529,7 +549,7 @@ public class SixWayLightingRenderContext extends RenderContext {
         dir = MatUtils.matVecMultiply(rotation,dir,4);
         double theta = Math.toRadians(time*scalar);
         float[] point2 ={(float)Math.sin(theta),0,(float)Math.cos(theta)};
-        return MatUtils.normalized(dir);
+        return MatUtils.normalized(rotation);
     }
 
     @Override
@@ -539,24 +559,24 @@ public class SixWayLightingRenderContext extends RenderContext {
         Material material = getMaterial();
         float fps = currentFlipBookConfig.getFramesPerSecond();
         float duration = timer.getDurationInSecondsAndReset();
-        float[] d = getDirection(timer.getTick());
-        distantLight.setDirection(d);
+        //float[] d = getDirection(timer.getTick());
+       // distantLight.setDirection(d);
 
-        commitUniformAssignment(distantLight.manualCommits.directionWrapper);
+       // commitUniformAssignment(distantLight.manualCommits.directionWrapper);
         switch (currentStatus){
             case IDLE:
                 updateFrameIndex(duration,fps);
                 break;
-            case PREPARING:
+            case PREPARED:
                 updateTransform(duration);
                 commitFlipBookTextureUpdates();
                 break;
             case PLAYING:
                 updateTransform(duration); //需要更新transform, 因为每个context对应的transform均不同
                 updateFrameIndex(duration,fps);
-                setFrameIndex(0);
+            //    setFrameIndex(0);
                 break;
-            case ENDING:
+            case FINISHED:
                 zeroTransform();
                 resetSeqFrame();
                 updateFlipbookConfig();
@@ -616,6 +636,10 @@ public class SixWayLightingRenderContext extends RenderContext {
         commitUniformAssignment(distantLight.manualCommits.directionWrapper);
         commitUniformAssignment(distantLight.manualCommits.intensityWrapper);
         commitUniformAssignment(manualCommits.uCloudAlbedoWrapper);
-
+        if(staticUniformAssignments.size() >= 2){
+            return;
+        }
+        staticUniformAssignments.add(distantLight.manualCommits.directionWrapper.getUniformSetterWrapper());
+        staticUniformAssignments.add(distantLight.manualCommits.intensityWrapper.getUniformSetterWrapper());
     }
 }

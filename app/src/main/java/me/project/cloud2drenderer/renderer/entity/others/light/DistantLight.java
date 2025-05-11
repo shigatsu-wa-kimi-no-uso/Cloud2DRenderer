@@ -1,12 +1,13 @@
 package me.project.cloud2drenderer.renderer.entity.others.light;
 
+import me.project.cloud2drenderer.renderer.context.RenderContext;
 import me.project.cloud2drenderer.renderer.procedure.binding.glresource.shader.UniformFlag;
 import me.project.cloud2drenderer.renderer.procedure.binding.glresource.shader.UniformVar;
 import me.project.cloud2drenderer.renderer.procedure.binding.glresource.shader.annotation.ShaderUniform;
 
 public class DistantLight {
 
-    private float[] intensity;
+    private float[] intensity = new float[]{1,1,1};
 
     private float[] direction;
 
@@ -35,10 +36,18 @@ public class DistantLight {
     }
 
 
-
     public void setIntensity(float[] intensity) {
-        this.intensity = intensity;
-        manualCommits.intensityWrapper.setValue(intensity);
+        this.intensity[0] = intensity[0];
+        this.intensity[1] = intensity[1];
+        this.intensity[2] = intensity[2];
+        manualCommits.intensityWrapper.setValue(this.intensity);
+    }
+
+    public void setIntensity(float intensity) {
+        this.intensity[0] = intensity;
+        this.intensity[1] = intensity;
+        this.intensity[2] = intensity;
+        manualCommits.intensityWrapper.setValue(this.intensity);
     }
 
    // @ShaderUniform(uniformName = "direction")
@@ -50,4 +59,8 @@ public class DistantLight {
         this.direction = direction;
         manualCommits.directionWrapper.setValue(direction);
     }
+
+
+
+
 }
